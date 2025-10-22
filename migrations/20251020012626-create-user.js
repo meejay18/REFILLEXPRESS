@@ -36,14 +36,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 'user',
       },
-      agreedToTerms: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
       isVerified: {
-        type: Sequelize.ENUM('true', 'false'),
-        defaultValue: 'false',
-        allowNull : true
+        type: Sequelize.BOOLEAN,
+        allowNull : true,
+        defaultValue: false
       },
       verifiedToken: {
         type: Sequelize.STRING,
