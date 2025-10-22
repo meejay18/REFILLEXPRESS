@@ -9,14 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      // a user can have one vendor profile if they are a vendor
-      User.hasOne(models.Vendor, {
-        foreignKey: 'userId',
-        as: 'vendor',
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      })
-
       // User.hasMany(models.orders, {
       //   foreignKey: 'userId',
       //   as: 'orders',
@@ -28,18 +20,58 @@ module.exports = (sequelize, DataTypes) => {
   User.init(
     {
       id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      email: DataTypes.STRING,
-      phoneNumber: DataTypes.STRING,
-      password: DataTypes.STRING,
-      isVerified: DataTypes.BOOLEAN,
-      role: DataTypes.STRING,
-      agreedToTerms: DataTypes.BOOLEAN,
-      verifiedToken: DataTypes.STRING,
-      verifiedTokenExpiredAt: DataTypes.DATE,
-      resetPasswordToken: DataTypes.STRING,
-      resetPasswordExpiredAt: DataTypes.DATE,
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      role: {
+        type: DataTypes.ENUM('user', 'vendor', 'courier', 'admin'),
+        allowNull: false,
+        defaultValue: 'user',
+        validate: {
+          isIn: [['user', 'vendor', 'courier', 'admin']],
+        },
+      },
+      verifiedToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      verifiedTokenExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
