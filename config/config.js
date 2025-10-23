@@ -4,7 +4,7 @@ module.exports = {
   development: {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASS || 'root',
-    database: process.env.DB_NAME || 'FINALPROJECT',
+    database: process.env.DB_NAME || 'REFILLEXPRESS',
     host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'mysql',
   },

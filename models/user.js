@@ -43,6 +43,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       isVerified: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
