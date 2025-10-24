@@ -282,6 +282,36 @@ exports.changePassword = async (req, res, next) => {
   const { oldPassword, newPassword, confirmPassword } = req.body
   try {
     const user = await User.findOne({ where: { id } })
+    if(!user) {
+      return res.status(404).json({
+        message: "User not found"
+      })
+    }
+
+
+    const checkOldPassword = await bcrypt.compare(oldPassword, user.password)
+    if(!checkOldPassword) {
+      return res.status(400).json({
+        message: "old Password incorrect"
+      })
+    }
+
+    if(newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: "new password incorrect"
+      })
+    }
+
+
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+    user.password = hashedPassword
+    await user.save()
+
+    return res.status(200).json({
+        message: "Password changed successfully"
+      })
   } catch (error) {
     next(error)
   }
