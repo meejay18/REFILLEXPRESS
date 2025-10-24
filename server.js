@@ -1,6 +1,8 @@
 const express = require('express')
 require('./models')
 const app = express()
+const cors = require("cors")
+app.use(cors("*"))
 app.use(express.json())
 
 const swaggerJSDoc = require('swagger-jsdoc')
