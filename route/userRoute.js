@@ -1,5 +1,6 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword } = require('../controller/userController')
+const { authentication } = require('../middleware/authentication')
 
 const route = express.Router()
 
@@ -327,6 +328,7 @@ route.post("/user/forgot-password", forgotPassword)
  *     summary: Reset user password
  *     description: This endpoint allows a user to reset their password using a valid token sent via email. The token is verified and, if valid, the password is updated.
  *     tags:
+ *       - User
  *       - Authentication
  *     parameters:
  *       - in: path
@@ -398,4 +400,80 @@ route.post("/user/forgot-password", forgotPassword)
  */
 
 route.post("/user/reset/password/:token", resetPassword)
+
+
+
+
+
+/**
+ * @swagger
+ * /api/v1/user/change-password:
+ *   put:
+ *     summary: Change user password
+ *     description: Allows an authenticated user to change their password by providing the old password, new password, and confirmation password.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *               - confirmPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 example: oldPassword123
+ *               newPassword:
+ *                 type: string
+ *                 example: newPassword456
+ *               confirmPassword:
+ *                 type: string
+ *                 example: newPassword456
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Password changed successfully
+ *       400:
+ *         description: Old password incorrect or passwords do not match
+ *         content:
+ *           application/json:
+ *             examples:
+ *               oldPasswordIncorrect:
+ *                 summary: Old password incorrect
+ *                 value:
+ *                   message: old Password incorrect
+ *               passwordMismatch:
+ *                 summary: New passwords do not match
+ *                 value:
+ *                   message: new password incorrect
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: User not found
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: An unexpected error occurred
+ */
+
+route.put("/user/change-password", authentication, changePassword)
 module.exports = route

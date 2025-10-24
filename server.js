@@ -3,17 +3,12 @@ require('./models')
 const app = express()
 app.use(express.json())
 
-
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
 const PORT = 3500
 
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
-
-
-
-
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -40,21 +35,27 @@ const swaggerDefinition = {
       description: 'Production server',
     },
   ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
+  tags: [
+    {
+      name: 'User',
+      description: 'Endpoints for user authentication, verification, and password management',
+    },
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
       },
     },
+  },
 
-      security: [
-      {
-        bearerAuth: [],
-      },
-    ],
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
 }
 
 const options = {
