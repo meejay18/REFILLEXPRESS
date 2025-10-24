@@ -7,6 +7,7 @@ module.exports = {
     database: process.env.DB_NAME || 'REFILLEXPRESS',
     host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'mysql',
+    port: process.env.DB_PORT,
   },
   test: {
     username: 'root',
