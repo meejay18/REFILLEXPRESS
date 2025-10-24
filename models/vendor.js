@@ -50,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'pending',
       },
       verificationDocuments: {
-        type: DataTypes.JSON,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       vendorImage: {
