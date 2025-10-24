@@ -43,7 +43,7 @@ module.exports = {
         defaultValue: 'pending',
       },
       verificationDocuments: {
-        type: Sequelize.JSON,
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       vendorImage: {
