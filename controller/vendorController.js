@@ -56,7 +56,7 @@ exports.vendorSignUp = async (req,res,next) => {
 }
 
 
-exports.verify = async (req, res, next) => {
+exports.verifyVendor = async (req, res, next) => {
   try {
     const { businessEmail, otp } = req.body
 
@@ -104,7 +104,7 @@ exports.verify = async (req, res, next) => {
   }
 }
 
-exports.resendOtp = async (req, res, next) => {
+exports.resendVendorOtp = async (req, res, next) => {
   const { businessEmail } = req.body
   try {
     const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail.toLowerCase() } })
@@ -124,8 +124,8 @@ exports.resendOtp = async (req, res, next) => {
       .toString()
       .padStart(6, '0')
 
-    user.otp = newOtp
-    user.otpExpiredAt = Date.now() + 1000 * 60 * 5
+    vendor.otp = newOtp
+    vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
 
     await vendor.save()
 
@@ -149,7 +149,7 @@ exports.resendOtp = async (req, res, next) => {
   }
 }
 
-exports.login = async (req, res, next) => {
+exports.Vendorlogin = async (req, res, next) => {
   const { businessEmail, password } = req.body
   try {
     const vendor = await Vendor.findOne({
@@ -196,7 +196,7 @@ exports.login = async (req, res, next) => {
   }
 }
 
-exports.forgotPassword = async (req, res, next) => {
+exports.vendorForgotPassword = async (req, res, next) => {
   try {
     const { businessEmail } = req.body
 
@@ -229,7 +229,7 @@ exports.forgotPassword = async (req, res, next) => {
     next(error)
   }
 }
-exports.resetPassword = async (req, res, next) => {
+exports.vendorResetPassword = async (req, res, next) => {
   const { token } = req.params
   const { newPassword, confirmPassword } = req.body
   try {
@@ -282,7 +282,7 @@ exports.resetPassword = async (req, res, next) => {
     next(error)
   }
 }
-exports.changePassword = async (req, res, next) => {
+exports.changeVendorPassword = async (req, res, next) => {
   const { id } = req.vendor
   const { oldPassword, newPassword, confirmPassword } = req.body
   try {
@@ -311,7 +311,7 @@ exports.changePassword = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(newPassword, salt)
 
-    user.password = hashedPassword
+    vendor.password = hashedPassword
     await vendor.save()
 
     return res.status(200).json({
