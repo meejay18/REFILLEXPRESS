@@ -16,7 +16,7 @@ module.exports = {
       businessEmail: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique : true
+        unique: true,
       },
       businessPhoneNumber: {
         type: Sequelize.STRING,
@@ -38,6 +38,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      otp: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
       verificationStatus: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
@@ -52,19 +60,19 @@ module.exports = {
       },
       pricePerKg: {
         type: Sequelize.FLOAT,
-        allowNull: false,
+        allowNull: true,
       },
       minimumOrder: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       openingTime: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       closingTime: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       isAvailable: {
         type: Sequelize.BOOLEAN,
