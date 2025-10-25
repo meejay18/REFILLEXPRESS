@@ -45,6 +45,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       verificationStatus: {
         type: DataTypes.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
@@ -59,19 +67,19 @@ module.exports = (sequelize, DataTypes) => {
       },
       pricePerKg: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: true,
       },
       minimumOrder: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       openingTime: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       closingTime: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       isAvailable: {
         type: DataTypes.BOOLEAN,
