@@ -46,6 +46,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
       verificationStatus: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
