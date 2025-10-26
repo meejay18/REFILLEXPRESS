@@ -1,41 +1,49 @@
-const emailSender = require ('../middleware/nodemailer');
-const { Vendor } = require ('../models');
-const bcrypt = require ('bcryptjs')
-const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require ('../utils/emailTemplate');
-const jwt = require ('jsonwebtoken');
+const emailSender = require('../middleware/nodemailer')
+const { Vendor } = require('../models')
+const bcrypt = require('bcryptjs')
+const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
+const jwt = require('jsonwebtoken')
 
-exports.vendorSignUp = async (req,res,next) => {
-    try {
-        const {businessName, businessEmail, businessPhoneNumber, businessAddress,firstName, lastName, password} = req.body
-         const existingVendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
-         console.log("Vendor model check:", Vendor);
+exports.vendorSignUp = async (req, res, next) => {
+  try {
+    const {
+      businessName,
+      businessEmail,
+      businessPhoneNumber,
+      businessAddress,
+      firstName,
+      lastName,
+      password,
+    } = req.body
+    const existingVendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
+    console.log('Vendor model check:', Vendor)
 
     if (existingVendor) {
       return res.status(400).json({
         message: 'Vendor already exists',
       })
     }
-      const salt = await bcrypt.genSalt(10)
-          const hashedPassword = await bcrypt.hash(password, salt)
-      
-          const otp = Math.round(Math.random() * 1e6)
-            .toString()
-            .padStart(6, '0')
-      
-          const newVendor = await Vendor.create({
-            businessName,
-            businessAddress,
-            businessPhoneNumber,
-            businessEmail: businessEmail?.toLowerCase(),
-            firstName,
-            lastName,
-            password: hashedPassword,
-            otp: otp,
-            otpExpiredAt: Date.now() + 1000 * 60 * 5,
-          })
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
 
-          const emailOptions = {
-      to: newVendor.businessEmail,
+    const otp = Math.round(Math.random() * 1e6)
+      .toString()
+      .padStart(6, '0')
+
+    const newVendor = await Vendor.create({
+      businessName,
+      businessAddress,
+      businessPhoneNumber,
+      businessEmail: businessEmail?.toLowerCase(),
+      firstName,
+      lastName,
+      password: hashedPassword,
+      otp: otp,
+      otpExpiredAt: Date.now() + 1000 * 60 * 5,
+    })
+
+    const emailOptions = {
+      email: newVendor.businessEmail,
       subject: 'Sign up successfull',
       html: signUpTemplate(otp, newVendor.businessName),
     }
@@ -49,12 +57,10 @@ exports.vendorSignUp = async (req,res,next) => {
         businessEmail: newVendor.businessEmail,
       },
     })
-
-    } catch (error) {
-        next(error)
-    }
+  } catch (error) {
+    next(error)
+  }
 }
-
 
 exports.verifyVendor = async (req, res, next) => {
   try {
@@ -211,7 +217,9 @@ exports.vendorForgotPassword = async (req, res, next) => {
       })
     }
 
-    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, { expiresIn: '20m' })
+    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
+      expiresIn: '20m',
+    })
 
     const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
 
@@ -286,27 +294,25 @@ exports.changeVendorPassword = async (req, res, next) => {
   const { id } = req.vendor
   const { oldPassword, newPassword, confirmPassword } = req.body
   try {
-    const vendor = await  Vendor.findOne({ where: { id } })
-    if(!vendor) {
+    const vendor = await Vendor.findOne({ where: { id } })
+    if (!vendor) {
       return res.status(404).json({
-        message: "  Vendor not found"
+        message: '  Vendor not found',
       })
     }
-
 
     const checkOldPassword = await bcrypt.compare(oldPassword, vendor.password)
-    if(!checkOldPassword) {
+    if (!checkOldPassword) {
       return res.status(400).json({
-        message: "old Password incorrect"
+        message: 'old Password incorrect',
       })
     }
 
-    if(newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return res.status(400).json({
-        message: "new password incorrect"
+        message: 'new password incorrect',
       })
     }
-
 
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(newPassword, salt)
@@ -315,8 +321,8 @@ exports.changeVendorPassword = async (req, res, next) => {
     await vendor.save()
 
     return res.status(200).json({
-        message: "Password changed successfully"
-      })
+      message: 'Password changed successfully',
+    })
   } catch (error) {
     next(error)
   }

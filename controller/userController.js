@@ -33,7 +33,7 @@ exports.signUp = async (req, res, next) => {
     })
 
     const emailOptions = {
-      to: newUser.email,
+      email: newUser.email,
       subject: 'Sign up successful',
       html: signUpTemplate(otp, newUser.firstName),
     }
