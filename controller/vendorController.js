@@ -7,7 +7,7 @@ const jwt = require ('jsonwebtoken');
 exports.vendorSignUp = async (req,res,next) => {
     try {
         const {businessName, businessEmail, businessPhoneNumber, businessAddress,firstName, lastName, password} = req.body
-         const existingVendor = await Vendor.findOne({ where: { businessEmail: businessEmail.toLowerCase() } })
+         const existingVendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
          console.log("Vendor model check:", Vendor);
 
     if (existingVendor) {
@@ -26,7 +26,7 @@ exports.vendorSignUp = async (req,res,next) => {
             businessName,
             businessAddress,
             businessPhoneNumber,
-            businessEmail: businessEmail.toLowerCase(),
+            businessEmail: businessEmail?.toLowerCase(),
             firstName,
             lastName,
             password: hashedPassword,
@@ -35,7 +35,7 @@ exports.vendorSignUp = async (req,res,next) => {
           })
 
           const emailOptions = {
-      businessEmail: newVendor.businessEmail,
+      to: newVendor.businessEmail,
       subject: 'Sign up successfull',
       html: signUpTemplate(otp, newVendor.businessName),
     }

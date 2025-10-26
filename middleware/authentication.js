@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const { User } = require('../models')
 const { Vendor } = require('../models')
 
-
 exports.authentication = async (req, res, next) => {
   try {
     const auth = req.headers.authorization
@@ -74,3 +73,23 @@ exports.vendorAuthentication = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.adminAuthentication = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: 'Unauthorized, no user found in request',
+      })
+    }
+    if (req.User.role !== 'admin') {
+      return res.status(403).json({
+        message: 'forbidden, only admins are allowed to carry out this action',
+      })
+    }
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
+
