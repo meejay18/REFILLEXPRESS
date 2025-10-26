@@ -33,19 +33,19 @@ const router = express.Router();
  *                 example: Digban Stores
  *               businessEmail:
  *                 type: string
- *                 example: digbanshop@gmail.com
+ *                 example: Martinsdeke@gmail.com
  *               businessPhoneNumber:
  *                 type: string
- *                 example: 09055674321
+ *                 example: 09069412639
  *               businessAddress:
  *                 type: string
  *                 example: 15 Adeniyi Jones, Ikeja Lagos
  *               firstName:
  *                 type: string
- *                 example: Mije
+ *                 example: Martins
  *               lastName:
  *                 type: string
- *                 example: Digban
+ *                 example: Deke
  *               password:
  *                 type: string
  *                 example: StrongPassword123!
@@ -65,13 +65,13 @@ const router = express.Router();
  *                   properties:
  *                     firstName:
  *                       type: string
- *                       example: Mije
+ *                       example: Martins
  *                     lastName:
  *                       type: string
- *                       example: Digban
+ *                       example: Deke
  *                     businessEmail:
  *                       type: string
- *                       example: digbanshop@gmail.com
+ *                       example: Martinsdeke@gmail.com
  *       400:
  *         description: Vendor already exists
  *         content:
@@ -103,10 +103,10 @@ router.post('/vendor',  vendorSignUp)
  *             properties:
  *               businessEmail:
  *                 type: string
- *                 example: digbanshop@gmail.com
+ *                 example: martinsdeke@gmail.com
  *               otp:
  *                 type: string
- *                 example: "123456"
+ *                 example: "148883"
  *     responses:
  *       200:
  *         description: Vendor verified successfully
@@ -182,7 +182,7 @@ router.post('/vendor/verify', verifyVendor)
  *             properties:
  *               businessEmail:
  *                 type: string
- *                 example: digbanshop@gmail.com
+ *                 example: martinsdeke@gmail.com
  *     responses:
  *       200:
  *         description: OTP resent successfully
@@ -199,7 +199,7 @@ router.post('/vendor/verify', verifyVendor)
  *                   properties:
  *                     businessEmail:
  *                       type: string
- *                       example: digbanshop@gmail.com
+ *                       example: martinsdeke@gmail.com
  *                     otpSent:
  *                       type: boolean
  *                       example: true
@@ -250,7 +250,7 @@ router.post('/vendor/resend-otp', resendVendorOtp)
  *             properties:
  *               businessEmail:
  *                 type: string
- *                 example: digbanshop@gmail.com
+ *                 example: Martinsdeke@gmail.com
  *               password:
  *                 type: string
  *                 example: StrongPassword123!
