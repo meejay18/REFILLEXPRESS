@@ -137,7 +137,7 @@ exports.resendVendorOtp = async (req, res, next) => {
     await vendor.save()
 
     const emailOptions = {
-      businessEmail: vendor.businessEmail,
+      email: vendor.businessEmail,
       subject: 'Sign up successful',
       html: resendOtpTemplate(newOtp, vendor.businessName),
     }
