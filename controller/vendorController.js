@@ -325,12 +325,12 @@ next(error)
 }
 }
 exports.vendorResetPassword = async (req, res, next) => {
-  const { newPassword, confirmPassword } = req.body
+  const { businessEmail, otp, newPassword, confirmPassword } = req.body
 
   try {
-    if (!newPassword || !confirmPassword) {
+    if (!businessEmail || !otp || !newPassword || !confirmPassword) {
       return res.status(400).json({
-        message: 'Please provide both passwords',
+        message: 'All fields are required',
       })
     }
 
@@ -340,51 +340,44 @@ exports.vendorResetPassword = async (req, res, next) => {
       })
     }
 
-    const authorizationHeader = req.headers.authorization
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      return res.status(400).json({
-        message: 'Authorization token missing or invalid format',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-    const vendor = await Vendor.findOne({ where: { id: decoded.id } })
+    const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail.toLowerCase() } })
     if (!vendor) {
       return res.status(404).json({
         message: 'Vendor not found',
       })
     }
 
-    if (!vendor.resetPasswordExpiredAt || Date.now() > vendor.resetPasswordExpiredAt) {
+    if (vendor.otp !== otp) {
       return res.status(400).json({
-        message: 'Reset link has expired',
+        message: 'Invalid OTP',
       })
     }
 
+    if (!vendor.otpExpiredAt || Date.now() > vendor.otpExpiredAt) {
+      return res.status(400).json({
+        message: 'OTP expired, please request a new one',
+      })
+    }
+
+    // Hashing new password
     const salt = await bcrypt.genSalt(10)
     vendor.password = await bcrypt.hash(newPassword, salt)
 
-    // Cleanup reset session
-    vendor.resetPasswordToken = null
-    vendor.resetPasswordExpiredAt = null
+    // Clear OTP session
+    vendor.otp = null
+    vendor.otpExpiredAt = null
 
     await vendor.save()
 
     return res.status(200).json({
       message: 'Password reset successfully',
     })
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(400).json({ message: 'Reset link has expired' })
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(400).json({ message: 'Invalid or malformed token' })
-    }
+
+ } catch (error) {
     next(error)
   }
 }
+
 
 exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
   try {
