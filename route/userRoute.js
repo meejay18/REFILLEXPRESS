@@ -1,5 +1,5 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 
 const route = express.Router()
@@ -275,9 +275,8 @@ route.post("/user/login", login)
  * /api/v1/user/forgot-password:
  *   post:
  *     summary: Request password reset
- *     description: Sends a password reset link to the user's registered email address if the account exists.
- *     tags:
- *       - Users
+ *     tags: [Users]
+ *     description: Sends a 6-digit OTP to the user's email to begin the password reset process.
  *     requestBody:
  *       required: true
  *       content:
@@ -289,11 +288,10 @@ route.post("/user/login", login)
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: mdigban@gmail.com
+ *                 example: johndoe@gmail.com
  *     responses:
  *       200:
- *         description: Forgot password request sent successfully
+ *         description: Reset password OTP sent successfully
  *         content:
  *           application/json:
  *             schema:
@@ -302,6 +300,7 @@ route.post("/user/login", login)
  *                 message:
  *                   type: string
  *                   example: forgot password request sent
+ *
  *       404:
  *         description: User not found
  *         content:
@@ -312,11 +311,58 @@ route.post("/user/login", login)
  *                 message:
  *                   type: string
  *                   example: User not found
+ *
  *       500:
  *         description: Internal server error
  */
+route.post('/user/forgot-password', forgotPassword);
 
-route.post("/user/forgot-password", forgotPassword)
+/**
+ * @swagger
+ * /api/v1/user/forgot-password/resend:
+ *   post:
+ *     summary: Resend OTP for resetting password
+ *     tags: [Users]
+ *     description: Resends a 6-digit OTP to the user's registered email for password reset verification.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: johndoe@gmail.com
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully for password reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: forgot password request sent
+ *
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *
+ *       500:
+ *         description: Internal server error
+ */
+route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
 
 
 
