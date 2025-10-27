@@ -187,7 +187,7 @@ const resendOtpTemplate = (newOtp, firstName) => {
     `
 }
 
-const forgotPasswordTemplate = (verifyLink, firstName) => {
+const forgotPasswordTemplate = (newOtp, firstName) => {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -265,7 +265,7 @@ const forgotPasswordTemplate = (verifyLink, firstName) => {
                  <p>A reset password was requested on your account</p>
                 <p>Please click the button below to reset your password</p>
                <div class="button-container">
-               <a href="${verifyLink}" class="button">Reset password</a>
+               <a href="${newOtp}" class="button">Reset password</a>
                 </div>
                 <p>If you did not request to reset your password, kindly ignore this email.</p>
                 <p>Best regards,<br>Refill Express</p>

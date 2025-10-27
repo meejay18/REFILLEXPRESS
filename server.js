@@ -5,6 +5,7 @@ const cors = require('cors')
 app.use(cors('*'))
 app.use(express.json())
 const morgan = require("morgan")
+app.use(morgan("dev"))
 
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
@@ -18,7 +19,6 @@ const orderRouter = require('./route/orderRoute')
 app.use('/api/v1', orderRouter)
 const adminRouter = require('./route/adminRoute')
 app.use('/api/v1', adminRouter)
-app.use(morgan("dev"))
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
