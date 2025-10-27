@@ -187,7 +187,7 @@ const resendOtpTemplate = (newOtp, firstName) => {
     `
 }
 
-const forgotPasswordTemplate = (verifyLink, firstName) => {
+const forgotPasswordTemplate = (newOtp, firstName) => {
   return `
     <!DOCTYPE html>
     <html lang="en">
