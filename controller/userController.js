@@ -144,6 +144,49 @@ exports.resendOtp = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.verifyOtp = async (req, res, next) => {
+  const { email, otp } = req.body
+  try {
+    const user = await User.findOne({ where: { email: email?.toLowerCase() } })
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        message: 'User already verified',
+      })
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        message: 'Invalid otp',
+      })
+    }
+
+    if (Date.now() > user.otpExpiredAt) {
+      return res.status(400).json({
+        message: 'otp expired, please request a new one',
+      })
+    }
+
+    user.isVerified = true
+    user.otp = null
+    user.otpExpiredAt = null
+
+    await user.save()
+
+    return res.status(200).json({
+      email: user.email,
+      message: 'Otp verified successfully',
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
   try {
@@ -282,26 +325,24 @@ exports.changePassword = async (req, res, next) => {
   const { oldPassword, newPassword, confirmPassword } = req.body
   try {
     const user = await User.findOne({ where: { id } })
-    if(!user) {
+    if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: 'User not found',
       })
     }
-
 
     const checkOldPassword = await bcrypt.compare(oldPassword, user.password)
-    if(!checkOldPassword) {
+    if (!checkOldPassword) {
       return res.status(400).json({
-        message: "old Password incorrect"
+        message: 'old Password incorrect',
       })
     }
 
-    if(newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return res.status(400).json({
-        message: "new password incorrect"
+        message: 'new password incorrect',
       })
     }
-
 
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(newPassword, salt)
@@ -310,8 +351,8 @@ exports.changePassword = async (req, res, next) => {
     await user.save()
 
     return res.status(200).json({
-        message: "Password changed successfully"
-      })
+      message: 'Password changed successfully',
+    })
   } catch (error) {
     next(error)
   }

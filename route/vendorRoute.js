@@ -1,6 +1,7 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
 const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor } = require('../controller/vendorController');
+const { verifyOtp } = require('../controller/userController');
 
 const router = express.Router();
 
@@ -682,6 +683,71 @@ router.get("/vendor/getAllvendors", getAllvendors)
 
 
 router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
+
+
+
+
+/**
+ * @swagger
+ * /api/v1/vendor/verify-otp:
+ *   post:
+ *     summary: Verify user account using OTP
+ *     description: Validates a user's OTP and marks their account as verified if successful.
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   example: user@example.com
+ *                 message:
+ *                   type: string
+ *                   example: Otp verified successfully
+ *       400:
+ *         description: Invalid or expired OTP / User already verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid otp
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
+
+
+router.post("/vendor/verify-otp", verifyOtp)
 
 
 module.exports = router
