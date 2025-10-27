@@ -1,5 +1,6 @@
 const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
+const { Order } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
@@ -66,7 +67,7 @@ exports.verifyVendor = async (req, res, next) => {
   try {
     const { businessEmail, otp } = req.body
 
-    const checkVendor = await Vendor.findOne({ where: { businessEmail: businessEmail.toLowerCase() } })
+    const checkVendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
     if (!checkVendor) {
       return res.status(404).json({
         message: 'Vendor not found',
@@ -160,7 +161,7 @@ exports.Vendorlogin = async (req, res, next) => {
   try {
     const vendor = await Vendor.findOne({
       where: {
-        businessEmail: businessEmail.toLowerCase(),
+        businessEmail: businessEmail?.toLowerCase(),
       },
     })
 
@@ -327,3 +328,51 @@ exports.changeVendorPassword = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getAllvendors = async (req, res, next) => {
+  try {
+    const vendors = await Vendor.findAll()
+
+    if (vendors.length === 0) {
+      return res.status(400).json({
+        message: 'No vendors found',
+        data: [],
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Vendors retrieved successfully',
+      data: vendors,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getOneVendor = async (req, res, next) => {
+  const { vendorId } = req.params
+  try {
+    const vendor = await Vendor.findByPk(vendorId)
+    if (!vendor) {
+      return res.status(404).json({
+        message: 'Vendor not foound',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Vendor retrieved successfully',
+      data: vendor,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// {
+//       include: [
+//         {
+//           model: Order,
+//           as: 'orders',
+//         },
+//       ],
+//     }

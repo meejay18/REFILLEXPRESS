@@ -1,6 +1,6 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword } = require('../controller/vendorController');
+const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor } = require('../controller/vendorController');
 
 const router = express.Router();
 
@@ -525,6 +525,163 @@ router.post('/vendor/reset-password/:token', vendorResetPassword)
  *         description: Internal server error
  */
 router.patch('/vendor/change-password', vendorAuthentication, changeVendorPassword)
+
+
+
+/**
+ * @swagger
+ * /api/v1/vendor/getAllvendors:
+ *   get:
+ *     summary: Retrieve all vendors
+ *     description: Fetches all registered vendors from the database.
+ *     tags: [Vendors]
+ *     responses:
+ *       200:
+ *         description: Vendors retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendors retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 2f1b5eac-b9f9-4a9c-a234-913f26f6c567
+ *                       businessName:
+ *                         type: string
+ *                         example: John's Electronics
+ *                       businessEmail:
+ *                         type: string
+ *                         example: john@electronics.com
+ *                       businessPhoneNumber:
+ *                         type: string
+ *                         example: +2348012345678
+ *                       businessAddress:
+ *                         type: string
+ *                         example: 23,Molade road, Ikeja
+ *                       status:
+ *                         type: string
+ *                         example: active
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-26T12:45:00Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-26T12:45:00Z
+ *       400:
+ *         description: No vendors found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No vendors found
+ *                 data:
+ *                   type: array
+ *                   example: []
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+
+router.get("/vendor/getAllvendors", getAllvendors)
+
+
+/**
+ * @swagger
+ * /vendor/getOneVendor/{vendorId}:
+ *   get:
+ *     summary: Retrieve a single vendor
+ *     description: Fetches a vendor from the database using the vendor's unique ID.
+ *     tags:
+ *       - Vendor
+ *     parameters:
+ *       - name: vendorId
+ *         in: path
+ *         required: true
+ *         description: The unique ID of the vendor to retrieve.
+ *         schema:
+ *           type: string
+ *           example: "13b515f6-bd91-4b0a-9d3e-e94b32ca5ab0"
+ *     responses:
+ *       200:
+ *         description: Vendor retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "13b515f6-bd91-4b0a-9d3e-e94b32ca5ab0"
+ *                     businessName:
+ *                       type: string
+ *                       example: "Bright Stores Ltd"
+ *                     businessEmail:
+ *                       type: string
+ *                       example: "contact@brightstores.com"
+ *                     businessPhoneNumber:
+ *                       type: string
+ *                       example: "09055674321"
+ *                     businessAddress:
+ *                       type: string
+ *                       example: "23 Obafemi Awolowo Road, Ikeja, Lagos"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-26T12:30:00.000Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-26T12:40:00.000Z"
+ *       404:
+ *         description: Vendor not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor not found
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An error occurred while retrieving the vendor
+ */
+
+
+router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 
 module.exports = router
