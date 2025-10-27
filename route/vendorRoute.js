@@ -788,6 +788,8 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  */
 
 
+router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpResend)
+
 // router.post("/vendor/verify-otp", verifyOtp)
 
 
