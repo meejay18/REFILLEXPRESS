@@ -155,6 +155,49 @@ exports.resendVendorOtp = async (req, res, next) => {
     next(error)
   }
 }
+exports.verifyVendorOtp = async (req,res,next) => {
+  const {businessEmail, otp} = req.body
+  try {
+ const vendor = await Vendor.findOne({
+      where: { businessEmail: businessEmail.toLowerCase() },
+    });
+    if (!vendor || !otp) {
+      return res.status(400).json({
+        message: 'Email and OTP required'
+      })
+    }
+    
+    if (!vendor) {
+      return res.status(400).json({
+        message: 'Vendor not found'
+      });
+    }
+    if (vendor.isVerified) {
+      return res.status(400).json({
+        message: 'Vendor already verified'
+      });
+    }
+    if (vendor.otp !== otp) {
+      return res.status(400).json({
+        message: 'Invalid Otp'
+      })
+    }
+     if (!vendor.otpExpiredAt || vendor.otpExpiredAt < Date.now()) {
+      return res.status(400).json({ message: 'OTP expired, please request a new one' })
+    }
+   vendor.isVerified = true
+   vendor.otp = null
+   vendor.otpExpiredat = true
+
+   await vendor.save()
+
+   return res.status(200).json({
+    message: 'OTP verified successfully'
+   })
+  } catch (error) {
+    next(error)
+  }
+}
 
 exports.Vendorlogin = async (req, res, next) => {
   const { businessEmail, password } = req.body
