@@ -9,17 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      // User.hasMany(models.orders, {
-      //   foreignKey: 'userId',
-      //   as: 'orders',
-      //   onUpdate: "CASCADE",
-      //   onDelete: "CASCADE",
-      // })
+      User.hasMany(models.Order, {
+        foreignKey: 'userId',
+        as: 'orders',
+      })
+
+      User.belongsToMany(models.Vendor, {
+        through: models.Order,
+        foreignKey: 'userId',
+        otherKey: 'vendorId',
+        as: 'vendors',
+      })
     }
   }
   User.init(
     {
-      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,
