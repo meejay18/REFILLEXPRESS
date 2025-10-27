@@ -218,16 +218,19 @@ exports.vendorForgotPassword = async (req, res, next) => {
       })
     }
 
-    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
-      expiresIn: '20m',
-    })
+    // const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
+    //   expiresIn: '20m',
+    // })
 
-    const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
+    // const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
 
+    const newOtp = Math.round(Math.random() * 1e6)
+      .toString()
+      .padStart(6, '0')
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Reset password',
-      html: forgotPasswordTemplate(link, vendor.firstName),
+      html: forgotPasswordTemplate(newOtp, vendor.firstName),
     }
 
     await emailSender(emailOptions)
@@ -289,6 +292,41 @@ exports.vendorResetPassword = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid or malformed token' })
     }
     next(error)
+  }
+}
+
+exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
+  try {
+    const { businessEmail } = req.body
+
+    const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
+    if (!vendor) {
+      return res.status(404).json({
+        message: 'Vendor not found',
+      })
+    }
+
+    const newOtp = Math.round(Math.random() * 1e6)
+      .toString()
+      .padStart(6, '0')
+
+    vendor.otp = newOtp
+    vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
+
+    await vendor.save()
+
+    const emailOptions = {
+      email: vendor.businessEmail,
+      subject: 'Forgot password',
+      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+    }
+
+    await emailSender(emailOptions)
+    return res.status(200).json({
+      message: 'forgot password request sent',
+    })
+  } catch (error) {
+    next()
   }
 }
 exports.changeVendorPassword = async (req, res, next) => {
