@@ -776,13 +776,17 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 
 
+
+
+
 /**
  * @swagger
- * /api/v1/vendor/verify-otp:
+ * /api/v1/vendor/vendorForgotPasswordOtpResend:
  *   post:
- *     summary: Verify user account using OTP
- *     description: Validates a user's OTP and marks their account as verified if successful.
- *     tags: [User]
+ *     summary: Resend Vendor Forgot Password OTP
+ *     description: Resends a new one-time password (OTP) to the vendor's registered business email for password reset. The OTP expires after 5 minutes.
+ *     tags:
+ *       - Vendor Authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -790,31 +794,15 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  *           schema:
  *             type: object
  *             required:
- *               - email
- *               - otp
+ *               - businessEmail
  *             properties:
- *               email:
+ *               businessEmail:
  *                 type: string
- *                 example: user@example.com
- *               otp:
- *                 type: string
- *                 example: "123456"
+ *                 format: email
+ *                 example: vendor@example.com
  *     responses:
  *       200:
- *         description: OTP verified successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 email:
- *                   type: string
- *                   example: user@example.com
- *                 message:
- *                   type: string
- *                   example: Otp verified successfully
- *       400:
- *         description: Invalid or expired OTP / User already verified
+ *         description: Forgot password OTP resent successfully
  *         content:
  *           application/json:
  *             schema:
@@ -822,9 +810,9 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Invalid otp
+ *                   example: forgot password request sent
  *       404:
- *         description: User not found
+ *         description: Vendor not found
  *         content:
  *           application/json:
  *             schema:
@@ -832,18 +820,20 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User not found
+ *                   example: Vendor not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 
-// router.post("/vendor/verify-otp", verifyOtp)
-
-
-
-
-
-
-
-
+router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpResend)
 module.exports = router
 
