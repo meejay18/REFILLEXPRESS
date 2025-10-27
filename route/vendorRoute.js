@@ -1,7 +1,7 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor } = require('../controller/vendorController');
-const { verifyOtp, verifyForgotPasswordOtp } = require('../controller/userController');
+const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, verifyVendorForgotPasswordOtp } = require('../controller/vendorController');
+const { verifyOtp } = require('../controller/userController');
 
 const router = express.Router();
 
@@ -230,7 +230,7 @@ router.post('/vendor/verify', verifyVendor)
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/resend-otp', resendVendorOtp)
+router.post('/vendor/resend-otp', resendVendorOtp);
 
 /**
  * @swagger
@@ -364,6 +364,80 @@ router.post('/vendor/login', Vendorlogin);
  *         description: Internal server error
  */
 router.post('/vendor/forgot-password', vendorForgotPassword)
+/**
+ * @swagger
+ * /api/v1/vendor/verify-forgot-password-otp:
+ *   post:
+ *     summary: Verify OTP for vendor forgot password
+ *     tags: [Vendors]
+ *     description: Vendor validates OTP sent to their business email for password reset. Returns a reset token if OTP is correct and valid.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - businessEmail
+ *               - otp
+ *             properties:
+ *               businessEmail:
+ *                 type: string
+ *                 example: vendor@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully, reset token issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   example: vendor@example.com
+ *                 message:
+ *                   type: string
+ *                   example: Otp verified successfully
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *
+ *       400:
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   examples:
+ *                     invalidOtp:
+ *                       summary: Invalid OTP entered
+ *                       value: Invalid otp
+ *                     expiredOtp:
+ *                       summary: OTP already expired
+ *                       value: otp expired, please request a new one
+ *
+ *       404:
+ *         description: Vendor not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor not found
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
+
 
 /**
  * @swagger
@@ -748,11 +822,6 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 
 // router.post("/vendor/verify-otp", verifyOtp)
-
-
-
-
-
 
 
 

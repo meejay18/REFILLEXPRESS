@@ -4,6 +4,7 @@ const { Order } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
+const vendor = require('../models/vendor')
 
 exports.vendorSignUp = async (req, res, next) => {
   try {
@@ -155,6 +156,49 @@ exports.resendVendorOtp = async (req, res, next) => {
     next(error)
   }
 }
+exports.verifyVendorOtp = async (req,res,next) => {
+  const {businessEmail, otp} = req.body
+  try {
+ const vendor = await Vendor.findOne({
+      where: { businessEmail: businessEmail.toLowerCase() },
+    });
+    if (!vendor || !otp) {
+      return res.status(400).json({
+        message: 'Email and OTP required'
+      })
+    }
+    
+    if (!vendor) {
+      return res.status(400).json({
+        message: 'Vendor not found'
+      });
+    }
+    if (vendor.isVerified) {
+      return res.status(400).json({
+        message: 'Vendor already verified'
+      });
+    }
+    if (vendor.otp !== otp) {
+      return res.status(400).json({
+        message: 'Invalid Otp'
+      })
+    }
+     if (!vendor.otpExpiredAt || vendor.otpExpiredAt < Date.now()) {
+      return res.status(400).json({ message: 'OTP expired, please request a new one' })
+    }
+   vendor.isVerified = true
+   vendor.otp = null
+   vendor.otpExpiredat = true
+
+   await vendor.save()
+
+   return res.status(200).json({
+    message: 'OTP verified successfully'
+   })
+  } catch (error) {
+    next(error)
+  }
+}
 
 exports.Vendorlogin = async (req, res, next) => {
   const { businessEmail, password } = req.body
@@ -237,6 +281,45 @@ exports.vendorForgotPassword = async (req, res, next) => {
   } catch (error) {
     next(error)
   }
+}
+exports.verifyVendorForgotPasswordOtp = async (req, res, next) => {
+const { businessEmail, otp } = req.body
+try {
+const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
+if (!vendor) {
+return res.status(404).json({
+message: 'Vendor not found',
+})
+}
+
+if (vendor.otp !== otp) {
+return res.status(400).json({
+message: 'Invalid otp',
+})
+}
+
+if (Date.now() > vendor.otpExpiredAt) {
+return res.status(400).json({
+message: 'otp expired, please request a new one',
+})
+}
+
+
+const token = jwt.sign({id: vendor.id, businessEmail: vendor.email}, process.env.JWT_SECRET , {expiresIn: "2hr"})
+
+vendor.otp = null
+vendor.otpExpiredAt = null
+
+await vendor.save()
+
+return res.status(200).json({
+email: vendor.businessEmail,
+message: 'Otp verified successfully',
+token: token
+})
+} catch (error) {
+next(error)
+}
 }
 exports.vendorResetPassword = async (req, res, next) => {
   const { token } = req.params
