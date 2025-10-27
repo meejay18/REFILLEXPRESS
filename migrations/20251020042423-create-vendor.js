@@ -9,46 +9,80 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      userId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
       businessName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       businessEmail: {
         type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       businessPhoneNumber: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       businessAddress: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       firstName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       lastName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       password: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      confirmPassword: {
+      otp: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
-      agreeToTermsAndCondition: {
+      otpExpiredAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      isVerified: {
         type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
       },
       verificationStatus: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
+      },
+      verificationDocuments: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      vendorImage: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      pricePerKg: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      minimumOrder: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      openingTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      closingTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      isAvailable: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
       createdAt: {
         allowNull: false,

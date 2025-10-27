@@ -1,52 +1,115 @@
 'use strict'
 const { Model } = require('sequelize')
+
 module.exports = (sequelize, DataTypes) => {
   class Vendor extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-
-
-      // a vendor is also a user so it is tied to a user
-      Vendor.belongsTo(models.User, {
-        foreignKey: 'userId',
-        as: 'user',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+      // define associations here
+      Vendor.hasMany(models.Order, {
+        foreignKey: 'vendorId',
+        as: 'orders',
       })
 
-      // a vendor can have many orders
-      // Vendor.hasMany(models.orders, {
-      //   foreignKey: 'vendorId',
-      //   as: 'orders',
-      //   onDelete : "CASCADE",
-      //   onUpdate: "CASCADE"
-      // })
+      Vendor.belongsToMany(models.User, {
+        through: models.Order,
+        foreignKey: 'vendorId',
+        otherKey: 'userId',
+        as: 'customers',
+      })
     }
   }
+
   Vendor.init(
     {
-      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
-      userId: { type: DataTypes.UUID, allowNull: false },
-      businessName: DataTypes.STRING,
-      businessEmail: DataTypes.STRING,
-      businessPhoneNumber: DataTypes.STRING,
-      businessAddress: DataTypes.STRING,
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      password: DataTypes.STRING,
-      confirmPassword: DataTypes.STRING,
-      agreeToTermsAndCondition: DataTypes.BOOLEAN,
-      verificationStatus: DataTypes.STRING
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      businessName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      businessEmail: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+        validate: { isEmail: true },
+      },
+      businessPhoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      businessAddress: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      verificationStatus: {
+        type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+        defaultValue: 'pending',
+      },
+      verificationDocuments: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      vendorImage: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      pricePerKg: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
+      minimumOrder: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      openingTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      closingTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      isAvailable: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
     },
     {
       sequelize,
       modelName: 'Vendor',
+      tableName: 'vendors',
+      timestamps: true,
     }
   )
+
   return Vendor
 }
