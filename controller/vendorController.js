@@ -225,7 +225,7 @@ exports.vendorForgotPassword = async (req, res, next) => {
     const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
 
     const emailOptions = {
-      businessEmail: vendor.businessEmail,
+      email: vendor.businessEmail,
       subject: 'Reset password',
       html: forgotPasswordTemplate(link, vendor.firstName),
     }
