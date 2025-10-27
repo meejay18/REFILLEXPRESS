@@ -32,15 +32,15 @@ module.exports = {
         },
         onDelete: 'SET NULL',
       },
-      riderId: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: {
-          model: 'Riders',
-          key: 'id',
-        },
-        onDelete: 'SET NULL',
-      },
+      // riderId: {
+      //   type: Sequelize.UUID,
+      //   allowNull: true,
+      //   references: {
+      //     model: 'Riders',
+      //     key: 'id',
+      //   },
+      //   onDelete: 'SET NULL',
+      // },
       gasType: {
         type: Sequelize.STRING,
         allowNull: false,

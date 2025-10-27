@@ -5,6 +5,17 @@ module.exports = (sequelize, DataTypes) => {
   class Vendor extends Model {
     static associate(models) {
       // define associations here
+      Vendor.hasMany(models.Order, {
+        foreignKey: 'vendorId',
+        as: 'orders',
+      })
+
+      Vendor.belongsToMany(models.User, {
+        through: models.Order,
+        foreignKey: 'vendorId',
+        otherKey: 'userId',
+        as: 'customers',
+      })
     }
   }
 

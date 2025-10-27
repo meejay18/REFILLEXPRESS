@@ -44,6 +44,10 @@ const swaggerDefinition = {
       name: 'User',
       description: 'Endpoints for user authentication, verification, and password management',
     },
+    {
+    name: 'Vendor',
+    description: 'Endpoints for vendor management (CRUD operations)',
+  },
   ],
   components: {
     securitySchemes: {

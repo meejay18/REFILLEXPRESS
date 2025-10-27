@@ -605,9 +605,9 @@ router.patch('/vendor/change-password', vendorAuthentication, changeVendorPasswo
 router.get("/vendor/getAllvendors", getAllvendors)
 
 
-/**
+/** 
  * @swagger
- * /vendor/getOneVendor/{vendorId}:
+ * /api/v1/vendor/getOneVendor/{vendorId}:
  *   get:
  *     summary: Retrieve a single vendor
  *     description: Fetches a vendor from the database using the vendor's unique ID.
