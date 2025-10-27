@@ -145,19 +145,55 @@ exports.resendOtp = async (req, res, next) => {
   }
 }
 
-exports.verifyOtp = async (req, res, next) => {
+// exports.verifyOtp = async (req, res, next) => {
+//   const { email, otp } = req.body
+//   try {
+//     const user = await User.findOne({ where: { email: email?.toLowerCase() } })
+//     if (!user) {
+//       return res.status(404).json({
+//         message: 'User not found',
+//       })
+//     }
+
+//     if (user.isVerified) {
+//       return res.status(400).json({
+//         message: 'User already verified',
+//       })
+//     }
+
+//     if (user.otp !== otp) {
+//       return res.status(400).json({
+//         message: 'Invalid otp',
+//       })
+//     }
+
+//     if (Date.now() > user.otpExpiredAt) {
+//       return res.status(400).json({
+//         message: 'otp expired, please request a new one',
+//       })
+//     }
+
+//     user.isVerified = true
+//     user.otp = null
+//     user.otpExpiredAt = null
+
+//     await user.save()
+
+//     return res.status(200).json({
+//       email: user.email,
+//       message: 'Otp verified successfully',
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// }
+exports.verifyForgotPasswordOtp = async (req, res, next) => {
   const { email, otp } = req.body
   try {
     const user = await User.findOne({ where: { email: email?.toLowerCase() } })
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
-      })
-    }
-
-    if (user.isVerified) {
-      return res.status(400).json({
-        message: 'User already verified',
       })
     }
 
@@ -173,7 +209,9 @@ exports.verifyOtp = async (req, res, next) => {
       })
     }
 
-    user.isVerified = true
+
+    const token = jwt.sign({id: user.id, email: user.email}, process.env.JWT_SECRET , {expiresIn: "2hr"})
+   
     user.otp = null
     user.otpExpiredAt = null
 
@@ -182,6 +220,7 @@ exports.verifyOtp = async (req, res, next) => {
     return res.status(200).json({
       email: user.email,
       message: 'Otp verified successfully',
+      token: token
     })
   } catch (error) {
     next(error)
