@@ -19,7 +19,11 @@ exports.authentication = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    const user = await Vendor.findOne({ where: { id: decoded.id } })
+    const user = await User.findOne({ where: { id: decoded.id } })
+
+    console.log("user:", user);
+    
+
     if (!user) {
       return res.status(404).json({
         message: 'Authentication failed, User not found',

@@ -1,8 +1,8 @@
 const express = require('express')
 require('./models')
 const app = express()
-const cors = require("cors")
-app.use(cors("*"))
+const cors = require('cors')
+app.use(cors('*'))
 app.use(express.json())
 
 const swaggerJSDoc = require('swagger-jsdoc')
@@ -11,9 +11,12 @@ const PORT = 3500
 
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
-const vendorRouter = require ('./route/vendorRoute')
+const vendorRouter = require('./route/vendorRoute')
 app.use('/api/v1', vendorRouter)
-
+const orderRouter = require('./route/orderRoute')
+app.use('/api/v1', orderRouter)
+const adminRouter = require('./route/adminRoute')
+app.use('/api/v1', adminRouter)
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
@@ -31,12 +34,12 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3500',
-      description: 'Development server',
+      url: 'https://refillexpress.onrender.com/docs/',
+      description: 'Production server',
     },
     {
-      url: 'http://localhost:3000',
-      description: 'Production server',
+      url: 'http://localhost:3500',
+      description: 'Development server',
     },
   ],
   tags: [
@@ -45,9 +48,9 @@ const swaggerDefinition = {
       description: 'Endpoints for user authentication, verification, and password management',
     },
     {
-    name: 'Vendor',
-    description: 'Endpoints for vendor management (CRUD operations)',
-  },
+      name: 'Vendor',
+      description: 'Endpoints for vendor management (CRUD operations)',
+    },
   ],
   components: {
     securitySchemes: {
