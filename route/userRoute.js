@@ -1,5 +1,5 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 
 const route = express.Router()
@@ -475,5 +475,84 @@ route.post("/user/reset/password/:token", resetPassword)
  *               message: An unexpected error occurred
  */
 
+
+
 route.put("/user/change-password", authentication, changePassword)
+
+
+/**
+ * @swagger
+ * /api/auth/user/verifyForgotPasswordOtp:
+ *   post:
+ *     summary: Verify OTP for Forgot Password
+ *     description: Verifies a one-time password (OTP) sent to the user's email for password reset. If valid, it returns a temporary JWT token that can be used to reset the password.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: johndoe@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   example: johndoe@example.com
+ *                 message:
+ *                   type: string
+ *                   example: Otp verified successfully
+ *                 token:
+ *                   type: string
+ *                   description: Temporary JWT token for password reset
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid otp
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+route.post("/user/verifyForgotPasswordOtp", verifyForgotPasswordOtp)
 module.exports = route
