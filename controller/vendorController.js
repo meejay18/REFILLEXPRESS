@@ -322,19 +322,29 @@ next(error)
 }
 }
 exports.vendorResetPassword = async (req, res, next) => {
-  const { token } = req.params
   const { newPassword, confirmPassword } = req.body
+
   try {
-    if (!newPassword && !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       return res.status(400).json({
-        message: 'please provide both passwords',
+        message: 'Please provide both passwords',
       })
     }
+
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         message: 'Passwords do not match',
       })
     }
+
+    const authorizationHeader = req.headers.authorization
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      return res.status(400).json({
+        message: 'Authorization token missing or invalid format',
+      })
+    }
+
+    const token = authorizationHeader.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     const vendor = await Vendor.findOne({ where: { id: decoded.id } })
@@ -344,20 +354,18 @@ exports.vendorResetPassword = async (req, res, next) => {
       })
     }
 
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(newPassword, salt)
-
-    vendor.password = hashedPassword
-
-    const tokenExpiry = Date.now() + 1000 * 60 * 5
-
-    if (Date.now() > tokenExpiry) {
+    if (!vendor.resetPasswordExpiredAt || Date.now() > vendor.resetPasswordExpiredAt) {
       return res.status(400).json({
-        message: 'Password expired, resend a password',
+        message: 'Reset link has expired',
       })
     }
 
-    vendor.resetPasswordExpiredAt = tokenExpiry
+    const salt = await bcrypt.genSalt(10)
+    vendor.password = await bcrypt.hash(newPassword, salt)
+
+    // Cleanup reset session
+    vendor.resetPasswordToken = null
+    vendor.resetPasswordExpiredAt = null
 
     await vendor.save()
 
@@ -374,6 +382,7 @@ exports.vendorResetPassword = async (req, res, next) => {
     next(error)
   }
 }
+
 exports.changeVendorPassword = async (req, res, next) => {
   const { id } = req.vendor
   const { oldPassword, newPassword, confirmPassword } = req.body

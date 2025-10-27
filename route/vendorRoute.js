@@ -438,24 +438,20 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  */
 router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
 
-
 /**
  * @swagger
  * /api/v1/vendor/reset-password/{token}:
- *   post:
- *     summary: Reset password using token
+ *   patch:
+ *     summary: Reset vendor password
  *     tags: [Vendors]
- *     security:
- *       - bearerAuth: []
- *     description: Vendor can reset password using a valid reset token provided in the reset email.
+ *     description: Resets vendor password using a valid JWT reset token.
  *     parameters:
- *       - name: token
- *         in: path
+ *       - in: path
+ *         name: token
  *         required: true
- *         description: JWT reset token sent via email
  *         schema:
  *           type: string
- *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *         description: Password reset token sent to the vendor's email
  *     requestBody:
  *       required: true
  *       content:
@@ -468,10 +464,10 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *             properties:
  *               newPassword:
  *                 type: string
- *                 example: StrongNewPass123!
+ *                 example: NewStrongPassword@123
  *               confirmPassword:
  *                 type: string
- *                 example: StrongNewPass123!
+ *                 example: NewStrongPassword@123
  *     responses:
  *       200:
  *         description: Password reset successfully
@@ -485,7 +481,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *                   example: Password reset successfully
  *
  *       400:
- *         description: Validation errors or expired/invalid token
+ *         description: Validation or token error (e.g. password mismatch, token expired)
  *         content:
  *           application/json:
  *             schema:
@@ -494,11 +490,8 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *                 message:
  *                   type: string
  *                   examples:
- *                     missing:
- *                       summary: Missing passwords
- *                       value: please provide both passwords
- *                     mismatch:
- *                       summary: Password mismatch
+ *                     passwordMismatch:
+ *                       summary: Passwords do not match
  *                       value: Passwords do not match
  *                     expired:
  *                       summary: Token expired
@@ -521,8 +514,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/reset-password/:token', vendorResetPassword)
-
+router.patch('/vendor/reset-password/:token', vendorResetPassword);
 
 
 /**
@@ -822,6 +814,8 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 
 // router.post("/vendor/verify-otp", verifyOtp)
+
+
 
 
 
