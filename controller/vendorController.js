@@ -28,9 +28,7 @@ exports.vendorSignUp = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const otp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
     const newVendor = await Vendor.create({
       businessName,
@@ -75,9 +73,9 @@ exports.verifyVendor = async (req, res, next) => {
       })
     }
 
-    if (Date.now() > checkVendor.otpExpiredAt) {
+    if (Date.now() > new Date(checkVendor.otpExpiredAt).getTime()) {
       return res.status(400).json({
-        message: 'Otp expired, Please request another otp',
+        message: 'otp expired, please request a new one',
       })
     }
 
@@ -128,9 +126,7 @@ exports.resendVendorOtp = async (req, res, next) => {
       })
     }
 
-    const newOtp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
 
     vendor.otp = newOtp
     vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
@@ -156,45 +152,45 @@ exports.resendVendorOtp = async (req, res, next) => {
     next(error)
   }
 }
-exports.verifyVendorOtp = async (req,res,next) => {
-  const {businessEmail, otp} = req.body
+exports.verifyVendorOtp = async (req, res, next) => {
+  const { businessEmail, otp } = req.body
   try {
- const vendor = await Vendor.findOne({
+    const vendor = await Vendor.findOne({
       where: { businessEmail: businessEmail.toLowerCase() },
-    });
+    })
     if (!vendor || !otp) {
       return res.status(400).json({
-        message: 'Email and OTP required'
+        message: 'Email and OTP required',
       })
     }
-    
+
     if (!vendor) {
       return res.status(400).json({
-        message: 'Vendor not found'
-      });
+        message: 'Vendor not found',
+      })
     }
     if (vendor.isVerified) {
       return res.status(400).json({
-        message: 'Vendor already verified'
-      });
+        message: 'Vendor already verified',
+      })
     }
     if (vendor.otp !== otp) {
       return res.status(400).json({
-        message: 'Invalid Otp'
+        message: 'Invalid Otp',
       })
     }
-     if (!vendor.otpExpiredAt || vendor.otpExpiredAt < Date.now()) {
+    if (!vendor.otpExpiredAt || vendor.otpExpiredAt < Date.now()) {
       return res.status(400).json({ message: 'OTP expired, please request a new one' })
     }
-   vendor.isVerified = true
-   vendor.otp = null
-   vendor.otpExpiredat = true
+    vendor.isVerified = true
+    vendor.otp = null
+    vendor.otpExpiredat = true
 
-   await vendor.save()
+    await vendor.save()
 
-   return res.status(200).json({
-    message: 'OTP verified successfully'
-   })
+    return res.status(200).json({
+      message: 'OTP verified successfully',
+    })
   } catch (error) {
     next(error)
   }
@@ -268,9 +264,7 @@ exports.vendorForgotPassword = async (req, res, next) => {
 
     // const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
 
-    const newOtp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Reset password',
@@ -287,50 +281,56 @@ exports.vendorForgotPassword = async (req, res, next) => {
     next(error)
   }
 }
+
 exports.verifyVendorForgotPasswordOtp = async (req, res, next) => {
-const { businessEmail, otp } = req.body
-try {
-const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
-if (!vendor) {
-return res.status(404).json({
-message: 'Vendor not found',
-})
+  const { businessEmail, otp } = req.body
+  try {
+    const vendor = await Vendor.findOne({
+      where: { businessEmail: businessEmail?.toLowerCase() },
+    })
+    console.log(vendor)
+
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' })
+    }
+
+
+    if (vendor.otp.toString() !== otp.toString()) {
+      return res.status(400).json({ message: 'Invalid otp' })
+    }
+
+   
+
+    if (Date.now() > new Date(vendor.otpExpiredAt).getTime()) {
+      return res.status(400).json({
+        message: 'otp expired, please request a new one',
+      })
+    }
+
+    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
+      expiresIn: '20m',
+    })
+
+    vendor.otp = null
+    vendor.otpExpiredAt = null
+
+    await vendor.save()
+
+    return res.status(200).json({
+      email: vendor.businessEmail,
+      message: 'Otp verified successfully',
+      token,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
-if (vendor.otp !== otp) {
-return res.status(400).json({
-message: 'Invalid otp',
-})
-}
-
-if (Date.now() > vendor.otpExpiredAt) {
-return res.status(400).json({
-message: 'otp expired, please request a new one',
-})
-}
-
-
-const token = jwt.sign({id: vendor.id, businessEmail: vendor.businessEmail}, process.env.JWT_SECRET , {expiresIn: "20m"})
-
-vendor.otp = null
-vendor.otpExpiredAt = null
-
-await vendor.save()
-
-return res.status(200).json({
-email: vendor.businessEmail,
-message: 'Otp verified successfully',
-token: token
-})
-} catch (error) {
-next(error)
-}
-}
 exports.vendorResetPassword = async (req, res, next) => {
   const { businessEmail, newPassword } = req.body
 
   try {
-    if (!businessEmail ||  !newPassword ) {
+    if (!businessEmail || !newPassword) {
       return res.status(400).json({
         message: 'All fields are required',
       })
@@ -342,7 +342,6 @@ exports.vendorResetPassword = async (req, res, next) => {
         message: 'Vendor not found',
       })
     }
-
 
     // Hashing new password
     const salt = await bcrypt.genSalt(10)
@@ -357,12 +356,10 @@ exports.vendorResetPassword = async (req, res, next) => {
     return res.status(200).json({
       message: 'Password reset successfully',
     })
-
- } catch (error) {
+  } catch (error) {
     next(error)
   }
 }
-
 
 exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
   try {
@@ -375,9 +372,7 @@ exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
       })
     }
 
-    const newOtp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
 
     vendor.otp = newOtp
     vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
