@@ -6,17 +6,10 @@ const route = express.Router()
 
 /**
  * @swagger
- * tags:
- *   name: Users
- *   description: User management endpoints
- */
-
-/**
- * @swagger
- * /api/v1/user:
+ * /user:
  *   post:
  *     summary: Create a new user account
- *     tags: [Users]
+ *     tags: [User]
  *     description: Endpoint for signing up a new user.
  *     requestBody:
  *       required: true
@@ -83,10 +76,10 @@ route.post('/user', signUp)
 
 /**
  * @swagger
- * /api/v1/user/verify:
+ * /user/verify:
  *   post:
  *     summary: Verify user OTP
- *     tags: [Users]
+ *     tags: [User]
  *     description: Verify the user's account using the OTP sent to their email.
  *     requestBody:
  *       required: true
@@ -132,10 +125,10 @@ route.post("/user/verify", verify)
 
 /**
  * @swagger
- * /api/v1/user/resend-otp:
+ * /user/resend-otp:
  *   post:
  *     summary: Resend OTP for user verification
- *     tags: [Users]
+ *     tags: [User]
  *     description: Allows users to request a new OTP if the previous one expired or wasn't received.
  *     requestBody:
  *       required: true
@@ -185,12 +178,12 @@ route.post("/user/resend-otp", resendOtp)
 
 /**
  * @swagger
- * /api/v1/user/login:
+ * /user/login:
  *   post:
  *     summary: Log in a user
  *     description: Authenticates a registered and verified user, returning a JWT token if successful.
  *     tags:
- *       - Users
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -272,10 +265,10 @@ route.post("/user/login", login)
 
 /**
  * @swagger
- * /api/v1/user/forgot-password:
+ * /user/forgot-password:
  *   post:
  *     summary: Request password reset
- *     tags: [Users]
+ *     tags: [User]
  *     description: Sends a 6-digit OTP to the user's email to begin the password reset process.
  *     requestBody:
  *       required: true
@@ -319,10 +312,10 @@ route.post('/user/forgot-password', forgotPassword);
 
 /**
  * @swagger
- * /api/v1/user/forgot-password/resend:
+ * /user/forgot-password/resend:
  *   post:
  *     summary: Resend OTP for resetting password
- *     tags: [Users]
+ *     tags: [User]
  *     description: Resends a 6-digit OTP to the user's registered email for password reset verification.
  *     requestBody:
  *       required: true
@@ -369,7 +362,7 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
 
 /**
  * @swagger
- * /api/v1/user/reset/password/{token}:
+ * /user/reset/password/{token}:
  *   post:
  *     summary: Reset user password
  *     description: This endpoint allows a user to reset their password using a valid token sent via email. The token is verified and, if valid, the password is updated.
@@ -453,7 +446,7 @@ route.post("/user/reset/password/:token", resetPassword)
 
 /**
  * @swagger
- * /api/v1/user/change-password:
+ * /user/change-password:
  *   put:
  *     summary: Change user password
  *     description: Allows an authenticated user to change their password by providing the old password, new password, and confirmation password.
@@ -528,12 +521,12 @@ route.put("/user/change-password", authentication, changePassword)
 
 /**
  * @swagger
- * /api/auth/user/verifyForgotPasswordOtp:
+ * /user/verify-forgot-password-otp:
  *   post:
  *     summary: Verify OTP for Forgot Password
  *     description: Verifies a one-time password (OTP) sent to the user's email for password reset. If valid, it returns a temporary JWT token that can be used to reset the password.
  *     tags:
- *       - Authentication
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -600,5 +593,5 @@ route.put("/user/change-password", authentication, changePassword)
  *                   type: string
  *                   example: Internal server error
  */
-route.post("/user/verifyForgotPasswordOtp", verifyForgotPasswordOtp)
+route.post("/user/verify-forgot-password-otp", verifyForgotPasswordOtp)
 module.exports = route

@@ -325,18 +325,12 @@ next(error)
 }
 }
 exports.vendorResetPassword = async (req, res, next) => {
-  const { businessEmail, otp, newPassword, confirmPassword } = req.body
+  const { businessEmail, otp, newPassword } = req.body
 
   try {
     if (!businessEmail || !otp || !newPassword || !confirmPassword) {
       return res.status(400).json({
         message: 'All fields are required',
-      })
-    }
-
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        message: 'Passwords do not match',
       })
     }
 

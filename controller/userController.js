@@ -209,9 +209,8 @@ exports.verifyForgotPasswordOtp = async (req, res, next) => {
       })
     }
 
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '2hr' })
 
-    const token = jwt.sign({id: user.id, email: user.email}, process.env.JWT_SECRET , {expiresIn: "2hr"})
-   
     user.otp = null
     user.otpExpiredAt = null
 
@@ -220,45 +219,45 @@ exports.verifyForgotPasswordOtp = async (req, res, next) => {
     return res.status(200).json({
       email: user.email,
       message: 'Otp verified successfully',
-      token: token
+      token: token,
     })
   } catch (error) {
     next(error)
   }
 }
 exports.ForgotPasswordOtpResend = async (req, res, next) => {
-try {
-const { email } = req.body
+  try {
+    const { email } = req.body
 
-const user = await User.findOne({ where: { email: email?.toLowerCase() } })
-if (!user) {
-return res.status(404).json({
-message: 'User not found',
-})
-}
+    const user = await User.findOne({ where: { email: email?.toLowerCase() } })
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
 
-const newOtp = Math.round(Math.random() * 1e6)
-.toString()
-.padStart(6, '0')
+    const newOtp = Math.round(Math.random() * 1e6)
+      .toString()
+      .padStart(6, '0')
 
-user.otp = newOtp
-user.otpExpiredAt = Date.now() + 1000 * 60 * 5
+    user.otp = newOtp
+    user.otpExpiredAt = Date.now() + 1000 * 60 * 5
 
-await user.save()
+    await user.save()
 
-const emailOptions = {
-email: user.emailmail,
-subject: 'Reset password',
-html: forgotPasswordTemplate(newOtp, user.firstName),
-}
+    const emailOptions = {
+      email: user.email,
+      subject: 'Forgot password',
+      html: forgotPasswordTemplate(newOtp, user.firstName),
+    }
 
-await emailSender(emailOptions)
-return res.status(200).json({
-message: 'forgot password request sent',
-})
-} catch (error) {
-next()
-}
+    await emailSender(emailOptions)
+    return res.status(200).json({
+      message: 'forgot password request sent',
+    })
+  } catch (error) {
+    next()
+  }
 }
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
@@ -325,22 +324,20 @@ exports.forgotPassword = async (req, res, next) => {
     // const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '20m' })
 
     // // const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
-        const newOtp = Math.round(Math.random() * 1e6)
-.toString()
-.padStart(6, '0')
+    const newOtp = Math.round(Math.random() * 1e6)
+      .toString()
+      .padStart(6, '0')
 
-user.otp = newOtp
-user.otpExpiredAt = Date.now() + 1000 * 60 * 5
+    user.otp = newOtp
+    user.otpExpiredAt = Date.now() + 1000 * 60 * 5
 
-await user.save()
+    await user.save()
 
-const emailOptions = {
-email: user.email,
-subject: 'Reset Password',
-html: resendOtpTemplate(newOtp, user.firstName),
-}
-
-   
+    const emailOptions = {
+      email: user.email,
+      subject: 'Reset Password',
+      html: forgotPasswordTemplate(newOtp, user.firstName),
+    }
 
     await emailSender(emailOptions)
     return res.status(200).json({
