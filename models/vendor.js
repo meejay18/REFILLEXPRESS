@@ -32,9 +32,21 @@ module.exports = (sequelize, DataTypes) => {
       },
       businessEmail: {
         type: DataTypes.STRING,
-        unique: true,
         allowNull: false,
-        validate: { isEmail: true },
+        unique: {
+          msg: 'This email is already registered',
+        },
+        validate: {
+          isEmail: {
+            msg: 'Please provide a valid email address',
+          },
+          notNull: {
+            msg: 'Email is required',
+          },
+          notEmpty: {
+            msg: 'Email field cannot be empty',
+          },
+        },
       },
       businessPhoneNumber: {
         type: DataTypes.STRING,

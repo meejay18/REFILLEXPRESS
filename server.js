@@ -42,7 +42,8 @@ const swaggerDefinition = {
     },
     {
       name: 'Vendor',
-      description: 'Endpoints for vendor registration, authentication, password recovery, and profile management.',
+      description:
+        'Endpoints for vendor registration, authentication, password recovery, and profile management.',
     },
     {
       name: 'Order',
@@ -65,7 +66,6 @@ const swaggerDefinition = {
   security: [{ bearerAuth: [] }],
 }
 
-
 const options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
@@ -77,7 +77,28 @@ const swaggerSpec = swaggerJSDoc(options)
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.use((error, req, res, next) => {
-  return res.status(error.status || 500).json(error.message || 'An error occurred')
+  console.error(error)
+
+  if (error.name === 'SequelizeValidationError') {
+    const messages = error.errors.map((err) => err.message)
+    return res.status(400).json({ message: messages[0] })
+  }
+
+  if (error.name === 'SequelizeUniqueConstraintError') {
+    return res.status(400).json({ message: 'Email already exists' })
+  }
+
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).json({ message: 'Invalid or expired token' })
+  }
+
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({ message: 'Session expired, please log in again' })
+  }
+
+  return res.status(error.status || 500).json({
+    message: error.message || 'An unexpected error occurred',
+  })
 })
 
 app.listen(PORT, () => {

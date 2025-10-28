@@ -278,6 +278,8 @@ exports.vendorForgotPassword = async (req, res, next) => {
     }
 
     await emailSender(emailOptions)
+
+    await vendor.save()
     return res.status(200).json({
       message: 'forgot password request sent',
     })
@@ -325,10 +327,10 @@ next(error)
 }
 }
 exports.vendorResetPassword = async (req, res, next) => {
-  const { businessEmail, otp, newPassword } = req.body
+  const { businessEmail, newPassword } = req.body
 
   try {
-    if (!businessEmail || !otp || !newPassword || !confirmPassword) {
+    if (!businessEmail ||  !newPassword ) {
       return res.status(400).json({
         message: 'All fields are required',
       })
@@ -341,17 +343,6 @@ exports.vendorResetPassword = async (req, res, next) => {
       })
     }
 
-    if (vendor.otp !== otp) {
-      return res.status(400).json({
-        message: 'Invalid OTP',
-      })
-    }
-
-    if (!vendor.otpExpiredAt || Date.now() > vendor.otpExpiredAt) {
-      return res.status(400).json({
-        message: 'OTP expired, please request a new one',
-      })
-    }
 
     // Hashing new password
     const salt = await bcrypt.genSalt(10)

@@ -437,3 +437,44 @@ exports.changePassword = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getAllUsers = async(req,res, next) => {
+  try {
+    const users = await User.findAll()
+
+
+    if(users.length === 0) {
+      return res.status(400).json({
+        message: "No users found",
+        data: []
+      })
+    }
+    return res.status(200).json({
+      message: "Users retrieved successfully",
+      data: users
+    })
+    
+  } catch (error) {
+    next(error)
+    
+  }
+}
+exports.getOneUser = async(req, res, next) => {
+  const {userId} = req.params
+  try {
+    const user = await User.findByPk(userId)
+    if(!user) {
+      return res.status(400).json({
+        message: "User not found"
+      })
+    }
+
+    return res.status(200).json({
+      message: "User retrieved successfully",
+      data: user
+
+    })
+  } catch (error) {
+    next(error)
+  }
+}

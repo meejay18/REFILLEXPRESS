@@ -61,6 +61,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      totalPrice: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
       status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'in_transit', 'delivered', 'cancelled'),
         defaultValue: 'pending',
