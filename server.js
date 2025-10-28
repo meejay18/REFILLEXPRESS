@@ -8,12 +8,15 @@ app.use(express.json())
 
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
-const PORT = 3500
+
 
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
 const vendorRouter = require ('./route/vendorRoute')
 app.use('/api/v1', vendorRouter)
+
+const riderRouter = require('./route/riderRoute')
+app.use('/api/v1', riderRouter)
 
 const swaggerDefinition = {
   openapi: '3.0.0',
