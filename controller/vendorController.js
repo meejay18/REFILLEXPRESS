@@ -271,6 +271,9 @@ exports.vendorForgotPassword = async (req, res, next) => {
       html: forgotPasswordTemplate(newOtp, vendor.firstName),
     }
 
+    vendor.otp = newOtp
+    vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
+
     await emailSender(emailOptions)
 
     await vendor.save()
@@ -294,12 +297,9 @@ exports.verifyVendorForgotPasswordOtp = async (req, res, next) => {
       return res.status(404).json({ message: 'Vendor not found' })
     }
 
-
     if (vendor.otp !== otp) {
       return res.status(400).json({ message: 'Invalid otp' })
     }
-
-   
 
     if (Date.now() > new Date(vendor.otpExpiredAt).getTime()) {
       return res.status(400).json({

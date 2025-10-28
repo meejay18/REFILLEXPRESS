@@ -48,10 +48,6 @@ const swaggerDefinition = {
       description:
         'Endpoints for vendor registration, authentication, password recovery, and profile management.',
     },
-    {
-      url: 'http://localhost:3500',
-      description: 'Production server',
-    },
   ],
   tags: [
     {
