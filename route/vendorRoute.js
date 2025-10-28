@@ -12,7 +12,7 @@ const router = express.Router();
  * /vendor:
  *   post:
  *     summary: Create a new vendor account
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Endpoint for signing up a new vendor. An OTP will be sent to the business email for verification.
  *     requestBody:
  *       required: true
@@ -90,7 +90,7 @@ router.post('/vendor',  vendorSignUp)
  * /vendor/verify:
  *   post:
  *     summary: Verify vendor account using OTP
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Confirms OTP sent to vendor's business email to activate account.
  *     requestBody:
  *       required: true
@@ -170,7 +170,7 @@ router.post('/vendor/verify', verifyVendor)
  * /vendor/resend-otp:
  *   post:
  *     summary: Resend OTP to vendor's business email
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Generates and sends a new OTP if the vendor is not yet verified.
  *     requestBody:
  *       required: true
@@ -237,7 +237,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  * /vendor/login:
  *   post:
  *     summary: Login vendor account
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Authenticates vendor using business email and password. Returns JWT token upon successful login.
  *     requestBody:
  *       required: true
@@ -331,7 +331,7 @@ router.post('/vendor/login', Vendorlogin);
  *     summary: Vendor Forgot Password Request
  *     description: Initiates the password reset process for a vendor by sending a one-time password (OTP) to their registered business email. The OTP is valid for 5 minutes.
  *     tags:
- *       - Vendor Authentication
+ *       - Vendor
  *     requestBody:
  *       required: true
  *       content:
@@ -384,7 +384,7 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  * /vendor/verify-forgot-password-otp:
  *   post:
  *     summary: Verify OTP for vendor forgot password
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Vendor validates OTP sent to their business email for password reset. Returns a reset token if OTP is correct and valid.
  *     requestBody:
  *       required: true
@@ -458,7 +458,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  * /vendor/reset-password:
  *   post:
  *     summary: Reset vendor password (OTP verified)
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     description: Allows a verified vendor (via OTP) to set a new password. No token required — validation is based on stored OTP expiry session.
  *     requestBody:
  *       required: true
@@ -499,7 +499,7 @@ router.patch('/vendor/reset-password/:token', vendorResetPassword);
  * /vendor/change-password:
  *   patch:
  *     summary: Change vendor password
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     security:
  *       - bearerAuth: []
  *     description: Vendor updates their password after login by providing the correct old password and confirming the new one.
@@ -578,7 +578,7 @@ router.patch('/vendor/change-password', vendorAuthentication, changeVendorPasswo
  *   get:
  *     summary: Retrieve all vendors
  *     description: Fetches all registered vendors from the database.
- *     tags: [Vendors]
+ *     tags: [Vendor]
  *     responses:
  *       200:
  *         description: Vendors retrieved successfully
@@ -740,7 +740,7 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  *     summary: Resend Vendor Forgot Password OTP
  *     description: Resends a new one-time password (OTP) to the vendor's registered business email for password reset. The OTP expires after 5 minutes.
  *     tags:
- *       - Vendor Authentication
+ *       - Vendor
  *     requestBody:
  *       required: true
  *       content:

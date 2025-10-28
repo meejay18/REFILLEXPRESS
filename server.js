@@ -25,7 +25,7 @@ const swaggerDefinition = {
   info: {
     title: 'Refill Express API Documentation',
     version: '1.0.0',
-    description: 'Swagger documentation for Refill Express project endpoints.',
+    description: 'API documentation for Refill Express — vendor, user, order, and admin services.',
     contact: {
       name: 'Refill Express Team',
       url: 'https://google.com',
@@ -36,9 +36,22 @@ const swaggerDefinition = {
     { url: 'http://localhost:3500/api/v1', description: 'Development server' },
   ],
   tags: [
-    { name: 'User', description: 'User authentication and verification endpoints' },
-    { name: 'Vendor', description: 'Vendor registration and CRUD operations' },
-    { name: 'Vendor Authentication', description: 'Vendor login and password recovery endpoints' },
+    {
+      name: 'User',
+      description: 'Endpoints for user registration, login, verification, and account management.',
+    },
+    {
+      name: 'Vendor',
+      description: 'Endpoints for vendor registration, authentication, password recovery, and profile management.',
+    },
+    {
+      name: 'Order',
+      description: 'Endpoints for placing, managing, and viewing orders.',
+    },
+    {
+      name: 'Admin',
+      description: 'Endpoints for administrative actions and dashboard management.',
+    },
   ],
   components: {
     securitySchemes: {
@@ -51,6 +64,7 @@ const swaggerDefinition = {
   },
   security: [{ bearerAuth: [] }],
 }
+
 
 const options = {
   swaggerDefinition,
