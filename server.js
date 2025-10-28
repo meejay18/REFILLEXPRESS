@@ -11,7 +11,6 @@ app.use(morgan('dev'))
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
 
-
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
 const vendorRouter = require('./route/vendorRoute')
@@ -60,13 +59,14 @@ const swaggerDefinition = {
       description: 'Endpoints for placing, managing, and viewing orders.',
     },
     {
-    name: 'Vendor',
-    description: 'Endpoints for vendor management (CRUD operations)',
-  },
-   {
-    name: 'Rider',
-    description: 'Endpoints for rider management (SignUp)',
-  },
+      name: 'Vendor',
+      description: 'Endpoints for vendor management (CRUD operations)',
+    },
+    {
+      name: 'Rider',
+      description: 'Endpoints for rider management (SignUp)',
+    },
+    {
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
     },

@@ -8,7 +8,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/rider:
+ * /rider:
  *   post:
  *     summary: Create a new rider account
  *     tags: [Riders]
