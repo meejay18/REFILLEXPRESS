@@ -1,5 +1,5 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 
 const route = express.Router()
@@ -594,4 +594,167 @@ route.put("/user/change-password", authentication, changePassword)
  *                   example: Internal server error
  */
 route.post("/user/verify-forgot-password-otp", verifyForgotPasswordOtp)
+
+
+/**
+ * @swagger
+ * /user/getOneUser/{userId}:
+ *   get:
+ *     summary: Get a single user by ID
+ *     description: Retrieves detailed information about a specific user using their unique user ID.
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The unique identifier of the user
+ *         schema:
+ *           type: string
+ *           example: 83e3a1fe8d9ab7ff15abac23
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 83e3a1fe8d9ab7ff15abac23
+ *                     firstName:
+ *                       type: string
+ *                       example: Mije
+ *                     lastName:
+ *                       type: string
+ *                       example: Digban
+ *                     email:
+ *                       type: string
+ *                       example: mdigban@gmail.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: 09056345749
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
+ *       400:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+route.get("/user/getOneUser/:userId", getOneUser)
+
+
+
+
+
+
+/**
+ * @swagger
+ * /user/getAllusers:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieves a list of all registered users in the system.
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Users retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 83e3a1fe8d9ab7ff15abac23
+ *                       firstName:
+ *                         type: string
+ *                         example: Mije
+ *                       lastName:
+ *                         type: string
+ *                         example: Digban
+ *                       email:
+ *                         type: string
+ *                         example: mdigban@gmail.com
+ *                       phoneNumber:
+ *                         type: string
+ *                         example: 09056345749
+ *                       isVerified:
+ *                         type: boolean
+ *                         example: true
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:00:00.000Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:00:00.000Z
+ *       400:
+ *         description: No users found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No users found
+ *                 data:
+ *                   type: array
+ *                   example: []
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+route.get("/user/getAllusers", getAllUsers)
 module.exports = route

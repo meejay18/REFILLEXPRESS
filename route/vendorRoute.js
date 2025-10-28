@@ -457,9 +457,11 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  * @swagger
  * /vendor/reset-password:
  *   post:
- *     summary: Reset vendor password (OTP verified)
- *     tags: [Vendor]
- *     description: Allows a verified vendor (via OTP) to set a new password. No token required — validation is based on stored OTP expiry session.
+ *     summary: Vendor Reset Password
+ *     description: Resets a vendor's account password after verifying a valid OTP. The OTP must match and not be expired.
+ *     tags:
+ *       - Vendor
+ *     operationId: vendorResetPassword
  *     requestBody:
  *       required: true
  *       content:
@@ -469,29 +471,67 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *             required:
  *               - businessEmail
  *               - newPassword
- *               - confirmPassword
  *             properties:
  *               businessEmail:
  *                 type: string
- *                 example: vendorstore@gmail.com
+ *                 format: email
+ *                 description: The vendor's registered business email.
+ *                 example: vendor@example.com
  *               newPassword:
  *                 type: string
- *                 example: StrongPass123!
+ *                 format: password
+ *                 description: The new password for the vendor account.
+ *                 example: StrongPass123
  *               confirmPassword:
  *                 type: string
- *                 example: StrongPass123!
+ *                 format: password
+ *                 description: Must match the new password.
+ *                 example: StrongPass123
  *     responses:
  *       200:
- *         description: Password reset successfully
+ *         description: Password reset successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset successfully.
  *       400:
- *         description: Bad request — missing required fields or passwords do not match / expired reset session
+ *         description: Invalid input, passwords do not match, or OTP is invalid/expired.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid OTP or OTP expired, please request a new one.
  *       404:
- *         description: Vendor not found
-*       500:
- *         description: Internal server error
+ *         description: Vendor not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor not found.
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
  */
 
-router.patch('/vendor/reset-password/:token', vendorResetPassword);
+
+router.post('/vendor/reset-password', vendorResetPassword);
 
 
 /**
