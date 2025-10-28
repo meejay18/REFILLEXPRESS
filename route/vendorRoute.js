@@ -9,7 +9,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/vendor:
+ * /vendor:
  *   post:
  *     summary: Create a new vendor account
  *     tags: [Vendors]
@@ -87,7 +87,7 @@ const router = express.Router();
 router.post('/vendor',  vendorSignUp)
 /**
  * @swagger
- * /api/v1/vendor/verify:
+ * /vendor/verify:
  *   post:
  *     summary: Verify vendor account using OTP
  *     tags: [Vendors]
@@ -167,7 +167,7 @@ router.post('/vendor/verify', verifyVendor)
 
 /**
  * @swagger
- * /api/v1/vendor/resend-otp:
+ * /vendor/resend-otp:
  *   post:
  *     summary: Resend OTP to vendor's business email
  *     tags: [Vendors]
@@ -234,7 +234,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
 
 /**
  * @swagger
- * /api/v1/vendor/login:
+ * /vendor/login:
  *   post:
  *     summary: Login vendor account
  *     tags: [Vendors]
@@ -326,7 +326,7 @@ router.post('/vendor/login', Vendorlogin);
 
 /**
  * @swagger
- * /api/vendor/forgot-password:
+ * /vendor/forgot-password:
  *   post:
  *     summary: Vendor Forgot Password Request
  *     description: Initiates the password reset process for a vendor by sending a one-time password (OTP) to their registered business email. The OTP is valid for 5 minutes.
@@ -381,7 +381,7 @@ router.post('/vendor/login', Vendorlogin);
 router.post('/vendor/forgot-password', vendorForgotPassword)
 /**
  * @swagger
- * /api/v1/vendor/verify-forgot-password-otp:
+ * /vendor/verify-forgot-password-otp:
  *   post:
  *     summary: Verify OTP for vendor forgot password
  *     tags: [Vendors]
@@ -455,7 +455,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
 
 /**
  * @swagger
- * /api/v1/vendor/reset-password:
+ * /vendor/reset-password:
  *   post:
  *     summary: Reset vendor password (OTP verified)
  *     tags: [Vendors]
@@ -496,7 +496,7 @@ router.patch('/vendor/reset-password/:token', vendorResetPassword);
 
 /**
  * @swagger
- * /api/v1/vendor/change-password:
+ * /vendor/change-password:
  *   patch:
  *     summary: Change vendor password
  *     tags: [Vendors]
@@ -574,7 +574,7 @@ router.patch('/vendor/change-password', vendorAuthentication, changeVendorPasswo
 
 /**
  * @swagger
- * /api/v1/vendor/getAllvendors:
+ * /vendor/getAllvendors:
  *   get:
  *     summary: Retrieve all vendors
  *     description: Fetches all registered vendors from the database.
@@ -651,7 +651,7 @@ router.get("/vendor/getAllvendors", getAllvendors)
 
 /** 
  * @swagger
- * /api/v1/vendor/getOneVendor/{vendorId}:
+ * /vendor/getOneVendor/{vendorId}:
  *   get:
  *     summary: Retrieve a single vendor
  *     description: Fetches a vendor from the database using the vendor's unique ID.
@@ -735,7 +735,7 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 /**
  * @swagger
- * /api/v1/vendor/vendorForgotPasswordOtpResend:
+ * /vendor/vendorForgotPasswordOtpResend:
  *   post:
  *     summary: Resend Vendor Forgot Password OTP
  *     description: Resends a new one-time password (OTP) to the vendor's registered business email for password reset. The OTP expires after 5 minutes.

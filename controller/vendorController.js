@@ -308,7 +308,7 @@ message: 'otp expired, please request a new one',
 }
 
 
-const token = jwt.sign({id: vendor.id, businessEmail: vendor.email}, process.env.JWT_SECRET , {expiresIn: "2hr"})
+const token = jwt.sign({id: vendor.id, businessEmail: vendor.businessEmail}, process.env.JWT_SECRET , {expiresIn: "20m"})
 
 vendor.otp = null
 vendor.otpExpiredAt = null
