@@ -2,9 +2,11 @@ const express = require('express')
 const sequelize = require('./database/database')
 const PORT = 3500
 const app = express()
-const cors = require("cors")
-app.use(cors("*"))
+const cors = require('cors')
+app.use(cors('*'))
 app.use(express.json())
+const morgan = require('morgan')
+app.use(morgan('dev'))
 
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
@@ -12,8 +14,12 @@ const swaggerUi = require('swagger-ui-express')
 
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
-const vendorRouter = require ('./route/vendorRoute')
+const vendorRouter = require('./route/vendorRoute')
 app.use('/api/v1', vendorRouter)
+const orderRouter = require('./route/orderRoute')
+app.use('/api/v1', orderRouter)
+const adminRouter = require('./route/adminRoute')
+app.use('/api/v1', adminRouter)
 
 const riderRouter = require('./route/riderRoute')
 app.use('/api/v1', riderRouter)
@@ -21,26 +27,27 @@ app.use('/api/v1', riderRouter)
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'API documentation for our Final project',
+    title: 'Refill Express API Documentation',
     version: '1.0.0',
-    description: 'Refill express Swagger Documentation',
-    // license: {
-    //   name: 'Licensed Under MIT',
-    //   url: 'https://spdx.org/licenses/MIT.html',
-    // },
+    description: 'API documentation for Refill Express — vendor, user, order, and admin services.',
     contact: {
-      name: 'JSONPlaceholder',
+      name: 'Refill Express Team',
       url: 'https://google.com',
     },
   },
   servers: [
+    { url: 'https://refillexpress.onrender.com/api/v1', description: 'Production server' },
+    { url: 'http://localhost:3500/api/v1', description: 'Development server' },
+  ],
+  tags: [
     {
-      url: 'http://localhost:3500',
-      description: 'Development server',
+      name: 'User',
+      description: 'Endpoints for user registration, login, verification, and account management.',
     },
     {
-      url: 'http://localhost:3000',
-      description: 'Production server',
+      name: 'Vendor',
+      description:
+        'Endpoints for vendor registration, authentication, password recovery, and profile management.',
     },
     {
       url: 'http://localhost:3500',
@@ -49,8 +56,8 @@ const swaggerDefinition = {
   ],
   tags: [
     {
-      name: 'User',
-      description: 'Endpoints for user authentication, verification, and password management',
+      name: 'Order',
+      description: 'Endpoints for placing, managing, and viewing orders.',
     },
     {
     name: 'Vendor',
@@ -60,6 +67,10 @@ const swaggerDefinition = {
     name: 'Rider',
     description: 'Endpoints for rider management (SignUp)',
   },
+      name: 'Admin',
+      description: 'Endpoints for administrative actions and dashboard management.',
+    },
+
   ],
   components: {
     securitySchemes: {
@@ -70,12 +81,7 @@ const swaggerDefinition = {
       },
     },
   },
-
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
+  security: [{ bearerAuth: [] }],
 }
 
 const options = {
@@ -89,7 +95,28 @@ const swaggerSpec = swaggerJSDoc(options)
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.use((error, req, res, next) => {
-  return res.status(error.status || 500).json(error.message || 'An error occurred')
+  console.error(error)
+
+  if (error.name === 'SequelizeValidationError') {
+    const messages = error.errors.map((err) => err.message)
+    return res.status(400).json({ message: messages[0] })
+  }
+
+  if (error.name === 'SequelizeUniqueConstraintError') {
+    return res.status(400).json({ message: 'Email already exists' })
+  }
+
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).json({ message: 'Invalid or expired token' })
+  }
+
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({ message: 'Session expired, please log in again' })
+  }
+
+  return res.status(error.status || 500).json({
+    message: error.message || 'An unexpected error occurred',
+  })
 })
 
 app.listen(PORT, () => {

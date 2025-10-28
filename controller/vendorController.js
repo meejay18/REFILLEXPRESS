@@ -4,6 +4,7 @@ const { Order } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
+const vendor = require('../models/vendor')
 
 exports.vendorSignUp = async (req, res, next) => {
   try {
@@ -27,9 +28,7 @@ exports.vendorSignUp = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const otp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
     const newVendor = await Vendor.create({
       businessName,
@@ -74,9 +73,9 @@ exports.verifyVendor = async (req, res, next) => {
       })
     }
 
-    if (Date.now() > checkVendor.otpExpiredAt) {
+    if (Date.now() > new Date(checkVendor.otpExpiredAt).getTime()) {
       return res.status(400).json({
-        message: 'Otp expired, Please request another otp',
+        message: 'otp expired, please request a new one',
       })
     }
 
@@ -127,9 +126,7 @@ exports.resendVendorOtp = async (req, res, next) => {
       })
     }
 
-    const newOtp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
 
     vendor.otp = newOtp
     vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
@@ -137,7 +134,7 @@ exports.resendVendorOtp = async (req, res, next) => {
     await vendor.save()
 
     const emailOptions = {
-      businessEmail: vendor.businessEmail,
+      email: vendor.businessEmail,
       subject: 'Sign up successful',
       html: resendOtpTemplate(newOtp, vendor.businessName),
     }
@@ -150,6 +147,49 @@ exports.resendVendorOtp = async (req, res, next) => {
         businessEmail: vendor.businessEmail,
         otpSent: true,
       },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+exports.verifyVendorOtp = async (req, res, next) => {
+  const { businessEmail, otp } = req.body
+  try {
+    const vendor = await Vendor.findOne({
+      where: { businessEmail: businessEmail.toLowerCase() },
+    })
+    if (!vendor || !otp) {
+      return res.status(400).json({
+        message: 'Email and OTP required',
+      })
+    }
+
+    if (!vendor) {
+      return res.status(400).json({
+        message: 'Vendor not found',
+      })
+    }
+    if (vendor.isVerified) {
+      return res.status(400).json({
+        message: 'Vendor already verified',
+      })
+    }
+    if (vendor.otp !== otp) {
+      return res.status(400).json({
+        message: 'Invalid Otp',
+      })
+    }
+    if (!vendor.otpExpiredAt || vendor.otpExpiredAt < Date.now()) {
+      return res.status(400).json({ message: 'OTP expired, please request a new one' })
+    }
+    vendor.isVerified = true
+    vendor.otp = null
+    vendor.otpExpiredat = true
+
+    await vendor.save()
+
+    return res.status(200).json({
+      message: 'OTP verified successfully',
     })
   } catch (error) {
     next(error)
@@ -218,19 +258,22 @@ exports.vendorForgotPassword = async (req, res, next) => {
       })
     }
 
-    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
-      expiresIn: '20m',
-    })
+    // const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
+    //   expiresIn: '20m',
+    // })
 
-    const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
+    // const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
 
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
     const emailOptions = {
-      businessEmail: vendor.businessEmail,
+      email: vendor.businessEmail,
       subject: 'Reset password',
-      html: forgotPasswordTemplate(link, vendor.firstName),
+      html: forgotPasswordTemplate(newOtp, vendor.firstName),
     }
 
     await emailSender(emailOptions)
+
+    await vendor.save()
     return res.status(200).json({
       message: 'forgot password request sent',
     })
@@ -238,43 +281,75 @@ exports.vendorForgotPassword = async (req, res, next) => {
     next(error)
   }
 }
-exports.vendorResetPassword = async (req, res, next) => {
-  const { token } = req.params
-  const { newPassword, confirmPassword } = req.body
-  try {
-    if (!newPassword && !confirmPassword) {
-      return res.status(400).json({
-        message: 'please provide both passwords',
-      })
-    }
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        message: 'Passwords do not match',
-      })
-    }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    const vendor = await Vendor.findOne({ where: { id: decoded.id } })
+exports.verifyVendorForgotPasswordOtp = async (req, res, next) => {
+  const { businessEmail, otp } = req.body
+  try {
+    const vendor = await Vendor.findOne({
+      where: { businessEmail: businessEmail?.toLowerCase() },
+    })
+    console.log(vendor)
+
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' })
+    }
+
+
+    if (vendor.otp.toString() !== otp.toString()) {
+      return res.status(400).json({ message: 'Invalid otp' })
+    }
+
+   
+
+    if (Date.now() > new Date(vendor.otpExpiredAt).getTime()) {
+      return res.status(400).json({
+        message: 'otp expired, please request a new one',
+      })
+    }
+
+    const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
+      expiresIn: '20m',
+    })
+
+    vendor.otp = null
+    vendor.otpExpiredAt = null
+
+    await vendor.save()
+
+    return res.status(200).json({
+      email: vendor.businessEmail,
+      message: 'Otp verified successfully',
+      token,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.vendorResetPassword = async (req, res, next) => {
+  const { businessEmail, newPassword } = req.body
+
+  try {
+    if (!businessEmail || !newPassword) {
+      return res.status(400).json({
+        message: 'All fields are required',
+      })
+    }
+
+    const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail.toLowerCase() } })
     if (!vendor) {
       return res.status(404).json({
         message: 'Vendor not found',
       })
     }
 
+    // Hashing new password
     const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(newPassword, salt)
+    vendor.password = await bcrypt.hash(newPassword, salt)
 
-    vendor.password = hashedPassword
-
-    const tokenExpiry = Date.now() + 1000 * 60 * 5
-
-    if (Date.now() > tokenExpiry) {
-      return res.status(400).json({
-        message: 'Password expired, resend a password',
-      })
-    }
-
-    vendor.resetPasswordExpiredAt = tokenExpiry
+    // Clear OTP session
+    vendor.otp = null
+    vendor.otpExpiredAt = null
 
     await vendor.save()
 
@@ -282,13 +357,40 @@ exports.vendorResetPassword = async (req, res, next) => {
       message: 'Password reset successfully',
     })
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(400).json({ message: 'Reset link has expired' })
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(400).json({ message: 'Invalid or malformed token' })
-    }
     next(error)
+  }
+}
+
+exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
+  try {
+    const { businessEmail } = req.body
+
+    const vendor = await Vendor.findOne({ where: { businessEmail: businessEmail?.toLowerCase() } })
+    if (!vendor) {
+      return res.status(404).json({
+        message: 'Vendor not found',
+      })
+    }
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
+
+    vendor.otp = newOtp
+    vendor.otpExpiredAt = Date.now() + 1000 * 60 * 5
+
+    await vendor.save()
+
+    const emailOptions = {
+      email: vendor.businessEmail,
+      subject: 'Forgot password',
+      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+    }
+
+    await emailSender(emailOptions)
+    return res.status(200).json({
+      message: 'forgot password request sent',
+    })
+  } catch (error) {
+    next()
   }
 }
 exports.changeVendorPassword = async (req, res, next) => {

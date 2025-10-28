@@ -1,22 +1,15 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 
 const route = express.Router()
 
 /**
  * @swagger
- * tags:
- *   name: Users
- *   description: User management endpoints
- */
-
-/**
- * @swagger
- * /api/v1/user:
+ * /user:
  *   post:
  *     summary: Create a new user account
- *     tags: [Users]
+ *     tags: [User]
  *     description: Endpoint for signing up a new user.
  *     requestBody:
  *       required: true
@@ -83,10 +76,10 @@ route.post('/user', signUp)
 
 /**
  * @swagger
- * /api/v1/user/verify:
+ * /user/verify:
  *   post:
  *     summary: Verify user OTP
- *     tags: [Users]
+ *     tags: [User]
  *     description: Verify the user's account using the OTP sent to their email.
  *     requestBody:
  *       required: true
@@ -132,10 +125,10 @@ route.post("/user/verify", verify)
 
 /**
  * @swagger
- * /api/v1/user/resend-otp:
+ * /user/resend-otp:
  *   post:
  *     summary: Resend OTP for user verification
- *     tags: [Users]
+ *     tags: [User]
  *     description: Allows users to request a new OTP if the previous one expired or wasn't received.
  *     requestBody:
  *       required: true
@@ -185,12 +178,12 @@ route.post("/user/resend-otp", resendOtp)
 
 /**
  * @swagger
- * /api/v1/user/login:
+ * /user/login:
  *   post:
  *     summary: Log in a user
  *     description: Authenticates a registered and verified user, returning a JWT token if successful.
  *     tags:
- *       - Users
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -272,12 +265,11 @@ route.post("/user/login", login)
 
 /**
  * @swagger
- * /api/v1/user/forgot-password:
+ * /user/forgot-password:
  *   post:
  *     summary: Request password reset
- *     description: Sends a password reset link to the user's registered email address if the account exists.
- *     tags:
- *       - Users
+ *     tags: [User]
+ *     description: Sends a 6-digit OTP to the user's email to begin the password reset process.
  *     requestBody:
  *       required: true
  *       content:
@@ -289,11 +281,10 @@ route.post("/user/login", login)
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: mdigban@gmail.com
+ *                 example: johndoe@gmail.com
  *     responses:
  *       200:
- *         description: Forgot password request sent successfully
+ *         description: Reset password OTP sent successfully
  *         content:
  *           application/json:
  *             schema:
@@ -302,6 +293,7 @@ route.post("/user/login", login)
  *                 message:
  *                   type: string
  *                   example: forgot password request sent
+ *
  *       404:
  *         description: User not found
  *         content:
@@ -312,18 +304,65 @@ route.post("/user/login", login)
  *                 message:
  *                   type: string
  *                   example: User not found
+ *
  *       500:
  *         description: Internal server error
  */
+route.post('/user/forgot-password', forgotPassword);
 
-route.post("/user/forgot-password", forgotPassword)
+/**
+ * @swagger
+ * /user/forgot-password/resend:
+ *   post:
+ *     summary: Resend OTP for resetting password
+ *     tags: [User]
+ *     description: Resends a 6-digit OTP to the user's registered email for password reset verification.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: johndoe@gmail.com
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully for password reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: forgot password request sent
+ *
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *
+ *       500:
+ *         description: Internal server error
+ */
+route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
 
 
 
 
 /**
  * @swagger
- * /api/v1/user/reset/password/{token}:
+ * /user/reset/password/{token}:
  *   post:
  *     summary: Reset user password
  *     description: This endpoint allows a user to reset their password using a valid token sent via email. The token is verified and, if valid, the password is updated.
@@ -407,7 +446,7 @@ route.post("/user/reset/password/:token", resetPassword)
 
 /**
  * @swagger
- * /api/v1/user/change-password:
+ * /user/change-password:
  *   put:
  *     summary: Change user password
  *     description: Allows an authenticated user to change their password by providing the old password, new password, and confirmation password.
@@ -475,5 +514,247 @@ route.post("/user/reset/password/:token", resetPassword)
  *               message: An unexpected error occurred
  */
 
+
+
 route.put("/user/change-password", authentication, changePassword)
+
+
+/**
+ * @swagger
+ * /user/verify-forgot-password-otp:
+ *   post:
+ *     summary: Verify OTP for Forgot Password
+ *     description: Verifies a one-time password (OTP) sent to the user's email for password reset. If valid, it returns a temporary JWT token that can be used to reset the password.
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: johndoe@example.com
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   example: johndoe@example.com
+ *                 message:
+ *                   type: string
+ *                   example: Otp verified successfully
+ *                 token:
+ *                   type: string
+ *                   description: Temporary JWT token for password reset
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid otp
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+route.post("/user/verify-forgot-password-otp", verifyForgotPasswordOtp)
+
+
+/**
+ * @swagger
+ * /user/getOneUser/{userId}:
+ *   get:
+ *     summary: Get a single user by ID
+ *     description: Retrieves detailed information about a specific user using their unique user ID.
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The unique identifier of the user
+ *         schema:
+ *           type: string
+ *           example: 83e3a1fe8d9ab7ff15abac23
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 83e3a1fe8d9ab7ff15abac23
+ *                     firstName:
+ *                       type: string
+ *                       example: Mije
+ *                     lastName:
+ *                       type: string
+ *                       example: Digban
+ *                     email:
+ *                       type: string
+ *                       example: mdigban@gmail.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: 09056345749
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
+ *       400:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+route.get("/user/getOneUser/:userId", getOneUser)
+
+
+
+
+
+
+/**
+ * @swagger
+ * /user/getAllusers:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieves a list of all registered users in the system.
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Users retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 83e3a1fe8d9ab7ff15abac23
+ *                       firstName:
+ *                         type: string
+ *                         example: Mije
+ *                       lastName:
+ *                         type: string
+ *                         example: Digban
+ *                       email:
+ *                         type: string
+ *                         example: mdigban@gmail.com
+ *                       phoneNumber:
+ *                         type: string
+ *                         example: 09056345749
+ *                       isVerified:
+ *                         type: boolean
+ *                         example: true
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:00:00.000Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:00:00.000Z
+ *       400:
+ *         description: No users found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No users found
+ *                 data:
+ *                   type: array
+ *                   example: []
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+route.get("/user/getAllusers", getAllUsers)
 module.exports = route
