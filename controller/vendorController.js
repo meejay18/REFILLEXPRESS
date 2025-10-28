@@ -295,7 +295,7 @@ exports.verifyVendorForgotPasswordOtp = async (req, res, next) => {
     }
 
 
-    if (vendor.otp.toString() !== otp.toString()) {
+    if (vendor.otp !== otp) {
       return res.status(400).json({ message: 'Invalid otp' })
     }
 
