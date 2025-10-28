@@ -42,6 +42,10 @@ const swaggerDefinition = {
       url: 'http://localhost:3000',
       description: 'Production server',
     },
+    {
+      url: 'http://localhost:3500',
+      description: 'Production server',
+    },
   ],
   tags: [
     {
@@ -51,6 +55,10 @@ const swaggerDefinition = {
     {
     name: 'Vendor',
     description: 'Endpoints for vendor management (CRUD operations)',
+  },
+   {
+    name: 'Rider',
+    description: 'Endpoints for rider management (SignUp)',
   },
   ],
   components: {
