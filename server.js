@@ -1,6 +1,5 @@
 const express = require('express')
-const sequelize = require('./database/database')
-const PORT = 3500
+require('./models')
 const app = express()
 const cors = require('cors')
 app.use(cors('*'))
@@ -10,7 +9,7 @@ app.use(morgan('dev'))
 
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
-
+const PORT = 3500
 
 const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
@@ -20,9 +19,6 @@ const orderRouter = require('./route/orderRoute')
 app.use('/api/v1', orderRouter)
 const adminRouter = require('./route/adminRoute')
 app.use('/api/v1', adminRouter)
-
-const riderRouter = require('./route/riderRoute')
-app.use('/api/v1', riderRouter)
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -50,27 +46,13 @@ const swaggerDefinition = {
         'Endpoints for vendor registration, authentication, password recovery, and profile management.',
     },
     {
-      url: 'http://localhost:3500',
-      description: 'Production server',
-    },
-  ],
-  tags: [
-    {
       name: 'Order',
       description: 'Endpoints for placing, managing, and viewing orders.',
     },
     {
-    name: 'Vendor',
-    description: 'Endpoints for vendor management (CRUD operations)',
-  },
-   {
-    name: 'Rider',
-    description: 'Endpoints for rider management (SignUp)',
-  },
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
     },
-
   ],
   components: {
     securitySchemes: {
@@ -120,5 +102,5 @@ app.use((error, req, res, next) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Server running on port: ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
