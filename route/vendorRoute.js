@@ -453,15 +453,17 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  */
 router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
 
+
+
+
 /**
  * @swagger
  * /vendor/reset-password:
  *   post:
- *     summary: Vendor Reset Password
- *     description: Resets a vendor's account password after verifying a valid OTP. The OTP must match and not be expired.
+ *     summary: Reset Vendor Password
+ *     description: Allows a vendor to reset their password using their registered business email after OTP verification.
  *     tags:
  *       - Vendor
- *     operationId: vendorResetPassword
  *     requestBody:
  *       required: true
  *       content:
@@ -480,16 +482,11 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *               newPassword:
  *                 type: string
  *                 format: password
- *                 description: The new password for the vendor account.
- *                 example: StrongPass123
- *               confirmPassword:
- *                 type: string
- *                 format: password
- *                 description: Must match the new password.
- *                 example: StrongPass123
+ *                 description: The new password to be set.
+ *                 example: StrongPass@123
  *     responses:
  *       200:
- *         description: Password reset successfully.
+ *         description: Password reset successfully
  *         content:
  *           application/json:
  *             schema:
@@ -497,9 +494,9 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Password reset successfully.
+ *                   example: Password reset successfully
  *       400:
- *         description: Invalid input, passwords do not match, or OTP is invalid/expired.
+ *         description: Missing required fields
  *         content:
  *           application/json:
  *             schema:
@@ -507,9 +504,9 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Invalid OTP or OTP expired, please request a new one.
+ *                   example: All fields are required
  *       404:
- *         description: Vendor not found.
+ *         description: Vendor not found
  *         content:
  *           application/json:
  *             schema:
@@ -517,9 +514,9 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Vendor not found.
+ *                   example: Vendor not found
  *       500:
- *         description: Internal server error.
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -527,7 +524,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Internal server error.
+ *                   example: Internal server error
  */
 
 

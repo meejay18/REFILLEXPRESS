@@ -348,42 +348,29 @@ exports.forgotPassword = async (req, res, next) => {
   }
 }
 exports.resetPassword = async (req, res, next) => {
-  const { token } = req.params
-  const { newPassword, confirmPassword } = req.body
-  try {
-    if (!newPassword && !confirmPassword) {
-      return res.status(400).json({
-        message: 'please provide both passwords',
-      })
-    }
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        message: 'Passwords do not match',
-      })
-    }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  const { email, newPassword } = req.body
 
-    const user = await User.findOne({ where: { id: decoded.id } })
+  try {
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        message: 'All fields are required',
+      })
+    }
+
+    const user = await User.findOne({ where: { email: email.toLowerCase() } })
     if (!user) {
       return res.status(404).json({
-        message: 'User not found',
+        message: 'user not found',
       })
     }
 
+    // Hashing new password
     const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(newPassword, salt)
+    user.password = await bcrypt.hash(newPassword, salt)
 
-    user.password = hashedPassword
-
-    const tokenExpiry = Date.now() + 1000 * 60 * 5
-
-    if (Date.now() > tokenExpiry) {
-      return res.status(400).json({
-        message: 'Password expired, resend a password',
-      })
-    }
-
-    user.resetPasswordExpiredAt = tokenExpiry
+    // Clear OTP session
+    user.otp = null
+    user.otpExpiredAt = null
 
     await user.save()
 
@@ -391,12 +378,6 @@ exports.resetPassword = async (req, res, next) => {
       message: 'Password reset successfully',
     })
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(400).json({ message: 'Reset link has expired' })
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(400).json({ message: 'Invalid or malformed token' })
-    }
     next(error)
   }
 }
