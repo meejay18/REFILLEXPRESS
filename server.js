@@ -66,6 +66,7 @@ const swaggerDefinition = {
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
     },
+
   ],
   components: {
     securitySchemes: {
