@@ -27,20 +27,21 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'vendors',
+          model: 'Vendors',
           key: 'id',
         },
         onDelete: 'SET NULL',
       },
-      // riderId: {
-      //   type: Sequelize.UUID,
-      //   allowNull: true,
-      //   references: {
-      //     model: 'Riders',
-      //     key: 'id',
-      //   },
-      //   onDelete: 'SET NULL',
-      // },
+      riderId: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: 'Riders',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
       gasType: {
         type: Sequelize.STRING,
         allowNull: false,

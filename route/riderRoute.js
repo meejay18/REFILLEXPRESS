@@ -11,7 +11,7 @@ const router = express.Router();
  * /rider:
  *   post:
  *     summary: Create a new rider account
- *     tags: [Riders]
+ *     tags: [Rider]
  *     description: Endpoint for signing up a new rider.
  *     requestBody:
  *       required: true
