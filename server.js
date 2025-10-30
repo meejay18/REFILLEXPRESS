@@ -1,4 +1,5 @@
 const express = require('express')
+require("dotenv").config()
 const sequelize = require('./database/database')
 const PORT = 3500
 const app = express()
@@ -15,6 +16,8 @@ const userRouter = require('./route/userRoute')
 app.use('/api/v1', userRouter)
 const vendorRouter = require('./route/vendorRoute')
 app.use('/api/v1', vendorRouter)
+const vendorKycRouter = require('./route/vendorKycRoute')
+app.use('/api/v1', vendorKycRouter)
 const orderRouter = require('./route/orderRoute')
 app.use('/api/v1', orderRouter)
 const adminRouter = require('./route/adminRoute')
@@ -45,28 +48,24 @@ const swaggerDefinition = {
     },
     {
       name: 'Vendor',
-      description:
-        'Endpoints for vendor registration, authentication, password recovery, and profile management.',
-    },
-  ],
-  tags: [
-    {
-      name: 'Order',
-      description: 'Endpoints for placing, managing, and viewing orders.',
-    },
-    {
-      name: 'Vendor',
       description: 'Endpoints for vendor management (CRUD operations)',
+    },
+    {
+      name: 'VendorKyc',
+      description: 'Endpoints for handling vendor kyc details.',
     },
     {
       name: 'Rider',
       description: 'Endpoints for rider management (SignUp)',
     },
     {
+      name: 'Order',
+      description: 'Endpoints for placing, managing, and viewing orders.',
+    },
+    {
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
     },
-
   ],
   components: {
     securitySchemes: {
@@ -108,6 +107,10 @@ app.use((error, req, res, next) => {
 
   if (error.name === 'TokenExpiredError') {
     return res.status(401).json({ message: 'Session expired, please log in again' })
+  }
+
+  if (error.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ message: 'File too large. Max 5MB allowed.' })
   }
 
   return res.status(error.status || 500).json({

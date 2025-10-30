@@ -18,9 +18,7 @@ exports.signUp = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const otp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
     const newUser = await User.create({
       firstName,
@@ -419,41 +417,37 @@ exports.changePassword = async (req, res, next) => {
   }
 }
 
-exports.getAllUsers = async(req,res, next) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll()
 
-
-    if(users.length === 0) {
+    if (users.length === 0) {
       return res.status(400).json({
-        message: "No users found",
-        data: []
+        message: 'No users found',
+        data: [],
       })
     }
     return res.status(200).json({
-      message: "Users retrieved successfully",
-      data: users
+      message: 'Users retrieved successfully',
+      data: users,
     })
-    
   } catch (error) {
     next(error)
-    
   }
 }
-exports.getOneUser = async(req, res, next) => {
-  const {userId} = req.params
+exports.getOneUser = async (req, res, next) => {
+  const { userId } = req.params
   try {
     const user = await User.findByPk(userId)
-    if(!user) {
+    if (!user) {
       return res.status(400).json({
-        message: "User not found"
+        message: 'User not found',
       })
     }
 
     return res.status(200).json({
-      message: "User retrieved successfully",
-      data: user
-
+      message: 'User retrieved successfully',
+      data: user,
     })
   } catch (error) {
     next(error)

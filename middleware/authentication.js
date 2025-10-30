@@ -59,14 +59,14 @@ exports.vendorAuthentication = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    const user = await User.findOne({ where: { id: decoded.id } })
-    if (!user) {
+    const vendor = await Vendor.findOne({ where: { id: decoded.id } })
+    if (!vendor) {
       return res.status(404).json({
         message: 'Authentication failed, Vendor not found',
       })
     }
 
-    req.Vendor = decoded
+    req.vendor = decoded
     next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -85,7 +85,7 @@ exports.adminAuthentication = async (req, res, next) => {
         message: 'Unauthorized, no user found in request',
       })
     }
-    if (req.User.role !== 'admin') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({
         message: 'forbidden, only admins are allowed to carry out this action',
       })
