@@ -23,7 +23,7 @@ exports.signUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    phoneNumber: Joi.string().required()
+    phoneNumber: joi.string().required()
     .pattern(/^(?:\+234|0)[7-9][0-1]\d{8}$/)
     .required()
     .messages({
@@ -110,7 +110,7 @@ exports.vendorSignUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    businessPhoneNumber: Joi.string().required()
+    businessPhoneNumber: joi.string().required()
     .pattern(/^(?:\+234|0)[7-9][0-1]\d{8}$/)
     .required()
     .messages({
