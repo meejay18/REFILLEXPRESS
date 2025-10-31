@@ -1,21 +1,21 @@
 require('dotenv').config()
 module.exports = {
   development: {
-<<<<<<< HEAD
+
     username: 'root',
     password: 'root',
     database: 'FinalProject2',
     host: '127.0.0.1',
     dialect: 'mysql',
     // port: process.env.DB_PORT,
-=======
-    username: process.env.LOCAL_USER,
-    password: process.env.LOCAL_PASS,
-    database: process.env.LOCAL_DB_NAME,
-    host: process.env.LOCAL_DB_HOST,
-    dialect: 'mysql',
-    port: process.env.LOCAL_DB_PORT,
->>>>>>> a3c829b03a14a2869c4b5ad66b8f2148bcf50d6d
+
+//     username: process.env.LOCAL_USER,
+//     password: process.env.LOCAL_PASS,
+//     database: process.env.LOCAL_DB_NAME,
+//     host: process.env.LOCAL_DB_HOST,
+//     dialect: 'mysql',
+//     port: process.env.LOCAL_DB_PORT,
+
   },
   test: {
     username: 'root',
