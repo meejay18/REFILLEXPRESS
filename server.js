@@ -62,6 +62,10 @@ const swaggerDefinition = {
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
     },
+    {
+      name: 'Vendor KYC',
+      description: 'Endpoints for handling Vendor KYC.',
+    },
   ],
   components: {
     securitySchemes: {
