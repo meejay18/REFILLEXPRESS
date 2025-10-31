@@ -18,11 +18,37 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
       },
-
-      fullName: DataTypes.STRING,
-      email: DataTypes.STRING,
-      phoneNumber: DataTypes.STRING,
-      password: DataTypes.STRING,
+      fullName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: {
+          msg: 'This email is already registered',
+        },
+        validate: {
+          isEmail: {
+            msg: 'Please provide a valid email address',
+          },
+          notNull: {
+            msg: 'Email is required',
+          },
+          notEmpty: {
+            msg: 'Email field cannot be empty',
+          },
+        },
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       role: {
         type: DataTypes.ENUM('super-admin', 'admin'),
         allowNull: false,
@@ -34,10 +60,23 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'active',
       },
 
-      status: DataTypes.STRING,
-      resetPasswordToken: DataTypes.STRING,
-      resetPasswordExpiredAt: DataTypes.DATE,
-      lastLogin: DataTypes.DATE,
+      status: {
+        type: DataTypes.ENUM('active', 'inactive', 'blocked'),
+        allowNull: false,
+        defaultValue: 'active',
+      },
+      resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      lastLogin: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,

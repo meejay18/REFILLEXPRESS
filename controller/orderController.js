@@ -12,18 +12,23 @@ exports.placeOrder = async (req, res, next) => {
       })
     }
 
-
     const unitPrice = vendor.pricePerKg
     const totalPrice = unitPrice * quantity
     const deliveryFee = 2500
 
+    const date = new Date()
+    const orderNumber = `REF-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(
+      date.getDate()
+    ).padStart(2, '0')}-${Math.floor(100 + Math.random() * 900)}`
+
     const order = await Order.create({
       userId,
-      vendorId: vendor.id,
+      vendorId: vendor.businessName,
+      riderId: null,
       orderNumber,
       gasType,
       quantity,
-      price:unitPrice,
+      price: unitPrice,
       pickupAddress: vendor.businessAddress,
       deliveryAddress,
       totalPrice,
@@ -34,7 +39,7 @@ exports.placeOrder = async (req, res, next) => {
     })
 
     return res.status(201).json({
-      message: 'Order created successfully',
+      message: 'Order created successfully, A rider will be contact you shortly to complete your order',
       order: order,
     })
   } catch (error) {

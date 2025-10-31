@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'rider',
       })
 
-     Rider.belongsToMany(models.Vendor, {
+      Rider.belongsToMany(models.Vendor, {
         through: models.Order,
         foreignKey: 'RiderId',
         otherKey: 'vendorId',
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
   }
-    Rider.init(
+  Rider.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -37,11 +37,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      emailAddress: {
+      email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        validate: { isEmail: true },
+        unique: {
+          msg: 'This email is already registered',
+        },
+        validate: {
+          isEmail: {
+            msg: 'Please provide a valid email address',
+          },
+          notNull: {
+            msg: 'Email is required',
+          },
+          notEmpty: {
+            msg: 'Email field cannot be empty',
+          },
+        },
       },
       phoneNumber: {
         type: DataTypes.STRING,
@@ -60,9 +72,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+
       operatingArea: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       isVerified: {
         type: DataTypes.STRING,
@@ -84,6 +97,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Rider',
+       timestamps: true,
     }
   )
   return Rider

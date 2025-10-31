@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: 'userId',
         as: 'customers',
       })
+
+      Vendor.hasOne(models.VendorKyc, {
+        foreignKey: 'vendorId',
+        as: 'kyc',
+      })
     }
   }
 
@@ -118,7 +123,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Vendor',
-      tableName: 'vendors',
       timestamps: true,
     }
   )

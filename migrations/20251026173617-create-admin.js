@@ -4,22 +4,29 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Admins', {
       id: {
-        type: Sequelize.UUID,
+        allowNull: false,
         primaryKey: true,
+        type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
 
       fullName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       phoneNumber: {
         type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
       },
       password: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       role: {
         type: Sequelize.ENUM('super-admin', 'admin'),
@@ -33,12 +40,15 @@ module.exports = {
       },
       resetPasswordToken: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
       resetPasswordExpiredAt: {
         type: Sequelize.DATE,
+        allowNull: true,
       },
       lastLogin: {
         type: Sequelize.DATE,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

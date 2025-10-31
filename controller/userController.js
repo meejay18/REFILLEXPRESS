@@ -18,9 +18,7 @@ exports.signUp = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const otp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
     const newUser = await User.create({
       firstName,
@@ -348,42 +346,29 @@ exports.forgotPassword = async (req, res, next) => {
   }
 }
 exports.resetPassword = async (req, res, next) => {
-  const { token } = req.params
-  const { newPassword, confirmPassword } = req.body
-  try {
-    if (!newPassword && !confirmPassword) {
-      return res.status(400).json({
-        message: 'please provide both passwords',
-      })
-    }
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        message: 'Passwords do not match',
-      })
-    }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  const { email, newPassword } = req.body
 
-    const user = await User.findOne({ where: { id: decoded.id } })
+  try {
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        message: 'All fields are required',
+      })
+    }
+
+    const user = await User.findOne({ where: { email: email.toLowerCase() } })
     if (!user) {
       return res.status(404).json({
-        message: 'User not found',
+        message: 'user not found',
       })
     }
 
+    // Hashing new password
     const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(newPassword, salt)
+    user.password = await bcrypt.hash(newPassword, salt)
 
-    user.password = hashedPassword
-
-    const tokenExpiry = Date.now() + 1000 * 60 * 5
-
-    if (Date.now() > tokenExpiry) {
-      return res.status(400).json({
-        message: 'Password expired, resend a password',
-      })
-    }
-
-    user.resetPasswordExpiredAt = tokenExpiry
+    // Clear OTP session
+    user.otp = null
+    user.otpExpiredAt = null
 
     await user.save()
 
@@ -391,12 +376,6 @@ exports.resetPassword = async (req, res, next) => {
       message: 'Password reset successfully',
     })
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(400).json({ message: 'Reset link has expired' })
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(400).json({ message: 'Invalid or malformed token' })
-    }
     next(error)
   }
 }
@@ -438,41 +417,37 @@ exports.changePassword = async (req, res, next) => {
   }
 }
 
-exports.getAllUsers = async(req,res, next) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll()
 
-
-    if(users.length === 0) {
+    if (users.length === 0) {
       return res.status(400).json({
-        message: "No users found",
-        data: []
+        message: 'No users found',
+        data: [],
       })
     }
     return res.status(200).json({
-      message: "Users retrieved successfully",
-      data: users
+      message: 'Users retrieved successfully',
+      data: users,
     })
-    
   } catch (error) {
     next(error)
-    
   }
 }
-exports.getOneUser = async(req, res, next) => {
-  const {userId} = req.params
+exports.getOneUser = async (req, res, next) => {
+  const { userId } = req.params
   try {
     const user = await User.findByPk(userId)
-    if(!user) {
+    if (!user) {
       return res.status(400).json({
-        message: "User not found"
+        message: 'User not found',
       })
     }
 
     return res.status(200).json({
-      message: "User retrieved successfully",
-      data: user
-
+      message: 'User retrieved successfully',
+      data: user,
     })
   } catch (error) {
     next(error)
