@@ -424,8 +424,6 @@ const orderStatusTemplate = (action, customerName, orderNumber, quantity, price)
   `;
 };
 
-
-
 const vendorSignUpTemplate = (otp, businessName) => {
   return `
   <!DOCTYPE html>
@@ -698,4 +696,103 @@ const resendOtpVendorTemplate = (newOtp, businessName) => {
   `;
 };
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate}
+const placeOrderTemplate = (orderNumber, firstName, quantity, totalPrice, deliveryAddress, vendorName) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Order Confirmation - RefillXpress</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #f97316, #2563eb);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .order-box {
+              background-color: #fef3c7;
+              color: #f97316;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 8px;
+              font-weight: bold;
+              text-align: center;
+          }
+          .details {
+              background-color: #f3f4f6;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 15px;
+          }
+          .footer {
+              background-color: #2563eb;
+              color: #e5e7eb;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Order Placed Successfully</h1>
+          </div>
+          <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Thank you for choosing <strong>RefillXpress</strong>! Your order has been placed successfully and will be processed shortly.</p>
+
+              <div class="order-box">
+                  Order Number: <strong>${orderNumber}</strong>
+              </div>
+
+              <div class="details">
+                  <p><strong>Vendor:</strong> ${vendorName}</p>
+                  <p><strong>Quantity:</strong> ${quantity} kg</p>
+                  <p><strong>Total Price:</strong> ₦${totalPrice}</p>
+                  <p><strong>Delivery Address:</strong> ${deliveryAddress}</p>
+                  <p><strong>Status:</strong> Pending Confirmation</p>
+              </div>
+
+              <p>We’ll notify you once your gas is on its way. Thank you for trusting RefillXpress — your safety and satisfaction are our priority.</p>
+              <p>— The RefillXpress Team</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `
+}
+
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate}

@@ -4,7 +4,12 @@ const { Order } = require('../models')
 const { User } = require('../models')
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
-const {  vendorSignUpTemplate , resendOtpVendorTemplate, forgotPasswordVendorTemplate} = require('../utils/emailTemplate')
+const {
+  vendorSignUpTemplate,
+  resendOtpVendorTemplate,
+  forgotPasswordVendorTemplate,
+  orderStatusTemplate,
+} = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
 
 exports.vendorSignUp = async (req, res, next) => {
@@ -586,7 +591,7 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
         {
           model: User,
           as: 'user',
-          attributes: ['firstName', 'lastName', 'phoneNumber'],
+          attributes: ['firstName', 'lastName', 'phoneNumber', "email"],
         },
       ],
     })
@@ -595,6 +600,28 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
         message: 'Order not found',
       })
     }
+
+    if (order.status !== 'pending') {
+      return res.status(403).json({
+        message: 'Order is not pending',
+      })
+    }
+
+    await order.update({ status: validActions[action] })
+    await order.save()
+
+    const emailOptions = {
+      email: order.user.email,
+      subject: 'Order Confirmation mail',
+      html: orderStatusTemplate(action, order.user.firstName, order.orderNumber, order.quantity, order.price),
+    }
+
+    await emailSender(emailOptions)
+
+    return res.status(200).json({
+      messages: actionMessages[action],
+      data: order,
+    })
   } catch (error) {
     next(error)
   }

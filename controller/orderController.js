@@ -1,4 +1,6 @@
-const { Vendor, Order } = require('../models')
+const emailSender = require('../middleware/nodemailer')
+const { Vendor, Order, User } = require('../models')
+const { placeOrderTemplate } = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
   const { gasType, quantity, deliveryAddress, scheduledTime } = req.body
@@ -9,6 +11,13 @@ exports.placeOrder = async (req, res, next) => {
     if (!vendor) {
       return res.status(404).json({
         message: 'No available vendors at the moment',
+      })
+    }
+
+    const user = await User.findOne({ where: { id: userId } })
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
       })
     }
 
@@ -23,7 +32,7 @@ exports.placeOrder = async (req, res, next) => {
 
     const order = await Order.create({
       userId,
-      vendorId: vendor.businessName,
+      vendorId: vendor.id,
       riderId: null,
       orderNumber,
       gasType,
@@ -37,6 +46,21 @@ exports.placeOrder = async (req, res, next) => {
       status: 'pending',
       paymentStatus: 'unpaid',
     })
+
+    const emailOptions = {
+      email: user.email,
+      subject: 'Order placed Successfully',
+      html: placeOrderTemplate(
+        orderNumber,
+        user.firstName,
+        quantity,
+        totalPrice,
+        deliveryAddress,
+        vendor.businessName
+      ),
+    }
+
+    await emailSender(emailOptions)
 
     return res.status(201).json({
       message: 'Order created successfully, A rider will be contact you shortly to complete your order',
