@@ -1,6 +1,7 @@
 const express = require('express')
 const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
+const { signUpValidation, loginValidator } = require('../middleware/validator')
 
 const route = express.Router()
 
@@ -69,7 +70,7 @@ const route = express.Router()
  *                       type: string
  *                       example: 09056345749
  */
-route.post('/user', signUp)
+route.post('/user', signUpValidation,  signUp)
 
 
 
@@ -257,7 +258,7 @@ route.post("/user/resend-otp", resendOtp)
  *         description: Internal server error
  */
 
-route.post("/user/login", login)
+route.post("/user/login", loginValidator, login)
 
 
 

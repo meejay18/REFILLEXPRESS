@@ -355,4 +355,38 @@ const kycVerificationTemplate = (status, businessName) => {
   `
 }
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate }
+
+const orderStatusTemplate  = (action, customerName, orderNumber, quantity, price)  => {
+  const isAccepted = action === 'accept';
+
+  const message = isAccepted
+    ? `<p>🎉 Great news! Your gas order <strong>#${orderNumber}</strong> for <strong>${quantity}kg</strong> has been <strong>accepted</strong>.</p>
+       <p>Our delivery team will be on their way shortly. The total cost is <strong>₦${price}</strong>.</p>`
+    : `<p>⚠️ Unfortunately, your gas order <strong>#${orderNumber}</strong> for <strong>${quantity}kg</strong> has been <strong>rejected</strong>.</p>
+       <p>Please contact support or place a new order. We apologize for the inconvenience.</p>`;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; }
+        .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .footer { margin-top: 20px; font-size: 0.9em; color: #777; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Hello ${customerName},</h2>
+        ${message}
+        <p>Best regards,<br><strong>RefillXpress Team</strong></p>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate }

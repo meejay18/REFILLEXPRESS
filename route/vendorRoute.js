@@ -2,6 +2,7 @@ const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
 const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders } = require('../controller/vendorController');
 const { verifyOtp } = require('../controller/userController');
+const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator');
 
 const router = express.Router();
 
@@ -84,7 +85,7 @@ const router = express.Router();
  *                   type: string
  *                   example: Vendor already exists
  */
-router.post('/vendor',  vendorSignUp)
+router.post('/vendor',  vendorSignUpValidation, vendorSignUp)
 /**
  * @swagger
  * /vendor/verify:
@@ -316,7 +317,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/login', Vendorlogin);
+router.post('/vendor/login', vendorLoginValidator, Vendorlogin);
 
 
 
