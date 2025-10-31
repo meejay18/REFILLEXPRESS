@@ -1,6 +1,6 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders } = require('../controller/vendorController');
+const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders, acceptOrRejectOrder } = require('../controller/vendorController');
 const { verifyOtp } = require('../controller/userController');
 const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator');
 
@@ -320,11 +320,6 @@ router.post('/vendor/resend-otp', resendVendorOtp);
 router.post('/vendor/login', vendorLoginValidator, Vendorlogin);
 
 
-
-
-
-
-
 /**
  * @swagger
  * /vendor/forgot-password:
@@ -454,9 +449,6 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  */
 router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
 
-
-
-
 /**
  * @swagger
  * /vendor/reset-password:
@@ -528,9 +520,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *                   example: Internal server error
  */
 
-
 router.post('/vendor/reset-password', vendorResetPassword);
-
 
 /**
  * @swagger
@@ -765,12 +755,6 @@ router.get("/vendor/getAllvendors", getAllvendors)
 
 router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
-
-
-
-
-
-
 /**
  * @swagger
  * /vendor/vendorForgotPasswordOtpResend:
@@ -894,9 +878,6 @@ router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpRese
 
 router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSummary )
 
-
-
-
 /**
  * @swagger
  * /vendor/getpendingOrders:
@@ -942,7 +923,97 @@ router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSum
  *               message: "Internal server error"
  */
 
-
 router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
+
+
+
+/**
+ * @swagger
+ * /vendor/accept/rejectOrder/{orderId}:
+ *   post:
+ *     summary: Accept or reject an order
+ *     description: |
+ *       This endpoint allows a vendor to **accept** or **reject** a customer's order.  
+ *       - If the vendor chooses `accept`, the order status becomes **active**.  
+ *       - If the vendor chooses `reject`, the order status becomes **cancelled**.  
+ *       After the action, an email notification is sent to the customer.
+ *     tags:
+ *       - Vendor Orders
+ *     security:
+ *       - bearerAuth: []   # Requires vendor authentication token
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the order to accept or reject.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [accept, reject]
+ *                 description: The action to perform on the order.
+ *             example:
+ *               action: "accept"
+ *     responses:
+ *       200:
+ *         description: Order successfully accepted or rejected.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order accepted successfully
+ *                 data:
+ *                   type: object
+ *                   description: The updated order details
+ *       400:
+ *         description: Invalid action provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid action
+ *       403:
+ *         description: Order is not in a pending state.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order is not pending
+ *       404:
+ *         description: Order not found for the vendor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+router.post("/vendor/accept/rejectOrder/:orderId", vendorAuthentication,  acceptOrRejectOrder)
+
+
 module.exports = router
 
