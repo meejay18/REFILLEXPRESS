@@ -1,5 +1,7 @@
 const cloudinary = require('../config/cloudinary')
-const { VendorKyc } = require('../models')
+const emailSender = require('../middleware/nodemailer')
+const { VendorKyc, Vendor } = require('../models')
+const { kycVerificationTemplate } = require('../utils/emailTemplate')
 
 exports.submitVendorKyc = async (req, res, next) => {
   const files = req.files
@@ -99,9 +101,99 @@ exports.updateVendorKyc = async (req, res, next) => {
   }
 }
 
-exports.viewVendorKyc = async (req, res, next) => {
+exports.verifyVendorKyc = async (req, res, next) => {
+  const { vendorId } = req.params
+  const { verificationStatus } = req.body
+
   try {
+    const status = ['verified', 'rejected']
+
+    if (!status.includes(verificationStatus)) {
+      return res.status(400).json({
+        message: 'Invalid validation status',
+      })
+    }
+
+    const kyc = await VendorKyc.findOne({
+      where: { vendorId },
+      include: [
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessEmail', 'businessName'],
+        },
+      ],
+    })
+
+    if (!kyc) {
+      return res.status(404).json({
+        message: 'Kyc record not found for this vendor',
+      })
+    }
+
+    if (kyc.verificationStatus === 'verified') {
+      return res.status(403).json({
+        message: 'Kyc is already verified',
+      })
+    }
+
+    await kyc.update({ verificationStatus })
+
+    const vendorEmail = await kyc.vendor.businessEmail
+    const vendorName = await kyc.vendor.businessName
+
+    const emailOptions = {
+      email: vendorEmail,
+      subject: 'Verification Status Mail',
+      html: kycVerificationTemplate(verificationStatus, vendorName),
+    }
+
+    await emailSender(emailOptions)
+
+    return res.status(200).json({
+      message: 'Kyc updated successfully',
+      data: kyc,
+    })
   } catch (error) {
     next(error)
   }
+}
+
+exports.getAllvendorKyc = async (req, res, next) => {
+  try {
+    const vendors = await Vendor.findAll()
+
+    if (vendors.length === 0) {
+      return res.status(404).json({
+        message: 'No vendors found',
+        data: [],
+      })
+    }
+    return res.status(200).json({
+      message: 'Vendors retrieved successfully',
+      data: vendors,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+exports.getOneVendorKyc = async (req, res, next) => {
+  const { vendorId } = req.params
+  try {
+    const vendor = await Vendor.findByPk(vendorId)
+    if (!vendor) {
+      return res.status(404).json({
+        message: 'Vendor not foound',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Vendor retrieved successfully',
+      data: vendor,
+    })
+  } catch (error) {
+    next(error)
+}
 }
