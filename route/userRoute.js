@@ -360,23 +360,15 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
 
 
 
+
 /**
  * @swagger
- * /user/reset/password/{token}:
+ * /user/resetPassword:
  *   post:
- *     summary: Reset user password
- *     description: This endpoint allows a user to reset their password using a valid token sent via email. The token is verified and, if valid, the password is updated.
+ *     summary: Reset User Password
+ *     description: Allows a user to reset their password using their registered email after OTP verification.
  *     tags:
  *       - User
- *       - Authentication
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         description: JWT token received via email for password reset
- *         schema:
- *           type: string
- *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *     requestBody:
  *       required: true
  *       content:
@@ -384,17 +376,19 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
  *           schema:
  *             type: object
  *             required:
+ *               - email
  *               - newPassword
- *               - confirmPassword
  *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: The registered email of the user.
+ *                 example: johndoe@example.com
  *               newPassword:
  *                 type: string
  *                 format: password
- *                 example: StrongPassword123!
- *               confirmPassword:
- *                 type: string
- *                 format: password
- *                 example: StrongPassword123!
+ *                 description: The new password to be set.
+ *                 example: StrongPass@123
  *     responses:
  *       200:
  *         description: Password reset successfully
@@ -407,7 +401,7 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
  *                   type: string
  *                   example: Password reset successfully
  *       400:
- *         description: Invalid input, expired token, or mismatched passwords
+ *         description: Missing required fields
  *         content:
  *           application/json:
  *             schema:
@@ -415,7 +409,7 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Passwords do not match
+ *                   example: All fields are required
  *       404:
  *         description: User not found
  *         content:
@@ -435,10 +429,10 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Internal Server Error
+ *                   example: Internal server error
  */
 
-route.post("/user/reset/password/:token", resetPassword)
+route.post("/user/resetPassword", resetPassword)
 
 
 

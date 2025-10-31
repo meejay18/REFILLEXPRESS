@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // Relationships
       Order.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
       Order.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' })
-      // Order.belongsTo(models.Rider, { foreignKey: 'riderId', as: 'rider' })
+      Order.belongsTo(models.Rider, { foreignKey: 'riderId', as: 'rider' })
     }
   }
 
@@ -80,18 +80,9 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Order',
+      timestamps: true,
     }
   )
-
-  // Generate Order Number before create
-  Order.beforeCreate((order) => {
-    const date = new Date()
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const random = Math.floor(100 + Math.random() * 900)
-    order.orderNumber = `REF-${year}${month}${day}-${random}`
-  })
 
   return Order
 }
