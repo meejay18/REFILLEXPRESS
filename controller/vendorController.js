@@ -559,11 +559,43 @@ exports.getPendingOrders = async (req, res, next) => {
   }
 }
 
-// {
-//       include: [
-//         {
-//           model: Order,
-//           as: 'orders',
-//         },
-//       ],
-//     }
+exports.acceptOrRejectOrder = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  const { orderId } = req.params
+  const { action } = req.body
+  try {
+    const validActions = {
+      accept: 'active',
+      reject: 'cancelled',
+    }
+
+    const actionMessages = {
+      accept: 'Order accepted successfully',
+      reject: 'Order rejected successfully',
+    }
+
+    if (!validActions[action]) {
+      return res.status(400).json({
+        message: 'Invalid action',
+      })
+    }
+
+    const order = await Order.findOne({
+      where: { id: orderId, vendorId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber'],
+        },
+      ],
+    })
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+  } catch (error) {
+    next(error)
+  }
+}
