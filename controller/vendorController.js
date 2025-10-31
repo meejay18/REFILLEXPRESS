@@ -4,7 +4,7 @@ const { Order } = require('../models')
 const { User } = require('../models')
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
-const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
+const {  vendorSignUpTemplate , resendOtpVendorTemplate, forgotPasswordVendorTemplate} = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
 
 exports.vendorSignUp = async (req, res, next) => {
@@ -46,7 +46,7 @@ exports.vendorSignUp = async (req, res, next) => {
     const emailOptions = {
       email: newVendor.businessEmail,
       subject: 'Sign up successfull',
-      html: signUpTemplate(otp, newVendor.businessName),
+      html: vendorSignUpTemplate(otp, newVendor.businessName),
     }
     await emailSender(emailOptions)
 
@@ -137,7 +137,7 @@ exports.resendVendorOtp = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Sign up successful',
-      html: resendOtpTemplate(newOtp, vendor.businessName),
+      html: resendOtpVendorTemplate(newOtp, vendor.businessName),
     }
 
     await emailSender(emailOptions)
@@ -269,7 +269,7 @@ exports.vendorForgotPassword = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Reset password',
-      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+      html: forgotPasswordVendorTemplate(newOtp, vendor.firstName),
     }
 
     vendor.otp = newOtp
@@ -383,7 +383,7 @@ exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Forgot password',
-      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+      html: forgotPasswordVendorTemplate(newOtp, vendor.firstName),
     }
 
     await emailSender(emailOptions)
