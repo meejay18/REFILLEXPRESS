@@ -1,7 +1,12 @@
 const express = require('express')
-const { vendorAuthentication } = require('../middleware/authentication')
+const {
+  vendorAuthentication,
+  adminAuthentication,
+  authentication,
+  adminOnly,
+} = require('../middleware/authentication')
 const upload = require('../middleware/multer')
-const { submitVendorKyc, updateVendorKyc } = require('../controller/vendorKycController')
+const { submitVendorKyc, updateVendorKyc, verifyVendorKyc, getAllvendorKyc, getOneVendorKyc } = require('../controller/vendorKycController')
 
 const router = express.Router()
 
@@ -132,7 +137,6 @@ const kycUpload = upload.fields([
 
 router.post('/vendorkyc', vendorAuthentication, kycUpload, submitVendorKyc)
 
-
 /**
  * @swagger
  * /vendorKyc/{vendorId}:
@@ -262,7 +266,253 @@ router.post('/vendorkyc', vendorAuthentication, kycUpload, submitVendorKyc)
  *                   example: Internal server error
  */
 
-
 router.put('/vendorKyc/:vendorId', vendorAuthentication, kycUpload, updateVendorKyc)
 
+/**
+ * @swagger
+ * /vendorKyc/verify/{vendorId}:
+ *   post:
+ *     summary: Verify or reject a vendor's KYC
+ *     description: Allows an authenticated admin to verify or reject a vendor’s KYC record. Once verified, an email notification is sent to the vendor.
+ *     tags:
+ *       - Vendor KYC
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: vendorId
+ *         in: path
+ *         required: true
+ *         description: Unique ID of the vendor whose KYC is being verified.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       description: Verification status to update for the vendor KYC.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               verificationStatus:
+ *                 type: string
+ *                 enum: [verified, rejected]
+ *                 description: Status to update the KYC with.
+ *             example:
+ *               verificationStatus: verified
+ *     responses:
+ *       200:
+ *         description: KYC verification status updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Kyc updated successfully
+ *                 data:
+ *                   type: object
+ *                   description: Updated KYC record
+ *       400:
+ *         description: Invalid verification status provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid validation status
+ *       403:
+ *         description: KYC is already verified and cannot be updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Kyc is already verified
+ *       404:
+ *         description: KYC record not found for the specified vendor ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Kyc record not found for this vendor
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An unexpected error occurred
+ */
+
+router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVendorKyc)
+
+
+
+/**
+ * @swagger
+ * /vendorKyc/getAllVendorKyc:
+ *   get:
+ *     summary: Retrieve all vendors with their KYC records
+ *     description: Allows an authenticated admin to retrieve a list of all vendors and their associated KYC records.
+ *     tags:
+ *       - Vendor KYC
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Vendors retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendors retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                         example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *                       businessName:
+ *                         type: string
+ *                         example: "Alpha Logistics"
+ *                       businessEmail:
+ *                         type: string
+ *                         example: "alpha@example.com"
+ *                       phoneNumber:
+ *                         type: string
+ *                         example: "+2348012345678"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-10-27T09:23:54.000Z"
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-10-27T09:23:54.000Z"
+ *       404:
+ *         description: No vendors found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No vendors found
+ *                 data:
+ *                   type: array
+ *                   example: []
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An unexpected error occurred
+ */
+
+
+router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendorKyc)
+
+
+/**
+ * @swagger
+ * /vendorKyc/getOneVendorKyc/{vendorId}:
+ *   get:
+ *     summary: Retrieve a single vendor KYC record by vendor ID
+ *     description: Allows an authenticated admin to retrieve the KYC details of a specific vendor using their vendor ID.
+ *     tags:
+ *       - Vendor KYC
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: vendorId
+ *         in: path
+ *         required: true
+ *         description: The unique ID of the vendor to retrieve.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *           example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *     responses:
+ *       200:
+ *         description: Vendor retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *                     businessName:
+ *                       type: string
+ *                       example: "Alpha Logistics"
+ *                     businessEmail:
+ *                       type: string
+ *                       example: "alpha@example.com"
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+2348012345678"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-27T09:23:54.000Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-27T09:23:54.000Z"
+ *       404:
+ *         description: Vendor not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor not found
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An unexpected error occurred
+ */
+
+
+
+router.get("/vendorKyc/getOneVendorKyc/:vendorId", authentication, adminOnly, getOneVendorKyc)
 module.exports = router

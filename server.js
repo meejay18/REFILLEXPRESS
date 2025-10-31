@@ -1,5 +1,5 @@
 const express = require('express')
-require("dotenv").config()
+require('dotenv').config()
 const sequelize = require('./database/database')
 const PORT = 3500
 const app = express()
@@ -49,10 +49,6 @@ const swaggerDefinition = {
     {
       name: 'Vendor',
       description: 'Endpoints for vendor management (CRUD operations)',
-    },
-    {
-      name: 'VendorKyc',
-      description: 'Endpoints for handling vendor kyc details.',
     },
     {
       name: 'Rider',

@@ -21,8 +21,7 @@ exports.authentication = async (req, res, next) => {
 
     const user = await User.findOne({ where: { id: decoded.id } })
 
-    console.log("user:", user);
-    
+    console.log('user:', user)
 
     if (!user) {
       return res.status(404).json({
@@ -30,7 +29,7 @@ exports.authentication = async (req, res, next) => {
       })
     }
 
-    req.user = decoded
+    req.user = user
     next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -66,7 +65,7 @@ exports.vendorAuthentication = async (req, res, next) => {
       })
     }
 
-    req.vendor = decoded
+    req.vendor = vendor
     next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -78,22 +77,17 @@ exports.vendorAuthentication = async (req, res, next) => {
   }
 }
 
-exports.adminAuthentication = async (req, res, next) => {
+exports.adminOnly = (req, res, next) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
-        message: 'Unauthorized, no user found in request',
-      })
+      return res.status(401).json({ message: 'Unauthorized, no user found' })
     }
     if (req.user.role !== 'admin') {
-      return res.status(403).json({
-        message: 'forbidden, only admins are allowed to carry out this action',
-      })
+      return res.status(403).json({ message: 'Forbidden, admins only' })
     }
+    
     next()
   } catch (error) {
     next(error)
   }
 }
-
-
