@@ -30,6 +30,15 @@ module.exports = {
       operatingArea: {
         type: Sequelize.STRING
       },
+      otp: {
+        type: Sequelize.STRING
+      },
+      otpExpiredAt: {
+        type: Sequelize.STRING
+      },
+      isVerified: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -22,7 +22,7 @@ const adminRouter = require('./route/adminRoute')
 app.use('/api/v1', adminRouter)
 
 const riderRouter = require('./route/riderRoute')
-app.use('/api/v1', riderRouter)
+app.use('', riderRouter)
 
 const swaggerDefinition = {
   openapi: '3.0.0',

@@ -13,7 +13,7 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true,
     });
-    await queryInterface.addColumn('rider', 'rating', {
+    await queryInterface.addColumn('rider', 'isVerified', {
       type: Sequelize.STRING,
       allowNull: true,
     });
