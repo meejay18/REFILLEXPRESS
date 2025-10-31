@@ -1,6 +1,7 @@
 const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
 const { Order } = require('../models')
+const { User } = require('../models')
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
@@ -473,6 +474,86 @@ exports.getOneVendor = async (req, res, next) => {
 exports.vendorDashboardSummary = async (req, res, next) => {
   const vendorId = req.vendor.id
   try {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+
+    const todayEnd = new Date()
+    todayEnd.setHours(23, 59, 59, 999)
+
+    const todayOrders = await Order.count({
+      where: {
+        vendorId,
+        createdAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    const pendingOrders = await Order.count({
+      where: {
+        vendorId,
+        status: 'pending',
+      },
+    })
+
+    const completedToday = await Order.count({
+      where: {
+        vendorId,
+        status: 'completed',
+        updatedAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    const todayRevenue = await Order.sum('price', {
+      where: {
+        vendorId,
+        status: 'completed',
+        updatedAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    return res.status(200).json({
+      message: 'Dashboard updated successfully',
+      data: {
+        todayOrders,
+        pendingOrders,
+        completedToday,
+        todayRevenue: todayRevenue || 0,
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getPendingOrders = async (req, res, next) => {
+  const vendorId = req.vendor.id
+
+  try {
+    const pendingOrders = await Order.findAll({
+      where: {
+        vendorId,
+        status: 'pending',
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber'],
+        },
+      ],
+
+      order: [['createdAt', 'DESC']],
+    })
+
+    return res.status(200).json({
+      message: 'pending orders retrieved',
+      data: pendingOrders,
+    })
   } catch (error) {
     next(error)
   }

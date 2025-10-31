@@ -64,7 +64,12 @@ const swaggerDefinition = {
     },
     {
       name: 'Vendor KYC',
-      description: 'Endpoints for handling Vendor KYC.',
+      description: 'Endpoints for handling Vendor KYC(know your customer details',
+    },
+    {
+      name: 'Vendor Dashboard',
+      description:
+        'Endpoints that provide vendor performance metrics, statistics, and business insights (orders, revenue, etc.).',
     },
   ],
   components: {

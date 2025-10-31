@@ -1,6 +1,6 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp } = require('../controller/vendorController');
+const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders } = require('../controller/vendorController');
 const { verifyOtp } = require('../controller/userController');
 
 const router = express.Router();
@@ -827,9 +827,121 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpResend)
 
-// router.post("/vendor/verify-otp", verifyOtp)
+/**
+ * @swagger
+ * /vendor/dashboard/summary:
+ *   get:
+ *     summary: Get Vendor Dashboard Summary
+ *     description: Retrieves key performance metrics for the vendor’s dashboard including today's orders, pending orders, completed orders, and total revenue for the day.
+ *     tags:
+ *       - Vendor Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Dashboard updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     todayOrders:
+ *                       type: integer
+ *                       description: Number of orders created today
+ *                       example: 12
+ *                     pendingOrders:
+ *                       type: integer
+ *                       description: Number of orders still pending
+ *                       example: 5
+ *                     completedToday:
+ *                       type: integer
+ *                       description: Number of orders completed today
+ *                       example: 7
+ *                     todayRevenue:
+ *                       type: number
+ *                       format: float
+ *                       description: Total revenue earned from completed orders today
+ *                       example: 45200.75
+ *       401:
+ *         description: Unauthorized - Invalid or missing vendor authentication token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+
+router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSummary )
 
 
 
+
+/**
+ * @swagger
+ * /vendor/getpendingOrders:
+ *   get:
+ *     summary: Get all pending orders for the authenticated vendor
+ *     description: Retrieves all pending orders associated with the logged-in vendor, including basic user details (first name, last name, phone number) for each order.
+ *     tags: [Vendor Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved pending orders for the vendor
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "pending orders retrieved"
+ *               data:
+ *                 - id: "order123"
+ *                   status: "pending"
+ *                   price: 4500
+ *                   createdAt: "2025-10-27T08:15:30.000Z"
+ *                   user:
+ *                     firstName: "John"
+ *                     lastName: "Doe"
+ *                     phoneNumber: "+2348012345678"
+ *       404:
+ *         description: No pending orders found for this vendor
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "No pending orders found"
+ *       401:
+ *         description: Unauthorized — missing or invalid vendor token
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Unauthorized"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal server error"
+ */
+
+
+router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
 module.exports = router
 
