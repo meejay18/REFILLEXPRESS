@@ -1,10 +1,10 @@
 const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
 const { Order } = require('../models')
+const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const vendor = require('../models/vendor')
 
 exports.vendorSignUp = async (req, res, next) => {
   try {
@@ -465,6 +465,14 @@ exports.getOneVendor = async (req, res, next) => {
       message: 'Vendor retrieved successfully',
       data: vendor,
     })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.vendorDashboardSummary = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  try {
   } catch (error) {
     next(error)
   }

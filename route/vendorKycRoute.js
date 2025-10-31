@@ -1,7 +1,6 @@
 const express = require('express')
 const {
   vendorAuthentication,
-  adminAuthentication,
   authentication,
   adminOnly,
 } = require('../middleware/authentication')
@@ -364,15 +363,15 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
  * @swagger
  * /vendorKyc/getAllVendorKyc:
  *   get:
- *     summary: Retrieve all vendors with their KYC records
- *     description: Allows an authenticated admin to retrieve a list of all vendors and their associated KYC records.
+ *     summary: Get All Vendor KYCs
+ *     description: Retrieves all vendor KYC records in the system. Only accessible to admin users.
  *     tags:
  *       - Vendor KYC
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Vendors retrieved successfully.
+ *         description: Vendors retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -388,27 +387,18 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
  *                     properties:
  *                       id:
  *                         type: string
- *                         format: uuid
- *                         example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *                         example: "f0a3c1c9-89e1-4a77-9d3d-68b4f89b8e12"
  *                       businessName:
  *                         type: string
- *                         example: "Alpha Logistics"
+ *                         example: "Refill Express Logistics"
  *                       businessEmail:
  *                         type: string
- *                         example: "alpha@example.com"
- *                       phoneNumber:
+ *                         example: "vendor@example.com"
+ *                       verificationStatus:
  *                         type: string
- *                         example: "+2348012345678"
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2025-10-27T09:23:54.000Z"
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2025-10-27T09:23:54.000Z"
+ *                         example: "pending"
  *       404:
- *         description: No vendors found.
+ *         description: No vendors found
  *         content:
  *           application/json:
  *             schema:
@@ -420,8 +410,8 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
  *                 data:
  *                   type: array
  *                   example: []
- *       500:
- *         description: Internal server error.
+ *       401:
+ *         description: Unauthorized or invalid admin token
  *         content:
  *           application/json:
  *             schema:
@@ -429,35 +419,46 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
  *               properties:
  *                 message:
  *                   type: string
- *                   example: An unexpected error occurred
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 
 router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendorKyc)
 
 
+
+
 /**
  * @swagger
  * /vendorKyc/getOneVendorKyc/{vendorId}:
  *   get:
- *     summary: Retrieve a single vendor KYC record by vendor ID
- *     description: Allows an authenticated admin to retrieve the KYC details of a specific vendor using their vendor ID.
+ *     summary: Get One Vendor KYC
+ *     description: Retrieves detailed KYC information for a specific vendor by their vendorId. Requires vendor authentication.
  *     tags:
  *       - Vendor KYC
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: vendorId
- *         in: path
+ *       - in: path
+ *         name: vendorId
  *         required: true
- *         description: The unique ID of the vendor to retrieve.
+ *         description: Unique identifier of the vendor
  *         schema:
  *           type: string
- *           format: uuid
- *           example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *           example: "f0a3c1c9-89e1-4a77-9d3d-68b4f89b8e12"
  *     responses:
  *       200:
- *         description: Vendor retrieved successfully.
+ *         description: Vendor KYC record retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -471,27 +472,18 @@ router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendor
  *                   properties:
  *                     id:
  *                       type: string
- *                       format: uuid
- *                       example: "7b03fd9e-89b3-4c67-9d12-fb37d1d5fa25"
+ *                       example: "f0a3c1c9-89e1-4a77-9d3d-68b4f89b8e12"
  *                     businessName:
  *                       type: string
- *                       example: "Alpha Logistics"
+ *                       example: "Refill Express Logistics"
  *                     businessEmail:
  *                       type: string
- *                       example: "alpha@example.com"
- *                     phoneNumber:
+ *                       example: "vendor@example.com"
+ *                     verificationStatus:
  *                       type: string
- *                       example: "+2348012345678"
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2025-10-27T09:23:54.000Z"
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2025-10-27T09:23:54.000Z"
+ *                       example: "pending"
  *       404:
- *         description: Vendor not found.
+ *         description: Vendor not found
  *         content:
  *           application/json:
  *             schema:
@@ -500,8 +492,8 @@ router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendor
  *                 message:
  *                   type: string
  *                   example: Vendor not found
- *       500:
- *         description: Internal server error.
+ *       401:
+ *         description: Unauthorized or invalid token
  *         content:
  *           application/json:
  *             schema:
@@ -509,10 +501,19 @@ router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendor
  *               properties:
  *                 message:
  *                   type: string
- *                   example: An unexpected error occurred
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 
-
-router.get("/vendorKyc/getOneVendorKyc/:vendorId", authentication, adminOnly, getOneVendorKyc)
+router.get("/vendorKyc/getOneVendorKyc/:vendorId", vendorAuthentication,  getOneVendorKyc)
 module.exports = router
