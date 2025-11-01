@@ -64,10 +64,35 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
       operatingArea: {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      isVerified: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+    //   rating:{
+    //   type: DataTypes.FLOAT,
+    //   defaultValue:0
+    //   },
+    //   status:{
+    //  type: DataTypes.ENUM('online','offline'),
+    //  defaultValue:'offline',
+    //   },
+    //   earningsToday:{
+    //   type: DataTypes.FLOAT,
+    //   defaultValue: 0,
+    //   },
     },
     {
       sequelize,

@@ -6,7 +6,7 @@ const emailSender = async (options) => {
       'https://api.brevo.com/v3/smtp/email',
       {
         sender: { email: process.env.APP_USER, name: 'Refill Express' },
-        to: [{ email: options.email }],
+        to: [{ email: options.emailAddress}],
         subject: options.subject,
         htmlContent: options.html,
       },
