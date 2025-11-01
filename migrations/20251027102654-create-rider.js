@@ -17,7 +17,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      emailAddress: {
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
@@ -30,6 +30,18 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      otp: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      otpExpiredAt: {
+        type: Sequelize.STRING,
+           allowNull: true
+      },
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+          allowNull: true
       },
       operatingArea: {
         type: Sequelize.STRING,
