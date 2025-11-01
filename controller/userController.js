@@ -322,9 +322,7 @@ exports.forgotPassword = async (req, res, next) => {
     // const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '20m' })
 
     // // const link = `${req.protocol}://${req.get('host')}/user/reset/password/${token}`
-    const newOtp = Math.round(Math.random() * 1e6)
-      .toString()
-      .padStart(6, '0')
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
 
     user.otp = newOtp
     user.otpExpiredAt = Date.now() + 1000 * 60 * 5
@@ -362,11 +360,9 @@ exports.resetPassword = async (req, res, next) => {
       })
     }
 
-    // Hashing new password
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(newPassword, salt)
 
-    // Clear OTP session
     user.otp = null
     user.otpExpiredAt = null
 

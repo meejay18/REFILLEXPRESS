@@ -900,6 +900,180 @@ const riderSignUpTemplate = (otp, firstName) => {
   `;
 };
 
+const riderResendOtpTemplate = (newOtp, firstName) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>RefillXpress Rider OTP Verification</title>
+      <style>
+          body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              background-color: #f3f4f6;
+              margin: 0;
+              padding: 0;
+              color: #1f2937;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 40px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              background-color: #ffffff;
+              box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+          }
+          .header {
+              background: linear-gradient(90deg, #f97316, #2563eb);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #374151;
+          }
+          .otp-box {
+              text-align: center;
+              background-color: #fef3c7;
+              color: #f97316;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 10px;
+              font-size: 28px;
+              font-weight: bold;
+              letter-spacing: 4px;
+              border: 2px dashed #f59e0b;
+          }
+          .footer {
+              background-color: #2563eb;
+              color: #e5e7eb;
+              text-align: center;
+              padding: 12px;
+              font-size: 0.9em;
+          }
+          .footer a {
+              color: #facc15;
+              text-decoration: none;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Rider Verification Code Resent</h1>
+          </div>
+          <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>We’ve sent you a new one-time verification code to complete your <strong>Rider Account Verification</strong> on RefillXpress.</p>
+              <div class="otp-box">${newOtp}</div>
+              <p>This code is valid for <strong>5 minutes</strong>. Please enter it in your app or dashboard to verify your account.</p>
+              <p>If you didn’t request a new OTP, kindly ignore this message — your account is secure.</p>
+              <p>Ride smart, stay safe!</p>
+              <p>— The RefillXpress Team</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.</p>
+              <p><a href="https://refillxpress.com">Visit our website</a></p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+};
+
+const riderForgotPasswordTemplate = (newOtp, firstName) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>RefillXpress Rider Password Reset</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #f97316, #2563eb);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 24px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .otp-box {
+              text-align: center;
+              background-color: #fef3c7;
+              color: #f97316;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 8px;
+              font-size: 24px;
+              font-weight: bold;
+              letter-spacing: 3px;
+          }
+          .footer {
+              background-color: #2563eb;
+              color: #e5e7eb;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Rider Password Reset Request</h1>
+          </div>
+          <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>We received a request to reset your <strong>RefillXpress Rider</strong> account password.</p>
+              <p>Use the verification code below to proceed with resetting your password:</p>
+              <div class="otp-box">${newOtp}</div>
+              <p>This OTP will expire in <strong>5 minutes</strong>. Please do not share it with anyone.</p>
+              <p>If you didn’t request this reset, you can safely ignore this email.</p>
+              <p>Ride safe, and stay connected!</p>
+              <p>— The RefillXpress Team</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+};
 
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate}
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate}
