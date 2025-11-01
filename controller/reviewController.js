@@ -1,47 +1,61 @@
-
-
-const { Review, User } = require('../models');
+const { Review, User, Vendor } = require('../models');
 
 // GET /reviews
 exports.getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.findAll({
-      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName'] }],
+      include: [
+        { model: User, as: 'user', attributes: ['firstName', 'lastName'] },
+        { model: Vendor, as: 'vendor', attributes: ['name'] }
+      ],
       order: [['timestamp', 'DESC']]
     });
-    res.status(200).json(reviews);
+    res.status(200).json({
+      message: 'Reviews fetched successfully'
+    });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
-// POST /reviews
+// POST /vendors/:vendorId/reviews
 exports.createReview = async (req, res, next) => {
   try {
-    const userId = req.user.id
-
-
-    const user = await User.findByPk(userId)
-    if(!user) {
-        return res.status(404).json({
-            message: "User not found"
-        })
-    }
-
+    const userId = req.user.id;
+    const vendorId = req.params.vendorId;
     const { rating, message } = req.body;
 
-    if ( !rating || !message) {
-      return res.status(400).json({ error: 'All fields are required' });
+    // Validate user
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const review = await Review.create({ rating, message });
+    // Validate vendor
+    const vendor = await Vendor.findByPk(vendorId);
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
+
+    // Validate input
+    if (!rating || !message) {
+      return res.status(400).json({ error: 'Rating and message are required' });
+    }
+
+    // Create review
+    const review = await Review.create({
+      userId,
+      rating,
+      message
+    });
+
     res.status(201).json({
       id: review.id,
       status: 'success',
       message: 'Review submitted successfully.'
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -57,7 +71,7 @@ exports.getReviewSummary = async (req, res, next) => {
 
     res.status(200).json({ totalReviews, ratingDistribution });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -89,7 +103,31 @@ exports.getReviewStats = async (req, res, next) => {
       lastUpdated: new Date().toISOString()
     });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
+// GET /vendors/:vendorId/reviews
+exports.getVendorReviews = async (req, res, next) => {
+  try {
+    const { vendorId } = req.params;
+
+    const vendor = await Vendor.findByPk(vendorId);
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
+
+    const reviews = await Review.findAll({
+      where: { vendorId },
+      include: [
+        { model: User, as: 'user', attributes: ['firstName', 'lastName'] },
+        { model: Vendor, as: 'vendor', attributes: ['name'] }
+      ],
+      order: [['timestamp', 'DESC']]
+    });
+
+    res.status(200).json(reviews);
+  } catch (error) {
+    next(error);
+  }
+};

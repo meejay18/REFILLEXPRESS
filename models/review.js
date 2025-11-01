@@ -14,7 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Review.belongsTo(models.User, {
   foreignKey: 'userId',
   as: 'user'
-});
+})
+Review.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' });
+;
 
     }
   }
@@ -50,7 +52,7 @@ userId: {
     },  {
       sequelize,
       modelName: 'Review',
-      tableName: 'reviews',
+      tableName: 'Reviews',
       timestamps: false
     }
 );

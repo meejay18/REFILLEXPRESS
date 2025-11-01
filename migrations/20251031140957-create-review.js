@@ -15,7 +15,20 @@ module.exports = {
            references: {
       model: 'Users',
       key: 'id'
-    }
+    }, 
+    onUpdate: 'CASCADE',
+  onDelete: 'CASCADE',
+  
+    vendorId: {
+  type: Sequelize.UUID,
+  allowNull: false,
+  references: {
+    model: 'Vendors',
+    key: 'id'
+  },
+  onUpdate: 'CASCADE',
+  onDelete: 'CASCADE'
+}
       },
       rating: {
         type: Sequelize.INTEGER
