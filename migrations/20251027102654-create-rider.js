@@ -33,15 +33,15 @@ module.exports = {
       },
       otp: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       otpExpiredAt: {
-        type: Sequelize.STRING,
-           allowNull: true
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       isVerified: {
         type: Sequelize.BOOLEAN,
-          allowNull: true
+        allowNull: true,
       },
       operatingArea: {
         type: Sequelize.STRING,
