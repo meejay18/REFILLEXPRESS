@@ -1,12 +1,13 @@
 const express = require('express');
 const { authentication } = require ('../middleware/authentication');
-const { getReviews, getReviewSummary, createReview, getReviewStats } = require('../controller/reviewController');
+const { getReviews, getReviewSummary, createReview, getReviewStats, getVendorReviews } = require('../controller/reviewController');
 const router = express.Router()
 
-router.get('/review', getReviews)
-router.post('/review', authentication,createReview)
-router.get('/reviewSummary', getReviewSummary)
-router.get('/reviewStats', getReviewStats)
+router.get('/reviews', getReviews)
+router.post('/vendors/:vendorId/reviews', authentication,createReview)
+router.get('/reviews/summary', getReviewSummary)
+router.get('/reviews/stats', getReviewStats)
+router.post('/vendors/:vendorId/reviews', authentication,getVendorReviews)
 
 
 
