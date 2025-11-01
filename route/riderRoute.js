@@ -71,9 +71,6 @@ const router = express.Router();
  *                     email:
  *                       type: string
  *                       example: johndoe@example.com
- *                     newRider:
- *                       type: object
- *                       description: The newly created rider object with details.
  *       400:
  *         description: Rider with the given email already exists.
  *         content:

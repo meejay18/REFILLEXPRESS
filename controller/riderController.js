@@ -50,7 +50,6 @@ exports.RiderSignUp = async (req, res, next) => {
         firstName: newRider.firstName,
         lastName: newRider.lastName,
         email: newRider.email,
-        newRider,
       },
     })
   } catch (error) {
