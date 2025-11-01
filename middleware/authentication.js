@@ -21,7 +21,7 @@ exports.authentication = async (req, res, next) => {
 
     const user = await User.findOne({ where: { id: decoded.id } })
 
-    console.log('user:', user)
+    // console.log('user:', user)
 
     if (!user) {
       return res.status(404).json({

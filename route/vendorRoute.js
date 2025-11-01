@@ -1,7 +1,8 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp } = require('../controller/vendorController');
+const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders, acceptOrRejectOrder } = require('../controller/vendorController');
 const { verifyOtp } = require('../controller/userController');
+const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator');
 
 const router = express.Router();
 
@@ -84,7 +85,7 @@ const router = express.Router();
  *                   type: string
  *                   example: Vendor already exists
  */
-router.post('/vendor',  vendorSignUp)
+router.post('/vendor',  vendorSignUpValidation, vendorSignUp)
 /**
  * @swagger
  * /vendor/verify:
@@ -316,12 +317,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/login', Vendorlogin);
-
-
-
-
-
+router.post('/vendor/login', vendorLoginValidator, Vendorlogin);
 
 
 /**
@@ -453,9 +449,6 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  */
 router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
 
-
-
-
 /**
  * @swagger
  * /vendor/reset-password:
@@ -527,9 +520,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *                   example: Internal server error
  */
 
-
 router.post('/vendor/reset-password', vendorResetPassword);
-
 
 /**
  * @swagger
@@ -764,12 +755,6 @@ router.get("/vendor/getAllvendors", getAllvendors)
 
 router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
-
-
-
-
-
-
 /**
  * @swagger
  * /vendor/vendorForgotPasswordOtpResend:
@@ -827,8 +812,207 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
 
 router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpResend)
 
-// router.post("/vendor/verify-otp", verifyOtp)
+/**
+ * @swagger
+ * /vendor/dashboard/summary:
+ *   get:
+ *     summary: Get Vendor Dashboard Summary
+ *     description: Retrieves key performance metrics for the vendor’s dashboard including today's orders, pending orders, completed orders, and total revenue for the day.
+ *     tags:
+ *       - Vendor Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Dashboard updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     todayOrders:
+ *                       type: integer
+ *                       description: Number of orders created today
+ *                       example: 12
+ *                     pendingOrders:
+ *                       type: integer
+ *                       description: Number of orders still pending
+ *                       example: 5
+ *                     completedToday:
+ *                       type: integer
+ *                       description: Number of orders completed today
+ *                       example: 7
+ *                     todayRevenue:
+ *                       type: number
+ *                       format: float
+ *                       description: Total revenue earned from completed orders today
+ *                       example: 45200.75
+ *       401:
+ *         description: Unauthorized - Invalid or missing vendor authentication token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
 
+
+router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSummary )
+
+/**
+ * @swagger
+ * /vendor/getpendingOrders:
+ *   get:
+ *     summary: Get all pending orders for the authenticated vendor
+ *     description: Retrieves all pending orders associated with the logged-in vendor, including basic user details (first name, last name, phone number) for each order.
+ *     tags: [Vendor Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved pending orders for the vendor
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "pending orders retrieved"
+ *               data:
+ *                 - id: "order123"
+ *                   status: "pending"
+ *                   price: 4500
+ *                   createdAt: "2025-10-27T08:15:30.000Z"
+ *                   user:
+ *                     firstName: "John"
+ *                     lastName: "Doe"
+ *                     phoneNumber: "+2348012345678"
+ *       404:
+ *         description: No pending orders found for this vendor
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "No pending orders found"
+ *       401:
+ *         description: Unauthorized — missing or invalid vendor token
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Unauthorized"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal server error"
+ */
+
+router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
+
+
+
+/**
+ * @swagger
+ * /vendor/accept/rejectOrder/{orderId}:
+ *   post:
+ *     summary: Accept or reject an order
+ *     description: |
+ *       This endpoint allows a vendor to **accept** or **reject** a customer's order.  
+ *       - If the vendor chooses `accept`, the order status becomes **active**.  
+ *       - If the vendor chooses `reject`, the order status becomes **cancelled**.  
+ *       After the action, an email notification is sent to the customer.
+ *     tags:
+ *       - Vendor Orders
+ *     security:
+ *       - bearerAuth: []   # Requires vendor authentication token
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the order to accept or reject.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [accept, reject]
+ *                 description: The action to perform on the order.
+ *             example:
+ *               action: "accept"
+ *     responses:
+ *       200:
+ *         description: Order successfully accepted or rejected.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order accepted successfully
+ *                 data:
+ *                   type: object
+ *                   description: The updated order details
+ *       400:
+ *         description: Invalid action provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid action
+ *       403:
+ *         description: Order is not in a pending state.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order is not pending
+ *       404:
+ *         description: Order not found for the vendor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+router.post("/vendor/accept/rejectOrder/:orderId", vendorAuthentication,  acceptOrRejectOrder)
 
 
 module.exports = router

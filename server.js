@@ -24,7 +24,10 @@ const adminRouter = require('./route/adminRoute')
 app.use('/api/v1', adminRouter)
 
 const riderRouter = require('./route/riderRoute')
-app.use('', riderRouter)
+app.use('/api/v1', riderRouter);
+
+const reviewRouter = require ('./route/reviewRoute');
+app.use('/api/v1', reviewRouter)
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -61,6 +64,15 @@ const swaggerDefinition = {
     {
       name: 'Admin',
       description: 'Endpoints for administrative actions and dashboard management.',
+    },
+    {
+      name: 'Vendor KYC',
+      description: 'Endpoints for handling Vendor KYC(know your customer details',
+    },
+    {
+      name: 'Vendor Dashboard',
+      description:
+        'Endpoints that provide vendor performance metrics, statistics, and business insights (orders, revenue, etc.).',
     },
   ],
   components: {
@@ -113,6 +125,8 @@ app.use((error, req, res, next) => {
     message: error.message || 'An unexpected error occurred',
   })
 })
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port: ${PORT}`)

@@ -1,10 +1,16 @@
 const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
 const { Order } = require('../models')
+const { User } = require('../models')
+const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
-const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
+const {
+  vendorSignUpTemplate,
+  resendOtpVendorTemplate,
+  forgotPasswordVendorTemplate,
+  orderStatusTemplate,
+} = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const vendor = require('../models/vendor')
 
 exports.vendorSignUp = async (req, res, next) => {
   try {
@@ -45,7 +51,7 @@ exports.vendorSignUp = async (req, res, next) => {
     const emailOptions = {
       email: newVendor.businessEmail,
       subject: 'Sign up successfull',
-      html: signUpTemplate(otp, newVendor.businessName),
+      html: vendorSignUpTemplate(otp, newVendor.businessName),
     }
     await emailSender(emailOptions)
 
@@ -136,7 +142,7 @@ exports.resendVendorOtp = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Sign up successful',
-      html: resendOtpTemplate(newOtp, vendor.businessName),
+      html: resendOtpVendorTemplate(newOtp, vendor.businessName),
     }
 
     await emailSender(emailOptions)
@@ -268,7 +274,7 @@ exports.vendorForgotPassword = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Reset password',
-      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+      html: forgotPasswordVendorTemplate(newOtp, vendor.firstName),
     }
 
     vendor.otp = newOtp
@@ -382,7 +388,7 @@ exports.vendorForgotPasswordOtpResend = async (req, res, next) => {
     const emailOptions = {
       email: vendor.businessEmail,
       subject: 'Forgot password',
-      html: forgotPasswordTemplate(newOtp, vendor.firstName),
+      html: forgotPasswordVendorTemplate(newOtp, vendor.firstName),
     }
 
     await emailSender(emailOptions)
@@ -470,11 +476,153 @@ exports.getOneVendor = async (req, res, next) => {
   }
 }
 
-// {
-//       include: [
-//         {
-//           model: Order,
-//           as: 'orders',
-//         },
-//       ],
-//     }
+exports.vendorDashboardSummary = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  try {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+
+    const todayEnd = new Date()
+    todayEnd.setHours(23, 59, 59, 999)
+
+    const todayOrders = await Order.count({
+      where: {
+        vendorId,
+        createdAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    const pendingOrders = await Order.count({
+      where: {
+        vendorId,
+        status: 'pending',
+      },
+    })
+
+    const completedToday = await Order.count({
+      where: {
+        vendorId,
+        status: 'completed',
+        updatedAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    const todayRevenue = await Order.sum('price', {
+      where: {
+        vendorId,
+        status: 'completed',
+        updatedAt: {
+          [Op.between]: [todayStart, todayEnd],
+        },
+      },
+    })
+
+    return res.status(200).json({
+      message: 'Dashboard updated successfully',
+      data: {
+        todayOrders,
+        pendingOrders,
+        completedToday,
+        todayRevenue: todayRevenue || 0,
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getPendingOrders = async (req, res, next) => {
+  const vendorId = req.vendor.id
+
+  try {
+    const pendingOrders = await Order.findAll({
+      where: {
+        vendorId,
+        status: 'pending',
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber'],
+        },
+      ],
+
+      order: [['createdAt', 'DESC']],
+    })
+
+    return res.status(200).json({
+      message: 'pending orders retrieved',
+      data: pendingOrders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.acceptOrRejectOrder = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  const { orderId } = req.params
+  const { action } = req.body
+  try {
+    const validActions = {
+      accept: 'active',
+      reject: 'cancelled',
+    }
+
+    const actionMessages = {
+      accept: 'Order accepted successfully',
+      reject: 'Order rejected successfully',
+    }
+
+    if (!validActions[action]) {
+      return res.status(400).json({
+        message: 'Invalid action',
+      })
+    }
+
+    const order = await Order.findOne({
+      where: { id: orderId, vendorId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber', "email"],
+        },
+      ],
+    })
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    if (order.status !== 'pending') {
+      return res.status(403).json({
+        message: 'Order is not pending',
+      })
+    }
+
+    await order.update({ status: validActions[action] })
+    await order.save()
+
+    const emailOptions = {
+      email: order.user.email,
+      subject: 'Order Confirmation mail',
+      html: orderStatusTemplate(action, order.user.firstName, order.orderNumber, order.quantity, order.price),
+    }
+
+    await emailSender(emailOptions)
+
+    return res.status(200).json({
+      messages: actionMessages[action],
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
