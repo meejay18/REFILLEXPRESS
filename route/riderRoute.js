@@ -4,15 +4,16 @@ const {RiderSignUp} = require('../controller/riderController');
 
 const router = express.Router();
 
-
-
 /**
  * @swagger
  * /rider:
  *   post:
- *     summary: Create a new rider account
- *     tags: [Rider]
- *     description: Endpoint for signing up a new rider.
+ *     summary: Register a new rider
+ *     description: |
+ *       This endpoint allows a new rider to sign up by providing their details.  
+ *       After successful registration, an OTP is sent to the rider's email for verification.
+ *     tags:
+ *       - Rider 
  *     requestBody:
  *       required: true
  *       content:
@@ -22,32 +23,34 @@ const router = express.Router();
  *             required:
  *               - firstName
  *               - lastName
- *               - password
- *               - emailAddress
+ *               - email
  *               - phoneNumber
+ *               - password
  *               - operatingArea
  *             properties:
  *               firstName:
  *                 type: string
- *                 example: Digban 
+ *                 example: "John"
  *               lastName:
  *                 type: string
- *                 example: Deke
- *               emailAddress:
+ *                 example: "Doe"
+ *               email:
  *                 type: string
- *                 example: Martinsdeke@gmail.com
+ *                 format: email
+ *                 example: "johndoe@example.com"
  *               phoneNumber:
  *                 type: string
- *                 example: 09069412639
+ *                 example: "+2348012345678"
  *               password:
  *                 type: string
- *                 example: StrongPassword123!
+ *                 format: password
+ *                 example: "RiderPass123"
  *               operatingArea:
  *                 type: string
- *                 example: Magodo
+ *                 example: "Lagos Mainland"
  *     responses:
  *       201:
- *         description: Rider successfully created
+ *         description: Rider registered successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -61,24 +64,18 @@ const router = express.Router();
  *                   properties:
  *                     firstName:
  *                       type: string
- *                       example: Martins
+ *                       example: John
  *                     lastName:
  *                       type: string
- *                       example: Deke
- *                     emailAddress:
+ *                       example: Doe
+ *                     email:
  *                       type: string
- *                       example: Martinsdeke@gmail.com
- *                     operatingArea:
- *                       type: string
- *                       example: Magodo
- *                     phoneNumber:
- *                       type: string
- *                       example: 09069412639
- *                     password:
- *                       type: string
- *                       example: StrongPassword123!
+ *                       example: johndoe@example.com
+ *                     newRider:
+ *                       type: object
+ *                       description: The newly created rider object with details.
  *       400:
- *         description: Rider already exists
+ *         description: Rider with the given email already exists.
  *         content:
  *           application/json:
  *             schema:
@@ -87,7 +84,10 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: Rider already exists
+ *       500:
+ *         description: Internal server error.
  */
+
 router.post('/rider', RiderSignUp)
 
 module.exports = router

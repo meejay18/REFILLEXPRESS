@@ -64,6 +64,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      otpExpiredAt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
       operatingArea: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -72,7 +84,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Rider',
-       timestamps: true,
+      timestamps: true,
     }
   )
   return Rider

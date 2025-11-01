@@ -794,5 +794,112 @@ const placeOrderTemplate = (orderNumber, firstName, quantity, totalPrice, delive
   `
 }
 
+const riderSignUpTemplate = (otp, firstName) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to RefillXpress Riders</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #2563eb, #f97316);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 24px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .otp-box {
+              text-align: center;
+              background-color: #fef3c7;
+              color: #f97316;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 8px;
+              font-size: 24px;
+              font-weight: bold;
+              letter-spacing: 3px;
+          }
+          .button-container {
+              text-align: center;
+              margin-top: 20px;
+          }
+          .button {
+              display: inline-block;
+              background-color: #2563eb;
+              color: #fff;
+              padding: 14px 28px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-size: 16px;
+              font-weight: bold;
+              transition: background-color 0.3s ease;
+          }
+          .button:hover {
+              background-color: #1d4ed8;
+          }
+          .footer {
+              background-color: #f97316;
+              color: #fff;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Welcome to RefillXpress Riders</h1>
+          </div>
+          <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Welcome to <strong>RefillXpress</strong> — where your dedication keeps homes and businesses powered every day!</p>
+              <p>You’re joining a trusted team of professional riders who deliver clean, verified gas refills quickly and safely to customers who depend on us.</p>
+              <p>Before we get started, please verify your email using the code below:</p>
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate}
+              <div class="otp-box">${otp}</div>
+
+              <p>This code expires in <strong>5 minutes</strong>. Enter it in the RefillXpress Rider App or portal to complete your registration.</p>
+              <p>If you didn’t sign up to become a RefillXpress rider, please ignore this message.</p>
+              <p>Let’s ride safe, deliver fast, and keep every home fired up </p>
+              <p>— The RefillXpress Team</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+};
+
+
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate}
