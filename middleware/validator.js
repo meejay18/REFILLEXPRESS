@@ -94,15 +94,16 @@ exports.vendorSignUpValidation = async (req, res, next) => {
       }),
     businessAddress: joi
       .string()
-      .min(3)
-      .max(15)
-      .required()
-      .pattern(new RegExp('[A-Za-z]+$'))
+      .min(5)
+      .max(100)
+      .pattern(/^[a-zA-Z0-9\s,.'\-/#]+$/)
       .required()
       .messages({
-        'any.required': 'businessAddress is required',
-        'string.empty': 'businessAddress is required',
-        'string.min': 'businessAddress should contain at least three characters',
+        'any.required': 'Business address is required',
+        'string.empty': 'Business address cannot be empty',
+        'string.min': 'Business address should contain at least 5 characters',
+        'string.max': 'Business address should not exceed 100 characters',
+        'string.pattern.base': 'Business address contains invalid characters',
       }),
 
     firstName: joi.string().min(3).max(15).required().pattern(new RegExp('[A-Za-z]+$')).required().messages({
