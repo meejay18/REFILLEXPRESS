@@ -20,7 +20,7 @@ const kycUpload = upload.fields([
 
 /**
  * @swagger
- * /api/vendorkyc/{vendorId}:
+ * /vendorkyc/{vendorId}:
  *   post:
  *     summary: Submit vendor KYC
  *     description: Allows a verified vendor to submit KYC details and required business documents.
