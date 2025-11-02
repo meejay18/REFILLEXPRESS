@@ -1,7 +1,6 @@
 const express = require ('express');
 const { vendorAuthentication } = require ('../middleware/authentication');
 const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders, acceptOrRejectOrder } = require('../controller/vendorController');
-const { verifyOtp } = require('../controller/userController');
 const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator');
 
 const router = express.Router();
@@ -233,13 +232,15 @@ router.post('/vendor/verify', verifyVendor)
  */
 router.post('/vendor/resend-otp', resendVendorOtp);
 
+
 /**
  * @swagger
- * /vendor/login:
+ * /api/vendor/login:
  *   post:
- *     summary: Login vendor account
- *     tags: [Vendor]
- *     description: Authenticates vendor using business email and password. Returns JWT token upon successful login.
+ *     summary: Vendor login
+ *     description: Authenticates a vendor with business email and password, then returns a JWT token and basic vendor details.
+ *     tags:
+ *       - Vendor
  *     requestBody:
  *       required: true
  *       content:
@@ -252,13 +253,14 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *             properties:
  *               businessEmail:
  *                 type: string
- *                 example: Martinsdeke@gmail.com
+ *                 format: email
+ *                 example: johndoe@business.com
  *               password:
  *                 type: string
  *                 example: StrongPassword123!
  *     responses:
  *       200:
- *         description: Login successfully
+ *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
@@ -271,21 +273,26 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *                   type: object
  *                   properties:
  *                     id:
- *                       type: integer
- *                       example: 1
+ *                       type: string
+ *                       example: 9f6b2d47-31cf-4b8a-a8fb-9c7b3a287f61
  *                     firstName:
  *                       type: string
- *                       example: Mije
+ *                       example: John
  *                     lastName:
  *                       type: string
- *                       example: Digban
+ *                       example: Doe
  *                     businessEmail:
  *                       type: string
- *                       example: digbanshop@gmail.com
+ *                       example: johndoe@business.com
+ *                     kycStatus:
+ *                       type: string
+ *                       example: verified
+ *                     showKycPage:
+ *                       type: boolean
+ *                       example: false
  *                 token:
  *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR...
- *
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *       400:
  *         description: Incorrect password or vendor not verified
  *         content:
@@ -295,14 +302,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *               properties:
  *                 message:
  *                   type: string
- *                   examples:
- *                     incorrectPassword:
- *                       summary: Incorrect password
- *                       value: Incorrect password
- *                     notVerified:
- *                       summary: Vendor not verified
- *                       value: Vendor not verified, please verify your account
- *
+ *                   example: Incorrect password
  *       404:
  *         description: Vendor not found
  *         content:
@@ -313,10 +313,11 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *                 message:
  *                   type: string
  *                   example: Vendor not found
- *
  *       500:
  *         description: Internal server error
  */
+
+
 router.post('/vendor/login', vendorLoginValidator, Vendorlogin);
 
 

@@ -22,10 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'kyc',
       })
 
-          Vendor.hasMany(models.Review, {
-  foreignKey: 'vendorId',
-  as: 'reviews'
-});
+      Vendor.hasMany(models.Review, {
+        foreignKey: 'vendorId',
+        as: 'reviews',
+      })
     }
   }
 

@@ -24,9 +24,9 @@ const adminRouter = require('./route/adminRoute')
 app.use('/api/v1', adminRouter)
 
 const riderRouter = require('./route/riderRoute')
-app.use('/api/v1', riderRouter);
+app.use('/api/v1', riderRouter)
 
-const reviewRouter = require ('./route/reviewRoute');
+const reviewRouter = require('./route/reviewRoute')
 app.use('/api/v1', reviewRouter)
 
 const swaggerDefinition = {
@@ -106,9 +106,12 @@ app.use((error, req, res, next) => {
   }
 
   if (error.name === 'SequelizeUniqueConstraintError') {
-    return res.status(400).json({ message: 'Email already exists' })
-  }
+    const field = Object.keys(error.fields)[0]
 
+    return res.status(400).json({
+      message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`,
+    })
+  }
   if (error.name === 'JsonWebTokenError') {
     return res.status(401).json({ message: 'Invalid or expired token' })
   }
@@ -125,8 +128,6 @@ app.use((error, req, res, next) => {
     message: error.message || 'An unexpected error occurred',
   })
 })
-
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port: ${PORT}`)

@@ -1,6 +1,6 @@
 const express = require ('express');
 // const { vendorAuthentication } = require ('../middleware/authentication');
-const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword} = require('../controller/riderController');
+const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword, changeRiderPassword} = require('../controller/riderController');
 
 const router = express.Router();
 
@@ -545,5 +545,5 @@ router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
 router.post("/rider/resetPassword", resetRiderPassword )
 
 
-
+router.post("/rider/changePassword", changeRiderPassword)
 module.exports = router
