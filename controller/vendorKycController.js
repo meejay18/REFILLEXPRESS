@@ -5,8 +5,8 @@ const { kycVerificationTemplate } = require('../utils/emailTemplate')
 
 exports.submitVendorKyc = async (req, res, next) => {
   const files = req.files
-  const {  bankAccountName, bankName, accountNumber } = req.body
-    const { vendorId } = req.params
+  const { bankAccountName, bankName, accountNumber } = req.body
+  const { vendorId } = req.params
   try {
     const vendor = await VendorKyc.findOne({ where: { vendorId } })
     if (vendor) {
@@ -98,14 +98,17 @@ exports.updateVendorKyc = async (req, res, next) => {
       data: kyc,
     })
   } catch (error) {
-    next(error)
+    console.error('KYC upload error:', error)
+    return res.status(500).json({
+      message: 'Internal server error',
+      error: error.message,
+    })
   }
 }
 
 exports.verifyVendorKyc = async (req, res, next) => {
   const { vendorId } = req.params
   const { verificationStatus } = req.body
-  
 
   try {
     const status = ['verified', 'rejected']
@@ -139,10 +142,10 @@ exports.verifyVendorKyc = async (req, res, next) => {
       })
     }
 
-    console.log(kyc.verificationStatus);
-    
+    console.log(kyc.verificationStatus)
+
     await kyc.update({ verificationStatus })
-     console.log(kyc.verificationStatus);
+    console.log(kyc.verificationStatus)
 
     const vendorEmail = await kyc.vendor.businessEmail
     const vendorName = await kyc.vendor.businessName
@@ -183,7 +186,6 @@ exports.getAllvendorKyc = async (req, res, next) => {
   }
 }
 
-
 exports.getOneVendorKyc = async (req, res, next) => {
   const { vendorId } = req.params
   try {
@@ -200,5 +202,5 @@ exports.getOneVendorKyc = async (req, res, next) => {
     })
   } catch (error) {
     next(error)
-}
+  }
 }

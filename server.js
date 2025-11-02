@@ -42,7 +42,7 @@ const swaggerDefinition = {
   },
   servers: [
     { url: 'https://refillexpress.onrender.com/api/v1', description: 'Production server' },
-    { url: 'http://localhost:3500', description: 'Development server' },
+    { url: 'http://localhost:3500/api/v1', description: 'Development server' },
   ],
   tags: [
     {
