@@ -1,5 +1,6 @@
 const emailSender = require('../middleware/nodemailer')
 const { User } = require('../models')
+const { Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
@@ -444,6 +445,40 @@ exports.getOneUser = async (req, res, next) => {
     return res.status(200).json({
       message: 'User retrieved successfully',
       data: user,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getUserProfile = async (req, res, next) => {
+  const userId = req.user.id
+
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ['firstName', 'lastName', 'email'],
+    })
+
+    return res.status(200).json({
+      message: 'User profile fetched successfully',
+      data: user,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getNearbyVendors = async (req, res, next) => {
+  try {
+    const vendors = await Vendor.findAll({
+      where: { isAvailable: true },
+      attributes: ['businessName', 'pricePerKg', 'openingTime', 'rating', 'businessAddress'],
+      order: [['rating', 'DESC']],
+    })
+
+    return res.status(200).json({
+      message: 'Nearby vendors retrieved successfully',
+      data: vendors,
     })
   } catch (error) {
     next(error)

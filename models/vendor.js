@@ -115,6 +115,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      operatingHours: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      rating: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0.0,
+      },
+      status: {
+        type: DataTypes.ENUM('verified', 'unverified', 'out-of-stock'),
+        defaultValue: 'unverified',
+      },
       closingTime: {
         type: DataTypes.STRING,
         allowNull: true,
