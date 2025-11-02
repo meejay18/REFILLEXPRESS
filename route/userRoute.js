@@ -1,5 +1,5 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser } = require('../controller/userController')
+const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser, getUserProfile, getNearbyVendors } = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 const { signUpValidation, loginValidator } = require('../middleware/validator')
 
@@ -752,4 +752,116 @@ route.get("/user/getOneUser/:userId", getOneUser)
  */
 
 route.get("/user/getAllusers", getAllUsers)
+
+
+
+/**
+ * @swagger
+ * /user/getUserProfile:
+ *   get:
+ *     summary: Get user profile
+ *     description: Fetch the authenticated user's profile details such as name and email.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User profile fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     firstName:
+ *                       type: string
+ *                       example: John
+ *                     lastName:
+ *                       type: string
+ *                       example: Doe
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@example.com
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication failed
+ *       500:
+ *         description: Internal server error
+ */
+
+
+route.get("/user/getUserProfile", authentication,  getUserProfile)
+
+
+
+/**
+ * @swagger
+ * /user/getNearbyVendors:
+ *   get:
+ *     summary: Get nearby vendors
+ *     description: Retrieve a list of available vendors sorted by rating in descending order.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Nearby vendors retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Nearby vendors retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       businessName:
+ *                         type: string
+ *                         example: RefillXpress Station
+ *                       pricePerKg:
+ *                         type: number
+ *                         example: 650
+ *                       openingTime:
+ *                         type: string
+ *                         example: 08:00 AM - 08:00 PM
+ *                       rating:
+ *                         type: number
+ *                         example: 4.8
+ *                       businessAddress:
+ *                         type: string
+ *                         example: 24 Isaac Boro Street, Port Harcourt
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication failed
+ *       500:
+ *         description: Internal server error
+ */
+
+
+route.get("/user/getNearbyVendors", authentication,  getNearbyVendors )
 module.exports = route
