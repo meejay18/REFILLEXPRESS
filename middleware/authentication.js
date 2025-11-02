@@ -96,6 +96,8 @@ exports.riderAuthentication = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     const rider = await Rider.findOne({ where: { id: decoded.id } })
+    console.log(rider);
+    
     if (!rider) {
       return res.status(404).json({
         message: 'Authentication failed, rider not found',

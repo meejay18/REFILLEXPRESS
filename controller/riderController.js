@@ -314,8 +314,10 @@ exports.resetRiderPassword = async (req, res, next) => {
   }
 }
 
-exports.changePassword = async (req, res, next) => {
+exports.changeRiderPassword = async (req, res, next) => {
   const { id } = req.rider
+  console.log(id)
+
   const { oldPassword, newPassword, confirmPassword } = req.body
   try {
     const rider = await Rider.findOne({ where: { id } })

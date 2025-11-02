@@ -2,6 +2,7 @@ const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
 const { Order } = require('../models')
 const { User } = require('../models')
+const {VendorKyc} = require("../models")
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const {
@@ -230,6 +231,10 @@ exports.Vendorlogin = async (req, res, next) => {
       })
     }
 
+    const kyc = await VendorKyc.findOne({where: {vendorId : vendor.id}})
+
+    const showKycPage = !kyc || kyc.verificationStatus !== "verified"
+
     const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
       expiresIn: '2hr',
     })
@@ -241,6 +246,8 @@ exports.Vendorlogin = async (req, res, next) => {
         firstName: vendor.firstName,
         lastName: vendor.lastName,
         businessEmail: vendor.businessEmail,
+        kycStatus : kyc?.verificationStatus || "Not submiited",
+        showKycPage
       },
       token: token,
     })
@@ -349,11 +356,10 @@ exports.vendorResetPassword = async (req, res, next) => {
       })
     }
 
-    // Hashing new password
     const salt = await bcrypt.genSalt(10)
     vendor.password = await bcrypt.hash(newPassword, salt)
 
-    // Clear OTP session
+ 
     vendor.otp = null
     vendor.otpExpiredAt = null
 

@@ -134,7 +134,7 @@ const kycUpload = upload.fields([
  *                   example: Internal server error
  */
 
-router.post('/vendorkyc', vendorAuthentication, kycUpload, submitVendorKyc)
+router.post('/vendorkyc/:vendorId', vendorAuthentication, kycUpload, submitVendorKyc)
 
 /**
  * @swagger

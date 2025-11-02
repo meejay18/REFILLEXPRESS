@@ -8,7 +8,7 @@ exports.signUp = async (req, res, next) => {
   try {
     const { firstName, lastName, email, phoneNumber, password } = req.body
 
-    const existingUser = await User.findOne({ where: { email: email.toLowerCase() } })
+    const existingUser = await User.findOne({ where: { email: email.trim().toLowerCase() } })
     if (existingUser) {
       return res.status(400).json({
         message: 'User already exists',
@@ -23,7 +23,7 @@ exports.signUp = async (req, res, next) => {
     const newUser = await User.create({
       firstName,
       lastName,
-      email: email.toLowerCase(),
+      email: email.trim().toLowerCase(),
       phoneNumber,
       password: hashedPassword,
       otp: otp,

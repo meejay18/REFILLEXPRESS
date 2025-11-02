@@ -5,7 +5,8 @@ const { kycVerificationTemplate } = require('../utils/emailTemplate')
 
 exports.submitVendorKyc = async (req, res, next) => {
   const files = req.files
-  const { vendorId, bankAccountName, bankName, accountNumber } = req.body
+  const {  bankAccountName, bankName, accountNumber } = req.body
+    const { vendorId } = req.params
   try {
     const vendor = await VendorKyc.findOne({ where: { vendorId } })
     if (vendor) {
@@ -104,6 +105,7 @@ exports.updateVendorKyc = async (req, res, next) => {
 exports.verifyVendorKyc = async (req, res, next) => {
   const { vendorId } = req.params
   const { verificationStatus } = req.body
+  
 
   try {
     const status = ['verified', 'rejected']
@@ -137,7 +139,10 @@ exports.verifyVendorKyc = async (req, res, next) => {
       })
     }
 
+    console.log(kyc.verificationStatus);
+    
     await kyc.update({ verificationStatus })
+     console.log(kyc.verificationStatus);
 
     const vendorEmail = await kyc.vendor.businessEmail
     const vendorName = await kyc.vendor.businessName
@@ -151,7 +156,7 @@ exports.verifyVendorKyc = async (req, res, next) => {
     await emailSender(emailOptions)
 
     return res.status(200).json({
-      message: 'Kyc updated successfully',
+      message: 'Kyc status updated',
       data: kyc,
     })
   } catch (error) {
@@ -185,7 +190,7 @@ exports.getOneVendorKyc = async (req, res, next) => {
     const vendor = await Vendor.findByPk(vendorId)
     if (!vendor) {
       return res.status(404).json({
-        message: 'Vendor not foound',
+        message: 'Vendor not found',
       })
     }
 
