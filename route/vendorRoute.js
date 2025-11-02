@@ -235,7 +235,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
 
 /**
  * @swagger
- * /api/vendor/login:
+ * /vendor/login:
  *   post:
  *     summary: Vendor login
  *     description: Authenticates a vendor with business email and password, then returns a JWT token and basic vendor details.
