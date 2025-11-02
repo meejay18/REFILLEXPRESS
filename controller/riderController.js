@@ -49,7 +49,7 @@ exports.RiderSignUp = async (req, res, next) => {
     await emailSender(emailOptions)
 
     return res.status(201).json({
-      message: 'Rider created successfully',
+      message: 'Rider created successfully, check your mail for an otp to verify your account',
       data: {
         firstName: newRider.firstName,
         lastName: newRider.lastName,
