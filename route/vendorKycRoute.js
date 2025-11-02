@@ -1,11 +1,13 @@
 const express = require('express')
-const {
-  vendorAuthentication,
-  authentication,
-  adminOnly,
-} = require('../middleware/authentication')
+const { vendorAuthentication, authentication, adminOnly } = require('../middleware/authentication')
 const upload = require('../middleware/multer')
-const { submitVendorKyc, updateVendorKyc, verifyVendorKyc, getAllvendorKyc, getOneVendorKyc } = require('../controller/vendorKycController')
+const {
+  submitVendorKyc,
+  updateVendorKyc,
+  verifyVendorKyc,
+  getAllvendorKyc,
+  getOneVendorKyc,
+} = require('../controller/vendorKycController')
 
 const router = express.Router()
 
@@ -18,14 +20,22 @@ const kycUpload = upload.fields([
 
 /**
  * @swagger
- * /vendorKyc:
+ * /api/vendorkyc/{vendorId}:
  *   post:
- *     summary: Submit Vendor KYC
- *     description: Allows a vendor to submit KYC details along with required business documents. All files are uploaded to Cloudinary.
+ *     summary: Submit vendor KYC
+ *     description: Allows a verified vendor to submit KYC details and required business documents.
  *     tags:
  *       - Vendor KYC
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: vendorId
+ *         in: path
+ *         required: true
+ *         description: Unique ID of the vendor submitting KYC
+ *         schema:
+ *           type: string
+ *           example: 6c9a8f91-86c3-4b4a-b12d-f2411f582bf7
  *     requestBody:
  *       required: true
  *       content:
@@ -33,19 +43,30 @@ const kycUpload = upload.fields([
  *           schema:
  *             type: object
  *             required:
- *               - vendorId
- *               - bankAccountName
- *               - bankName
- *               - accountNumber
  *               - businessLicense
  *               - taxRegistrationCertificate
  *               - nationalId
  *               - businessInsurance
+ *               - bankAccountName
+ *               - bankName
+ *               - accountNumber
  *             properties:
- *               vendorId:
+ *               businessLicense:
  *                 type: string
- *                 description: The unique ID of the vendor.
- *                 example: 8a92bc43-1b3a-4d9e-b9de-1f2320e6a7f4
+ *                 format: binary
+ *                 description: Upload of the business license document
+ *               taxRegistrationCertificate:
+ *                 type: string
+ *                 format: binary
+ *                 description: Upload of the tax registration certificate document
+ *               nationalId:
+ *                 type: string
+ *                 format: binary
+ *                 description: Upload of the national ID document
+ *               businessInsurance:
+ *                 type: string
+ *                 format: binary
+ *                 description: Upload of the business insurance document
  *               bankAccountName:
  *                 type: string
  *                 example: John Doe Enterprises
@@ -54,26 +75,10 @@ const kycUpload = upload.fields([
  *                 example: Access Bank
  *               accountNumber:
  *                 type: string
- *                 example: "0123456789"
- *               businessLicense:
- *                 type: string
- *                 format: binary
- *                 description: Upload the business license document.
- *               taxRegistrationCertificate:
- *                 type: string
- *                 format: binary
- *                 description: Upload the tax registration certificate.
- *               nationalId:
- *                 type: string
- *                 format: binary
- *                 description: Upload the national ID document.
- *               businessInsurance:
- *                 type: string
- *                 format: binary
- *                 description: Upload the business insurance document.
+ *                 example: 0123456789
  *     responses:
  *       201:
- *         description: KYC created successfully
+ *         description: KYC submitted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -87,22 +92,22 @@ const kycUpload = upload.fields([
  *                   properties:
  *                     id:
  *                       type: string
- *                       example: a3b7c12e-dfc8-47f4-8e9c-4dcb8e0295b2
+ *                       example: 7d3b6b90-3211-4b85-b612-1af4f935c18c
  *                     vendorId:
  *                       type: string
- *                       example: 8a92bc43-1b3a-4d9e-b9de-1f2320e6a7f4
+ *                       example: 6c9a8f91-86c3-4b4a-b12d-f2411f582bf7
  *                     businessLicense:
  *                       type: string
- *                       example: https://res.cloudinary.com/demo/image/upload/v12345/business_license.jpg
+ *                       example: https://res.cloudinary.com/.../businessLicense.jpg
  *                     taxRegistrationCertificate:
  *                       type: string
- *                       example: https://res.cloudinary.com/demo/image/upload/v12345/tax_cert.jpg
+ *                       example: https://res.cloudinary.com/.../taxRegistrationCertificate.jpg
  *                     nationalId:
  *                       type: string
- *                       example: https://res.cloudinary.com/demo/image/upload/v12345/national_id.jpg
+ *                       example: https://res.cloudinary.com/.../nationalId.jpg
  *                     businessInsurance:
  *                       type: string
- *                       example: https://res.cloudinary.com/demo/image/upload/v12345/insurance.jpg
+ *                       example: https://res.cloudinary.com/.../businessInsurance.jpg
  *                     bankAccountName:
  *                       type: string
  *                       example: John Doe Enterprises
@@ -111,9 +116,19 @@ const kycUpload = upload.fields([
  *                       example: Access Bank
  *                     accountNumber:
  *                       type: string
- *                       example: "0123456789"
+ *                       example: 0123456789
+ *       400:
+ *         description: Missing or invalid fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All fields are required
  *       404:
- *         description: KYC already exists for this vendor
+ *         description: KYC already exists or vendor not found
  *         content:
  *           application/json:
  *             schema:
@@ -124,14 +139,6 @@ const kycUpload = upload.fields([
  *                   example: Kyc already exists for this vendor
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
 
 router.post('/vendorkyc/:vendorId', vendorAuthentication, kycUpload, submitVendorKyc)
@@ -357,8 +364,6 @@ router.put('/vendorKyc/:vendorId', vendorAuthentication, kycUpload, updateVendor
 
 router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVendorKyc)
 
-
-
 /**
  * @swagger
  * /vendorKyc/getAllVendorKyc:
@@ -432,11 +437,7 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
  *                   example: Internal server error
  */
 
-
-router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendorKyc)
-
-
-
+router.get('/vendorKyc/getAllVendorKyc', authentication, adminOnly, getAllvendorKyc)
 
 /**
  * @swagger
@@ -514,6 +515,5 @@ router.get("/vendorKyc/getAllVendorKyc", authentication, adminOnly, getAllvendor
  *                   example: Internal server error
  */
 
-
-router.get("/vendorKyc/getOneVendorKyc/:vendorId", vendorAuthentication,  getOneVendorKyc)
+router.get('/vendorKyc/getOneVendorKyc/:vendorId', vendorAuthentication, getOneVendorKyc)
 module.exports = router

@@ -4,7 +4,7 @@ const { getReviews, getReviewSummary, createReview, getReviewStats, getVendorRev
 const router = express.Router()
 
 router.get('/reviews', getReviews)
-router.post('/vendors/:vendorId/reviews', authentication,createReview)
+router.post('/vendor/reviews/:vendorId', authentication,createReview)
 router.get('/reviews/summary', getReviewSummary)
 router.get('/reviews/stats', getReviewStats)
 router.post('/vendors/:vendorId/reviews', authentication,getVendorReviews)

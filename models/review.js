@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+'use strict'
+const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Review extends Model {
     /**
@@ -12,49 +10,50 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Review.belongsTo(models.User, {
-  foreignKey: 'userId',
-  as: 'user'
-})
-Review.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' });
-;
-
+        foreignKey: 'userId',
+        as: 'user',
+      })
+      Review.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' })
     }
   }
-  Review.init({
-    
-        id: {
+  Review.init(
+    {
+      id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-      },
-userId: {
-        type: DataTypes.UUID,
         primaryKey: true,
+      },
+      userId: {
+        type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
       },
-      
-   rating: {
+      vendorId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
           min: 1,
-          max: 5
-        }
+          max: 5,
+        },
       },
       message: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
-    timestamp: {
+      timestamp: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-      }
-    },  {
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
       sequelize,
       modelName: 'Review',
       tableName: 'Reviews',
-      timestamps: false
+      timestamps: false,
     }
-);
-  return Review;
-};
+  )
+  return Review
+}
