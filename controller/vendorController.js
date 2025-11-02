@@ -585,14 +585,12 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
       reject: 'Order rejected successfully',
     };
 
-    // Validate action input
     if (!validActions[action]) {
       return res.status(400).json({
         message: 'Invalid action',
       });
     }
 
-    // ✅ Step 1: Find the order by ID (vendor may not yet be assigned)
     const order = await Order.findOne({
       where: { id: orderId },
       include: [
@@ -607,37 +605,31 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
     console.log('orderId:', orderId);
     console.log('vendorId:', vendorId);
 
-    // ✅ Step 2: Handle case where order is missing
+  
     if (!order) {
       return res.status(404).json({
         message: 'Order not found',
       });
     }
 
-    // ✅ Step 3: Prevent vendor from modifying another vendor’s order
     if (order.vendorId && order.vendorId !== vendorId) {
       return res.status(403).json({
         message: 'This order belongs to another vendor',
       });
     }
-
-    // ✅ Step 4: Assign vendor to the order if not already assigned
     if (!order.vendorId) {
       order.vendorId = vendorId;
       await order.save();
     }
-
-    // ✅ Step 5: Check order status
     if (order.status !== 'pending') {
       return res.status(403).json({
         message: 'Order is not pending',
       });
     }
 
-    // ✅ Step 6: Update order status based on action
     await order.update({ status: validActions[action] });
 
-    // ✅ Step 7: Send confirmation email to user
+
     const emailOptions = {
       email: order.user.email,
       subject: 'Order Confirmation Mail',
@@ -646,7 +638,7 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
 
     await emailSender(emailOptions);
 
-    // ✅ Step 8: Send final response
+ 
     return res.status(200).json({
       message: actionMessages[action],
       data: order,
