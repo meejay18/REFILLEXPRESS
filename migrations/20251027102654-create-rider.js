@@ -43,10 +43,6 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },
-      operatingArea: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
