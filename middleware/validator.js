@@ -1,5 +1,4 @@
-const joi = require("joi")
-
+const joi = require('joi')
 
 exports.signUpValidation = async (req, res, next) => {
   const schema = joi.object({
@@ -23,11 +22,15 @@ exports.signUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    phoneNumber: joi.string().required()
-    .pattern(/^(?:\+234|0)[7-9][0-1]\d{8}$/)
-    .required()
-    .messages({
-      "string.pattern.base": "Phone number must be a valid number (e.g. 08012345678 or +2348012345678)"}),
+    phoneNumber: joi
+      .string()
+      .pattern(/^(?:\+234|0)[7-9][0-9]{9}$/)
+      .required()
+      .messages({
+        'string.empty': 'Phone number is required',
+        'string.pattern.base': 'Phone number must be valid (e.g. 08012345678 or +2348012345678)',
+      }),
+
     password: joi
       .string()
       .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])([a-zA-Z0-9@$!%*?&]{8,})$'))
@@ -49,7 +52,6 @@ exports.signUpValidation = async (req, res, next) => {
   }
   next()
 }
-
 
 exports.loginValidator = async (req, res, next) => {
   const schema = joi.object({
@@ -75,22 +77,35 @@ exports.loginValidator = async (req, res, next) => {
   next()
 }
 
-
 exports.vendorSignUpValidation = async (req, res, next) => {
   const schema = joi.object({
-    businessName: joi.string().min(3).max(15).required().pattern(new RegExp('[A-Za-z]+$')).required().messages({
-      'any.required': 'businessName is required',
-      'string.empty': 'businessName is required',
-      'string.min': 'businessName should contain at least three characters',
-      'string.max': 'businessName should not be more than 30 characters',
-    }),
-     businessAddress: joi.string().min(3).max(15).required().pattern(new RegExp('[A-Za-z]+$')).required().messages({
-      'any.required': 'businessAddress is required',
-      'string.empty': 'businessAddress is required',
-      'string.min': 'businessAddress should contain at least three characters',
-    }),
+    businessName: joi
+      .string()
+      .min(3)
+      .max(15)
+      .required()
+      .pattern(new RegExp('[A-Za-z]+$'))
+      .required()
+      .messages({
+        'any.required': 'businessName is required',
+        'string.empty': 'businessName is required',
+        'string.min': 'businessName should contain at least three characters',
+        'string.max': 'businessName should not be more than 30 characters',
+      }),
+    businessAddress: joi
+      .string()
+      .min(3)
+      .max(15)
+      .required()
+      .pattern(new RegExp('[A-Za-z]+$'))
+      .required()
+      .messages({
+        'any.required': 'businessAddress is required',
+        'string.empty': 'businessAddress is required',
+        'string.min': 'businessAddress should contain at least three characters',
+      }),
 
-     firstName: joi.string().min(3).max(15).required().pattern(new RegExp('[A-Za-z]+$')).required().messages({
+    firstName: joi.string().min(3).max(15).required().pattern(new RegExp('[A-Za-z]+$')).required().messages({
       'any.required': 'firstName is required',
       'string.empty': 'firstName is required',
       'string.min': 'firstName should contain at least three characters',
@@ -110,11 +125,15 @@ exports.vendorSignUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    businessPhoneNumber: joi.string().required()
-    .pattern(/^(?:\+234|0)[7-9][0-1]\d{8}$/)
-    .required()
-    .messages({
-      "string.pattern.base": "Phone number must be a valid number (e.g. 08012345678 or +2348012345678)"}),
+    businessPhoneNumber: joi
+      .string()
+      .pattern(/^(?:\+234|0)[7-9][0-9]{9}$/)
+      .required()
+      .messages({
+        'string.empty': 'Phone number is required',
+        'string.pattern.base': 'Phone number must be valid (e.g. 08012345678 or +2348012345678)',
+      }),
+
     password: joi
       .string()
       .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])([a-zA-Z0-9@$!%*?&]{8,})$'))
@@ -136,7 +155,6 @@ exports.vendorSignUpValidation = async (req, res, next) => {
   }
   next()
 }
-
 
 exports.vendorLoginValidator = async (req, res, next) => {
   const schema = joi.object({

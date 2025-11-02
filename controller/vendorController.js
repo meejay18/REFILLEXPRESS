@@ -2,7 +2,7 @@ const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
 const { Order } = require('../models')
 const { User } = require('../models')
-const {VendorKyc} = require("../models")
+const { VendorKyc } = require('../models')
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const {
@@ -231,9 +231,9 @@ exports.Vendorlogin = async (req, res, next) => {
       })
     }
 
-    const kyc = await VendorKyc.findOne({where: {vendorId : vendor.id}})
+    const kyc = await VendorKyc.findOne({ where: { vendorId: vendor.id } })
 
-    const showKycPage = !kyc || kyc.verificationStatus !== "verified"
+    const showKycPage = !kyc || kyc.verificationStatus !== 'verified'
 
     const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
       expiresIn: '2hr',
@@ -246,8 +246,8 @@ exports.Vendorlogin = async (req, res, next) => {
         firstName: vendor.firstName,
         lastName: vendor.lastName,
         businessEmail: vendor.businessEmail,
-        kycStatus : kyc?.verificationStatus || "Not submiited",
-        showKycPage
+        kycStatus: kyc?.verificationStatus || 'Not submiited',
+        showKycPage,
       },
       token: token,
     })
@@ -359,7 +359,6 @@ exports.vendorResetPassword = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10)
     vendor.password = await bcrypt.hash(newPassword, salt)
 
- 
     vendor.otp = null
     vendor.otpExpiredAt = null
 
@@ -571,64 +570,89 @@ exports.getPendingOrders = async (req, res, next) => {
 }
 
 exports.acceptOrRejectOrder = async (req, res, next) => {
-  const vendorId = req.vendor.id
-  const { orderId } = req.params
-  const { action } = req.body
+  const vendorId = req.vendor.id;
+  const { orderId } = req.params;
+  const { action } = req.body;
+
   try {
     const validActions = {
       accept: 'active',
       reject: 'cancelled',
-    }
+    };
 
     const actionMessages = {
       accept: 'Order accepted successfully',
       reject: 'Order rejected successfully',
-    }
+    };
 
+    // Validate action input
     if (!validActions[action]) {
       return res.status(400).json({
         message: 'Invalid action',
-      })
+      });
     }
 
+    // ✅ Step 1: Find the order by ID (vendor may not yet be assigned)
     const order = await Order.findOne({
-      where: { id: orderId, vendorId },
+      where: { id: orderId },
       include: [
         {
           model: User,
           as: 'user',
-          attributes: ['firstName', 'lastName', 'phoneNumber', "email"],
+          attributes: ['firstName', 'lastName', 'phoneNumber', 'email'],
         },
       ],
-    })
+    });
+
+    console.log('orderId:', orderId);
+    console.log('vendorId:', vendorId);
+
+    // ✅ Step 2: Handle case where order is missing
     if (!order) {
       return res.status(404).json({
         message: 'Order not found',
-      })
+      });
     }
 
+    // ✅ Step 3: Prevent vendor from modifying another vendor’s order
+    if (order.vendorId && order.vendorId !== vendorId) {
+      return res.status(403).json({
+        message: 'This order belongs to another vendor',
+      });
+    }
+
+    // ✅ Step 4: Assign vendor to the order if not already assigned
+    if (!order.vendorId) {
+      order.vendorId = vendorId;
+      await order.save();
+    }
+
+    // ✅ Step 5: Check order status
     if (order.status !== 'pending') {
       return res.status(403).json({
         message: 'Order is not pending',
-      })
+      });
     }
 
-    await order.update({ status: validActions[action] })
-    await order.save()
+    // ✅ Step 6: Update order status based on action
+    await order.update({ status: validActions[action] });
 
+    // ✅ Step 7: Send confirmation email to user
     const emailOptions = {
       email: order.user.email,
-      subject: 'Order Confirmation mail',
+      subject: 'Order Confirmation Mail',
       html: orderStatusTemplate(action, order.user.firstName, order.orderNumber, order.quantity, order.price),
-    }
+    };
 
-    await emailSender(emailOptions)
+    await emailSender(emailOptions);
 
+    // ✅ Step 8: Send final response
     return res.status(200).json({
-      messages: actionMessages[action],
+      message: actionMessages[action],
       data: order,
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+
