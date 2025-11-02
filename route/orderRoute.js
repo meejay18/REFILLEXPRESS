@@ -1,5 +1,5 @@
 const express = require('express')
-const { placeOrder } = require('../controller/orderController')
+const { placeOrder, getRecentOrders } = require('../controller/orderController')
 const { authentication } = require('../middleware/authentication')
 const router = express.Router()
 
@@ -109,4 +109,81 @@ const router = express.Router()
 
 router.post('/order/create-order', authentication, placeOrder)
 
+
+
+/**
+ * @swagger
+ * /order/getRecentOrders:
+ *   get:
+ *     summary: Retrieve recent user orders
+ *     description: Fetches the 5 most recent orders placed by the authenticated user, sorted by creation date in descending order.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Recent orders retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: recent orders retrieved
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 123e4567-e89b-12d3-a456-426614174000
+ *                       orderNumber:
+ *                         type: string
+ *                         example: REF-20251027-458
+ *                       gasType:
+ *                         type: string
+ *                         example: LPG
+ *                       quantity:
+ *                         type: number
+ *                         example: 12
+ *                       totalPrice:
+ *                         type: number
+ *                         example: 7800
+ *                       deliveryAddress:
+ *                         type: string
+ *                         example: 10 Chief Nwuke Street, Port Harcourt
+ *                       status:
+ *                         type: string
+ *                         example: pending
+ *                       paymentStatus:
+ *                         type: string
+ *                         example: unpaid
+ *                       createdAt:
+ *                         type: string
+ *                         example: 2025-10-27T12:45:00Z
+ *                       vendor:
+ *                         type: object
+ *                         properties:
+ *                           businessName:
+ *                             type: string
+ *                             example: GasPoint Ventures
+ *       401:
+ *         description: Unauthorized — missing or invalid authentication token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.get("/order/getRecentOrders", authentication, getRecentOrders )
 module.exports = router

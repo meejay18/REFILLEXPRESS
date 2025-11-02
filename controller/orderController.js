@@ -70,3 +70,22 @@ exports.placeOrder = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getRecentOrders = async (req, res, next) => {
+  const userId = req.user.id
+  try {
+    const orders = await Order.findAll({
+      where: { userId },
+      include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+      order: [['createdAt', 'DESC']],
+      limit: 5,
+    })
+
+    return res.status(200).json({
+      message: 'recent orders retrieved',
+      data: orders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
