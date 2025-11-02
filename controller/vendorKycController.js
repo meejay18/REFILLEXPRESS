@@ -15,6 +15,9 @@ exports.submitVendorKyc = async (req, res, next) => {
       })
     }
 
+    console.log(process.env.CLOUDINARY_CLOUD_NAME, process.env.CLOUDINARY_API_KEY)
+
+
     const businessLicenseUpload = await cloudinary.uploader.upload(files['businessLicense'][0].path)
     const taxRegistrationCertificateUpload = await cloudinary.uploader.upload(
       files['taxRegistrationCertificate'][0].path
