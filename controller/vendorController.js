@@ -233,7 +233,7 @@ exports.Vendorlogin = async (req, res, next) => {
 
     const kyc = await VendorKyc.findOne({ where: { vendorId: vendor.id } })
 
-    const showKycPage = !kyc || kyc.verificationStatus !== 'verified'
+    const showKycPage = !kyc || ['not submitted', 'rejected'].includes(kyc.verificationStatus?.toLowerCase())
 
     const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
       expiresIn: '2hr',

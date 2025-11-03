@@ -75,7 +75,7 @@ module.exports = {
         defaultValue: 'unpaid',
       },
       scheduledTime: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       rejectionMessage: {
