@@ -927,28 +927,24 @@ router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSum
 router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
 
 
-
 /**
  * @swagger
  * /vendor/accept/rejectOrder/{orderId}:
  *   post:
- *     summary: Accept or reject an order
- *     description: |
- *       This endpoint allows a vendor to **accept** or **reject** a customer's order.  
- *       - If the vendor chooses `accept`, the order status becomes **active**.  
- *       - If the vendor chooses `reject`, the order status becomes **cancelled**.  
- *       After the action, an email notification is sent to the customer.
+ *     summary: Vendor accepts or rejects an order
+ *     description: Allows an authenticated vendor to accept or reject an order. When rejecting, the vendor can optionally provide a rejection message.
  *     tags:
  *       - Vendor Orders
  *     security:
- *       - bearerAuth: []   # Requires vendor authentication token
+ *       - bearerAuth: []   # JWT authentication
  *     parameters:
  *       - in: path
  *         name: orderId
  *         required: true
+ *         description: The unique ID of the order to act on
  *         schema:
  *           type: string
- *         description: The unique ID of the order to accept or reject.
+ *           example: 84bffe86-0cf7-4ccb-a897-15a24aca89db
  *     requestBody:
  *       required: true
  *       content:
@@ -960,13 +956,16 @@ router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
  *             properties:
  *               action:
  *                 type: string
+ *                 description: The action to perform on the order
  *                 enum: [accept, reject]
- *                 description: The action to perform on the order.
- *             example:
- *               action: "accept"
+ *                 example: accept
+ *               message:
+ *                 type: string
+ *                 description: Optional rejection message if the vendor rejects the order
+ *                 example: Out of stock for this item
  *     responses:
  *       200:
- *         description: Order successfully accepted or rejected.
+ *         description: Order successfully accepted or rejected
  *         content:
  *           application/json:
  *             schema:
@@ -977,41 +976,25 @@ router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
  *                   example: Order accepted successfully
  *                 data:
  *                   type: object
- *                   description: The updated order details
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 84bffe86-0cf7-4ccb-a897-15a24aca89db
+ *                     status:
+ *                       type: string
+ *                       example: active
+ *                     rejectionMessage:
+ *                       type: string
+ *                       example: null
  *       400:
- *         description: Invalid action provided.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Invalid action
+ *         description: Invalid action provided
  *       403:
- *         description: Order is not in a pending state.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order is not pending
+ *         description: Order belongs to another vendor or is not pending
  *       404:
- *         description: Order not found for the vendor.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order not found
+ *         description: Order not found
  *       500:
- *         description: Internal server error.
+ *         description: Internal server error
  */
-
 
 router.post("/vendor/accept/rejectOrder/:orderId", vendorAuthentication,  acceptOrRejectOrder)
 

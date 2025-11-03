@@ -78,6 +78,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      rejectionMessage: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       deliveryFee: {
         type: Sequelize.FLOAT,
         allowNull: true,

@@ -570,25 +570,25 @@ exports.getPendingOrders = async (req, res, next) => {
 }
 
 exports.acceptOrRejectOrder = async (req, res, next) => {
-  const vendorId = req.vendor.id;
-  const { orderId } = req.params;
-  const { action } = req.body;
+  const vendorId = req.vendor.id
+  const { orderId } = req.params
+  const { action, message } = req.body
 
   try {
     const validActions = {
       accept: 'active',
       reject: 'cancelled',
-    };
+    }
 
     const actionMessages = {
       accept: 'Order accepted successfully',
       reject: 'Order rejected successfully',
-    };
+    }
 
     if (!validActions[action]) {
       return res.status(400).json({
         message: 'Invalid action',
-      });
+      })
     }
 
     const order = await Order.findOne({
@@ -600,53 +600,60 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
           attributes: ['firstName', 'lastName', 'phoneNumber', 'email'],
         },
       ],
-    });
+    })
 
-    console.log('orderId:', orderId);
-    console.log('vendorId:', vendorId);
+    console.log('orderId:', orderId)
+    console.log('vendorId:', vendorId)
 
-  
     if (!order) {
       return res.status(404).json({
         message: 'Order not found',
-      });
+      })
     }
 
     if (order.vendorId && order.vendorId !== vendorId) {
       return res.status(403).json({
         message: 'This order belongs to another vendor',
-      });
+      })
     }
     if (!order.vendorId) {
-      order.vendorId = vendorId;
-      await order.save();
+      order.vendorId = vendorId
+      await order.save()
     }
     if (order.status !== 'pending') {
       return res.status(403).json({
         message: 'Order is not pending',
-      });
+      })
     }
 
-    await order.update({ status: validActions[action] });
+    const updatePayload = { status: validActions[action] }
 
+    if (action === 'reject' && message) {
+      updatePayload.rejectionMessage = message
+    }
+
+    await order.update(updatePayload)
 
     const emailOptions = {
       email: order.user.email,
       subject: 'Order Confirmation Mail',
-      html: orderStatusTemplate(action, order.user.firstName, order.orderNumber, order.quantity, order.price),
-    };
+      html: orderStatusTemplate(
+        action,
+        order.user.firstName,
+        order.orderNumber,
+        order.quantity,
+        order.totalPrice,
+        message
+      ),
+    }
 
-    await emailSender(emailOptions);
+    await emailSender(emailOptions)
 
- 
     return res.status(200).json({
       message: actionMessages[action],
       data: order,
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
-
-
+}
