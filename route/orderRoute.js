@@ -1,6 +1,6 @@
 const express = require('express')
-const { placeOrder, getRecentOrders } = require('../controller/orderController')
-const { authentication } = require('../middleware/authentication')
+const { placeOrder, getRecentOrders, getAllVendorOrders } = require('../controller/orderController')
+const { authentication, vendorAuthentication } = require('../middleware/authentication')
 const router = express.Router()
 
 
@@ -186,4 +186,106 @@ router.post('/order/create-order', authentication, placeOrder)
 
 
 router.get("/order/getRecentOrders", authentication, getRecentOrders )
+
+/**
+ * @swagger
+ * /order/getAllVendorOrders:
+ *   get:
+ *     summary: Retrieve all orders for a vendor grouped by status
+ *     description: This endpoint allows an authenticated vendor to view all their orders grouped into pending, active, completed, and cancelled categories.
+ *     tags: [Vendor Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Orders retrieved successfully and grouped by status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Orders retrieved by status
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     pending:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     active:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     completed:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     cancelled:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *       401:
+ *         description: Unauthorized — Vendor authentication token missing or invalid
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Order:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 4a0b12de-cc7a-4a3e-b83e-9912b55b26e0
+ *         orderNumber:
+ *           type: string
+ *           example: REF-20251027-123
+ *         gasType:
+ *           type: string
+ *           example: LPG
+ *         quantity:
+ *           type: number
+ *           example: 12
+ *         price:
+ *           type: number
+ *           example: 1500
+ *         totalPrice:
+ *           type: number
+ *           example: 18000
+ *         deliveryAddress:
+ *           type: string
+ *           example: 23 Marina Road, Lagos, Nigeria
+ *         status:
+ *           type: string
+ *           enum: [pending, active, completed, cancelled]
+ *           example: pending
+ *         paymentStatus:
+ *           type: string
+ *           enum: [paid, unpaid]
+ *           example: unpaid
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         user:
+ *           type: object
+ *           properties:
+ *             firstName:
+ *               type: string
+ *               example: John
+ *             lastName:
+ *               type: string
+ *               example: Doe
+ *             email:
+ *               type: string
+ *               example: johndoe@gmail.com
+ */
+
+
+
+router.get("/order/getAllVendorOrders", vendorAuthentication, getAllVendorOrders)
 module.exports = router

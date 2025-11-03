@@ -89,3 +89,40 @@ exports.getRecentOrders = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getAllVendorOrders = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  try {
+    const orders = await Order.findAll({
+      where: { vendorId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'email'],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    })
+
+    const groupedOrders = {
+      pending: [],
+      active: [],
+      completed: [],
+      cancelled: [],
+    }
+
+    orders.forEach((order) => {
+      if (groupedOrders[order.status]) {
+        groupedOrders[order.status].push(order)
+      }
+    })
+
+    return res.status(200).json({
+      message: 'Orders retrieved by status',
+      data: groupedOrders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
