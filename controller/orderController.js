@@ -1,4 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
+const { Op } = require('sequelize');
 const { Vendor, Order, User } = require('../models')
 const { placeOrderTemplate } = require('../utils/emailTemplate')
 
@@ -7,7 +8,11 @@ exports.placeOrder = async (req, res, next) => {
   try {
     const userId = req.user.id
 
-    const vendor = await Vendor.findOne({ where: { isAvailable: true } })
+    const vendor = await Vendor.findOne({
+      where: { isAvailable: true },
+      pricePerKg: { [Op.ne]: null },
+      attributes: ['id', 'businessName', 'pricePerKg', 'businessAddress'],
+    })
     if (!vendor) {
       return res.status(404).json({
         message: 'No available vendors at the moment',
@@ -20,10 +25,11 @@ exports.placeOrder = async (req, res, next) => {
         message: 'User not found',
       })
     }
+    
 
-    const unitPrice = vendor.pricePerKg
-    const totalPrice = unitPrice * quantity
     const deliveryFee = 2500
+    const unitPrice = parseFloat(vendor.pricePerKg)
+    const totalPrice = unitPrice * quantity + deliveryFee
 
     const date = new Date()
     const orderNumber = `REF-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(

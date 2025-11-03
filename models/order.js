@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'unpaid',
       },
       scheduledTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       rejectionMessage: {
