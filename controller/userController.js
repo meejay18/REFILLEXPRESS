@@ -484,5 +484,3 @@ exports.getNearbyVendors = async (req, res, next) => {
     next(error)
   }
 }
-
-

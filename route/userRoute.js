@@ -863,5 +863,5 @@ route.get("/user/getUserProfile", authentication,  getUserProfile)
  */
 
 
-route.get("/user/getNearbyVendors", authentication,  getNearbyVendors )
+route.get("/user/getNearbyVendors",   getNearbyVendors )
 module.exports = route
