@@ -1,12 +1,13 @@
 const { Review, User, Vendor } = require('../models')
 
-// GET /reviews
+
 exports.getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.findAll({
       include: [
         { model: User, as: 'user', attributes: ['firstName', 'lastName'] },
-        { model: Vendor, as: 'vendor', attributes: ['name'] },
+        { model: Vendor, as: 'vendor', attributes: ['businessName'] },
+
       ],
       order: [['timestamp', 'DESC']],
     })
@@ -18,7 +19,8 @@ exports.getReviews = async (req, res, next) => {
   }
 }
 
-// POST /vendors/:vendorId/reviews
+
+
 exports.createReview = async (req, res, next) => {
   try {
     const userId = req.user.id
@@ -42,6 +44,8 @@ exports.createReview = async (req, res, next) => {
     const review = await Review.create({
       rating,
       message,
+      vendorId,
+      userId,
     })
 
     res.status(201).json({
@@ -54,7 +58,8 @@ exports.createReview = async (req, res, next) => {
   }
 }
 
-// GET /reviews/summary
+
+
 exports.getReviewSummary = async (req, res, next) => {
   try {
     const totalReviews = await Review.count()
@@ -70,7 +75,8 @@ exports.getReviewSummary = async (req, res, next) => {
   }
 }
 
-// GET /reviews/stats
+
+
 exports.getReviewStats = async (req, res, next) => {
   try {
     const totalReviews = await Review.count()
@@ -100,27 +106,28 @@ exports.getReviewStats = async (req, res, next) => {
   }
 }
 
-// GET /vendors/:vendorId/reviews
-exports.getVendorReviews = async (req, res, next) => {
-  try {
-    const { vendorId } = req.params
 
-    const vendor = await Vendor.findByPk(vendorId)
-    if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' })
-    }
 
-    const reviews = await Review.findAll({
-      where: { vendorId },
-      include: [
-        { model: User, as: 'user', attributes: ['firstName', 'lastName'] },
-        { model: Vendor, as: 'vendor', attributes: ['name'] },
-      ],
-      order: [['timestamp', 'DESC']],
-    })
+// exports.getVendorReviews = async (req, res, next) => {
+//   try {
+//     const { vendorId } = req.params
 
-    res.status(200).json(reviews)
-  } catch (error) {
-    next(error)
-  }
-}
+//     const vendor = await Vendor.findByPk(vendorId)
+//     if (!vendor) {
+//       return res.status(404).json({ message: 'Vendor not found' })
+//     }
+
+//     const reviews = await Review.findAll({
+//       where: { vendorId },
+//       include: [
+//         { model: User, as: 'user', attributes: ['firstName', 'lastName'] },
+//         { model: Vendor, as: 'vendor', attributes: ['businessName'] },
+//       ],
+//       order: [['timestamp', 'DESC']],
+//     })
+
+//     res.status(200).json(reviews)
+//   } catch (error) {
+//     next(error)
+//   }
+// }
