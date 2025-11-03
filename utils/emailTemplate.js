@@ -347,13 +347,21 @@ const kycVerificationTemplate = (status, businessName) => {
   `;
 };
 
-const orderStatusTemplate = (action, customerName, orderNumber, quantity, price) => {
+const orderStatusTemplate = (
+  action,
+  customerName,
+  orderNumber,
+  quantity,
+  totalPrice,
+  rejectionMessage = ''
+) => {
   const isAccepted = action === 'accept';
 
   const message = isAccepted
     ? `<p>🎉 Great news! Your gas order <strong>#${orderNumber}</strong> for <strong>${quantity}kg</strong> has been <strong>accepted</strong>.</p>
-       <p>Our delivery team will be on their way shortly. The total cost is <strong>₦${price}</strong>.</p>`
+       <p>Our delivery team will be on their way shortly. The total cost is <strong>₦${totalPrice}</strong>.</p>`
     : `<p>⚠️ Unfortunately, your gas order <strong>#${orderNumber}</strong> for <strong>${quantity}kg</strong> has been <strong>rejected</strong>.</p>
+       <p><strong>Reason:</strong> <em>${rejectionMessage}</em></p>
        <p>Please contact support or place a new order. We apologize for the inconvenience.</p>`;
 
   return `
@@ -423,6 +431,7 @@ const orderStatusTemplate = (action, customerName, orderNumber, quantity, price)
   </html>
   `;
 };
+
 
 const vendorSignUpTemplate = (otp, businessName) => {
   return `
