@@ -439,81 +439,56 @@ router.post('/vendorKyc/verify/:vendorId', authentication, adminOnly, verifyVend
 
 router.get('/vendorKyc/getAllVendorKyc', authentication, adminOnly, getAllvendorKyc)
 
+
 /**
  * @swagger
  * /vendorKyc/getOneVendorKyc/{vendorId}:
  *   get:
- *     summary: Get One Vendor KYC
- *     description: Retrieves detailed KYC information for a specific vendor by their vendorId. Requires vendor authentication.
- *     tags:
- *       - Vendor KYC
+ *     summary: Retrieve a specific vendor's KYC details
+ *     description: Fetch a vendor and their associated KYC details using the vendor's unique ID.
+ *     tags: [Vendor KYC]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: vendorId
  *         required: true
- *         description: Unique identifier of the vendor
  *         schema:
  *           type: string
- *           example: "f0a3c1c9-89e1-4a77-9d3d-68b4f89b8e12"
+ *         description: The unique ID of the vendor.
+ *         example: aab205f6-c745-47e7-9ee9-239322aceab4
  *     responses:
  *       200:
- *         description: Vendor KYC record retrieved successfully
+ *         description: Vendor KYC retrieved successfully
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Vendor retrieved successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       example: "f0a3c1c9-89e1-4a77-9d3d-68b4f89b8e12"
- *                     businessName:
- *                       type: string
- *                       example: "Refill Express Logistics"
- *                     businessEmail:
- *                       type: string
- *                       example: "vendor@example.com"
- *                     verificationStatus:
- *                       type: string
- *                       example: "pending"
+ *             example:
+ *               message: Vendor retrieved successfully
+ *               data:
+ *                 id: "aab205f6-c745-47e7-9ee9-239322aceab4"
+ *                 firstName: "John"
+ *                 lastName: "Doe"
+ *                 businessEmail: "johndoe@example.com"
+ *                 kyc:
+ *                   businessLicense: "https://res.cloudinary.com/refillxpress/businessLicense.jpg"
+ *                   taxRegistrationCertificate: "https://res.cloudinary.com/refillxpress/taxCert.jpg"
+ *                   nationalId: "https://res.cloudinary.com/refillxpress/nationalId.jpg"
+ *                   businessInsurance: "https://res.cloudinary.com/refillxpress/insurance.jpg"
+ *                   verificationStatus: "verified"
  *       404:
  *         description: Vendor not found
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Vendor not found
- *       401:
- *         description: Unauthorized or invalid token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized access
+ *             example:
+ *               message: Vendor not found
  *       500:
- *         description: Internal server error
+ *         description: Server error
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
+ *             example:
+ *               message: Internal server error
  */
+
 
 router.get('/vendorKyc/getOneVendorKyc/:vendorId', vendorAuthentication, getOneVendorKyc)
 module.exports = router
