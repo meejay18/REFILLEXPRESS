@@ -1,11 +1,24 @@
-const express = require ('express');
-const { vendorAuthentication } = require ('../middleware/authentication');
-const { vendorSignUp, verifyVendor, resendVendorOtp, Vendorlogin, vendorForgotPassword, vendorResetPassword, changeVendorPassword, getAllvendors, getOneVendor, vendorForgotPasswordOtpResend, verifyVendorForgotPasswordOtp, vendorDashboardSummary, getPendingOrders, acceptOrRejectOrder } = require('../controller/vendorController');
-const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator');
+const express = require('express')
+const { vendorAuthentication } = require('../middleware/authentication')
+const {
+  vendorSignUp,
+  verifyVendor,
+  resendVendorOtp,
+  Vendorlogin,
+  vendorForgotPassword,
+  vendorResetPassword,
+  changeVendorPassword,
+  getAllvendors,
+  getOneVendor,
+  vendorForgotPasswordOtpResend,
+  verifyVendorForgotPasswordOtp,
+  vendorDashboardSummary,
+  getPendingOrders,
+  acceptOrRejectOrder,
+} = require('../controller/vendorController')
+const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator')
 
-const router = express.Router();
-
-
+const router = express.Router()
 
 /**
  * @swagger
@@ -84,7 +97,7 @@ const router = express.Router();
  *                   type: string
  *                   example: Vendor already exists
  */
-router.post('/vendor',  vendorSignUpValidation, vendorSignUp)
+router.post('/vendor', vendorSignUpValidation, vendorSignUp)
 /**
  * @swagger
  * /vendor/verify:
@@ -230,8 +243,7 @@ router.post('/vendor/verify', verifyVendor)
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/resend-otp', resendVendorOtp);
-
+router.post('/vendor/resend-otp', resendVendorOtp)
 
 /**
  * @swagger
@@ -317,9 +329,7 @@ router.post('/vendor/resend-otp', resendVendorOtp);
  *         description: Internal server error
  */
 
-
-router.post('/vendor/login', vendorLoginValidator, Vendorlogin);
-
+router.post('/vendor/login', vendorLoginValidator, Vendorlogin)
 
 /**
  * @swagger
@@ -448,7 +458,7 @@ router.post('/vendor/forgot-password', vendorForgotPassword)
  *       500:
  *         description: Internal server error
  */
-router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp);
+router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
 
 /**
  * @swagger
@@ -521,7 +531,7 @@ router.post('/vendor/verify-forgot-password-otp', verifyVendorForgotPasswordOtp)
  *                   example: Internal server error
  */
 
-router.post('/vendor/reset-password', vendorResetPassword);
+router.post('/vendor/reset-password', vendorResetPassword)
 
 /**
  * @swagger
@@ -599,8 +609,6 @@ router.post('/vendor/reset-password', vendorResetPassword);
  */
 router.patch('/vendor/change-password', vendorAuthentication, changeVendorPassword)
 
-
-
 /**
  * @swagger
  * /vendor/getAllvendors:
@@ -675,10 +683,9 @@ router.patch('/vendor/change-password', vendorAuthentication, changeVendorPasswo
  *                   example: Internal Server Error
  */
 
-router.get("/vendor/getAllvendors", getAllvendors)
+router.get('/vendor/getAllvendors', getAllvendors)
 
-
-/** 
+/**
  * @swagger
  * /vendor/getOneVendor/{vendorId}:
  *   get:
@@ -753,8 +760,7 @@ router.get("/vendor/getAllvendors", getAllvendors)
  *                   example: An error occurred while retrieving the vendor
  */
 
-
-router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
+router.get('/vendor/getOneVendor/:vendorId', getOneVendor)
 
 /**
  * @swagger
@@ -810,8 +816,7 @@ router.get("/vendor/getOneVendor/:vendorId", getOneVendor)
  *                   example: Internal server error
  */
 
-
-router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpResend)
+router.post('/vendor/vendorForgotPasswordOtpResend', vendorForgotPasswordOtpResend)
 
 /**
  * @swagger
@@ -876,8 +881,7 @@ router.post("/vendor/vendorForgotPasswordOtpResend", vendorForgotPasswordOtpRese
  *                   example: Internal server error
  */
 
-
-router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSummary )
+router.get('/vendor/dashboard/summary', vendorAuthentication, vendorDashboardSummary)
 
 /**
  * @swagger
@@ -924,24 +928,23 @@ router.get("/vendor/dashboard/summary", vendorAuthentication, vendorDashboardSum
  *               message: "Internal server error"
  */
 
-router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
-
+router.get('/vendor/getpendingOrders', vendorAuthentication, getPendingOrders)
 
 /**
  * @swagger
  * /vendor/accept/rejectOrder/{orderId}:
  *   post:
  *     summary: Vendor accepts or rejects an order
- *     description: Allows an authenticated vendor to accept or reject an order. When rejecting, the vendor can optionally provide a rejection message.
+ *     description: Allows an authenticated vendor to either accept or reject a customer’s order. If the vendor rejects the order, they can include a rejection message.
  *     tags:
- *       - Vendor Orders
+ *       - Vendor Dashboard
  *     security:
- *       - bearerAuth: []   # JWT authentication
+ *       - bearerAuth: []   # JWT vendor authentication
  *     parameters:
  *       - in: path
  *         name: orderId
  *         required: true
- *         description: The unique ID of the order to act on
+ *         description: The unique ID of the order to accept or reject
  *         schema:
  *           type: string
  *           example: 84bffe86-0cf7-4ccb-a897-15a24aca89db
@@ -956,16 +959,16 @@ router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
  *             properties:
  *               action:
  *                 type: string
- *                 description: The action to perform on the order
+ *                 description: Action to perform on the order
  *                 enum: [accept, reject]
- *                 example: accept
+ *                 example: reject
  *               message:
  *                 type: string
- *                 description: Optional rejection message if the vendor rejects the order
- *                 example: Out of stock for this item
+ *                 description: Optional rejection message (required only if rejecting an order)
+ *                 example: "Out of stock at the moment, please try again later."
  *     responses:
  *       200:
- *         description: Order successfully accepted or rejected
+ *         description: Order accepted or rejected successfully
  *         content:
  *           application/json:
  *             schema:
@@ -973,21 +976,42 @@ router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Order accepted successfully
+ *                   example: Order rejected successfully
  *                 data:
  *                   type: object
  *                   properties:
  *                     id:
  *                       type: string
  *                       example: 84bffe86-0cf7-4ccb-a897-15a24aca89db
+ *                     orderNumber:
+ *                       type: string
+ *                       example: ORD-20251027-001
  *                     status:
  *                       type: string
- *                       example: active
+ *                       example: cancelled
  *                     rejectionMessage:
  *                       type: string
- *                       example: null
+ *                       example: Out of stock at the moment
+ *                     vendorId:
+ *                       type: string
+ *                       example: aab205f6-c745-47e7-9ee9-239322aceab4
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         firstName:
+ *                           type: string
+ *                           example: John
+ *                         lastName:
+ *                           type: string
+ *                           example: Doe
+ *                         phoneNumber:
+ *                           type: string
+ *                           example: +2348100000000
+ *                         email:
+ *                           type: string
+ *                           example: johndoe@email.com
  *       400:
- *         description: Invalid action provided
+ *         description: Invalid action
  *       403:
  *         description: Order belongs to another vendor or is not pending
  *       404:
@@ -996,8 +1020,6 @@ router.get("/vendor/getpendingOrders", vendorAuthentication, getPendingOrders)
  *         description: Internal server error
  */
 
-router.post("/vendor/accept/rejectOrder/:orderId", vendorAuthentication,  acceptOrRejectOrder)
-
+router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptOrRejectOrder)
 
 module.exports = router
-
