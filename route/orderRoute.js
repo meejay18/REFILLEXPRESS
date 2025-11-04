@@ -1,9 +1,12 @@
 const express = require('express')
-const { placeOrder, getRecentOrders, getAllVendorOrders } = require('../controller/orderController')
+const {
+  placeOrder,
+  getRecentOrders,
+  getAllVendorOrders,
+  getActiveOrders,
+} = require('../controller/orderController')
 const { authentication, vendorAuthentication } = require('../middleware/authentication')
 const router = express.Router()
-
-
 
 /**
  * @swagger
@@ -106,10 +109,7 @@ const router = express.Router()
  *         description: Internal server error
  */
 
-
 router.post('/order/create-order', authentication, placeOrder)
-
-
 
 /**
  * @swagger
@@ -184,8 +184,7 @@ router.post('/order/create-order', authentication, placeOrder)
  *         description: Internal server error
  */
 
-
-router.get("/order/getRecentOrders", authentication, getRecentOrders )
+router.get('/order/getRecentOrders', authentication, getRecentOrders)
 
 /**
  * @swagger
@@ -232,60 +231,68 @@ router.get("/order/getRecentOrders", authentication, getRecentOrders )
  *         description: Internal server error
  */
 
+router.get('/order/getAllVendorOrders', vendorAuthentication, getAllVendorOrders)
+
 /**
  * @swagger
- * components:
- *   schemas:
- *     Order:
- *       type: object
- *       properties:
- *         id:
+ * /orders/getActiveOrders/{userId}:
+ *   get:
+ *     summary: Get all active orders for a user
+ *     description: Retrieves all active orders belonging to a specific authenticated user.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []   # JWT authentication
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The unique ID of the user whose active orders are being fetched
+ *         schema:
  *           type: string
- *           example: 4a0b12de-cc7a-4a3e-b83e-9912b55b26e0
- *         orderNumber:
- *           type: string
- *           example: REF-20251027-123
- *         gasType:
- *           type: string
- *           example: LPG
- *         quantity:
- *           type: number
- *           example: 12
- *         price:
- *           type: number
- *           example: 1500
- *         totalPrice:
- *           type: number
- *           example: 18000
- *         deliveryAddress:
- *           type: string
- *           example: 23 Marina Road, Lagos, Nigeria
- *         status:
- *           type: string
- *           enum: [pending, active, completed, cancelled]
- *           example: pending
- *         paymentStatus:
- *           type: string
- *           enum: [paid, unpaid]
- *           example: unpaid
- *         createdAt:
- *           type: string
- *           format: date-time
- *         user:
- *           type: object
- *           properties:
- *             firstName:
- *               type: string
- *               example: John
- *             lastName:
- *               type: string
- *               example: Doe
- *             email:
- *               type: string
- *               example: johndoe@gmail.com
+ *           example: 2f7f7b34-7b31-4c6a-9a98-9dcae3e20455
+ *     responses:
+ *       200:
+ *         description: Active orders fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Active orders fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 5e6bba15-9e91-4a63-bf1a-dac6bdb3e88a
+ *                       orderNumber:
+ *                         type: string
+ *                         example: ORD-20251027-001
+ *                       status:
+ *                         type: string
+ *                         example: active
+ *                       totalPrice:
+ *                         type: number
+ *                         example: 4500.00
+ *                       quantity:
+ *                         type: integer
+ *                         example: 3
+ *                       vendor:
+ *                         type: object
+ *                         properties:
+ *                           businessName:
+ *                             type: string
+ *                             example: GreenMart Foods
+ *       404:
+ *         description: User not found or has no active orders
+ *       500:
+ *         description: Internal server error
  */
 
-
-
-router.get("/order/getAllVendorOrders", vendorAuthentication, getAllVendorOrders)
+router.get('/orders/getActiveOrders/:userId', authentication, getActiveOrders)
 module.exports = router

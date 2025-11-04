@@ -79,6 +79,11 @@ const swaggerDefinition = {
       description:
         'Endpoints that provide vendor performance metrics, statistics, and business insights (orders, revenue, etc.).',
     },
+    {
+      name: 'User Dashboard',
+      description:
+        'Endpoints that provide user performance metrics, statistics, and business insights (orders, revenue, etc.).',
+    },
   ],
   components: {
     securitySchemes: {
