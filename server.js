@@ -29,6 +29,11 @@ app.use('/api/v1', riderRouter)
 const reviewRouter = require('./route/reviewRoute')
 app.use('/api/v1', reviewRouter)
 
+const analyticsRouter = require ('./route/analyticsRoute')
+app.use('/api/v1', analyticsRouter)
+
+
+
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
