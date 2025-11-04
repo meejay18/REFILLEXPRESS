@@ -92,11 +92,16 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      isAvailable: {
-        type: Sequelize.BOOLEAN,
+      businessAvailability: {
+        type: Sequelize.ENUM('open', 'closed'),
         allowNull: false,
-        defaultValue: true,
+        defaultValue: 'open',
       },
+        inStock: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
