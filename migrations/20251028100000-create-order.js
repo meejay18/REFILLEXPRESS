@@ -42,7 +42,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
-      gasType: {
+      cylinderSize: {
         type: Sequelize.STRING,
         allowNull: false,
       },

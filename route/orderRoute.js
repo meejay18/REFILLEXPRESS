@@ -58,7 +58,7 @@ const router = express.Router()
  *                     orderNumber:
  *                       type: string
  *                       example: REF-20251027-458
- *                     gasType:
+ *                     cylinderSize:
  *                       type: string
  *                       example: LPG
  *                     quantity:

@@ -4,7 +4,7 @@ const { Vendor, Order, User } = require('../models')
 const { placeOrderTemplate } = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
-  const { gasType, quantity, deliveryAddress, scheduledTime } = req.body
+  const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
   try {
     const userId = req.user.id
 
@@ -41,7 +41,7 @@ exports.placeOrder = async (req, res, next) => {
       vendorId: vendor.id,
       riderId: null,
       orderNumber,
-      gasType,
+      cylinderSize,
       quantity,
       price: unitPrice,
       pickupAddress: vendor.businessAddress,

@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: true,
       },
-      gasType: {
+      cylinderSize: {
         type: DataTypes.STRING,
         allowNull: false,
       },
