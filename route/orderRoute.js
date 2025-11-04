@@ -22,11 +22,11 @@ const router = express.Router()
  *           schema:
  *             type: object
  *             required:
- *               - gasType
+ *               - cylinderSize
  *               - quantity
  *               - deliveryAddress
  *             properties:
- *               gasType:
+ *               cylinderSize:
  *                 type: string
  *                 example: LPG
  *               quantity:
