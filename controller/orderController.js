@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { Op } = require('sequelize');
+const { Op } = require('sequelize')
 const { Vendor, Order, User } = require('../models')
 const { placeOrderTemplate } = require('../utils/emailTemplate')
 
@@ -25,7 +25,6 @@ exports.placeOrder = async (req, res, next) => {
         message: 'User not found',
       })
     }
-    
 
     const deliveryFee = 2500
     const unitPrice = parseFloat(vendor.pricePerKg)
@@ -132,3 +131,24 @@ exports.getAllVendorOrders = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getActiveOrders = async (req, res, next) => {
+  const userId = req.user.id
+  try {
+    const orders = await Order.findAll({
+      where: {
+        userId,
+        status: ['active'],
+      },
+      include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+    })
+
+    return res.status(200).json({
+      message: 'Active orders fetched successfully',
+      data: orders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+

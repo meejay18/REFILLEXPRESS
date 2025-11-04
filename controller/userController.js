@@ -484,3 +484,13 @@ exports.getNearbyVendors = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.updateUserProfile = async(req, res, next) => {
+  const userId = req.user.id
+  const {firstName, lastName, email, } = req.body
+  try {
+    
+  } catch (error) {
+    next(error)
+  }
+}
