@@ -657,3 +657,34 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.updateVendorSettingsField = async (req, res, next) => {
+  const { pricePerKg, minimumOrder, openingTime, closingTime, businessAvailability, inStock } = req.body
+
+  const vendorId = req.vendor.id
+  try {
+    const vendor = await Vendor.findByPk(vendorId)
+
+    if (!vendorId) {
+      return res.status(404).json({
+        message: 'Vendor not found',
+      })
+    }
+
+    await vendor.update({
+      pricePerKg,
+      minimumOrder,
+      openingTime,
+      closingTime,
+      businessAvailability,
+      inStock
+    })
+
+    return res.status(200).json({
+      message: 'Vendor updated successfully',
+      data: vendor,
+    })
+  } catch (error) {
+    next(error)
+  }
+}

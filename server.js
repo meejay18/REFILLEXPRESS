@@ -29,12 +29,10 @@ app.use('/api/v1', riderRouter)
 const reviewRouter = require('./route/reviewRoute')
 app.use('/api/v1', reviewRouter)
 
-const analyticsRouter = require ('./route/analyticsRoute')
+const analyticsRouter = require('./route/analyticsRoute')
 app.use('/api/v1', analyticsRouter)
-const paymentRouter = require("./route/paymentRoute")
-app.use("/api/v1", paymentRouter)
-
-
+const paymentRouter = require('./route/paymentRoute')
+app.use('/api/v1', paymentRouter)
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -85,6 +83,11 @@ const swaggerDefinition = {
       name: 'User Dashboard',
       description:
         'Endpoints that provide user performance metrics, statistics, and business insights (orders, revenue, etc.).',
+    },
+    {
+      name: 'Payment',
+      description:
+        'Endpoints that handle payment operations, including payment initialization, status tracking, transaction verification, and integration with third-party payment gateways such as KoraPay.',
     },
   ],
   components: {
