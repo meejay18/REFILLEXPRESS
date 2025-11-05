@@ -298,6 +298,7 @@ exports.login = async (req, res, next) => {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
       },
       token: token,
     })
@@ -485,11 +486,10 @@ exports.getNearbyVendors = async (req, res, next) => {
   }
 }
 
-exports.updateUserProfile = async(req, res, next) => {
+exports.updateUserProfile = async (req, res, next) => {
   const userId = req.user.id
-  const {firstName, lastName, email, } = req.body
+  const { firstName, lastName, email } = req.body
   try {
-    
   } catch (error) {
     next(error)
   }
