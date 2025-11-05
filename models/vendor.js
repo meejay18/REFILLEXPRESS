@@ -131,11 +131,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      isAvailable: {
-        type: DataTypes.BOOLEAN,
+      businessAvailability: {
+        type: DataTypes.ENUM('open', 'closed'),
         allowNull: false,
-        defaultValue: true,
+        defaultValue: 'open',
       },
+        inStock: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
     },
     {
       sequelize,
