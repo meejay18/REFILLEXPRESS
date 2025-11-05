@@ -25,7 +25,6 @@ module.exports = {
       currency: {
         type: Sequelize.STRING,
         defaultValue: 'NGN',
-
       },
       paymentMethod: {
         type: Sequelize.ENUM('card', 'bank-transfer'),

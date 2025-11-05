@@ -195,7 +195,16 @@ exports.getOneVendorKyc = async (req, res, next) => {
         {
           model: VendorKyc,
           as: 'kyc',
-          attributes: ['businessLicense', 'taxRegistrationCertificate', 'nationalId', 'businessInsurance', "verificationStatus"],
+          attributes: [
+            'businessLicense',
+            'taxRegistrationCertificate',
+            'nationalId',
+            'businessInsurance',
+            'verificationStatus',
+            'bankAccountName',
+            'bankName',
+            'accountNumber',
+          ],
         },
       ],
     })
@@ -214,4 +223,3 @@ exports.getOneVendorKyc = async (req, res, next) => {
     next(error)
   }
 }
-
