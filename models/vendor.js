@@ -136,11 +136,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 'open',
       },
-        inStock: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
+      inStock: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
     },
     {
       sequelize,

@@ -1,5 +1,5 @@
 const express = require('express')
-const { vendorAuthentication } = require('../middleware/authentication')
+const { vendorAuthentication, authentication } = require('../middleware/authentication')
 const {
   vendorSignUp,
   verifyVendor,
@@ -15,6 +15,8 @@ const {
   vendorDashboardSummary,
   getPendingOrders,
   acceptOrRejectOrder,
+  updateSettingsField,
+  updateVendorSettingsField,
 } = require('../controller/vendorController')
 const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator')
 
@@ -1022,4 +1024,96 @@ router.get('/vendor/getpendingOrders', vendorAuthentication, getPendingOrders)
 
 router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptOrRejectOrder)
 
+
+/**
+ * @swagger
+ * /vendor/{vendorId}/settings:
+ *   put:
+ *     summary: Update vendor business settings
+ *     description: Allows an authenticated vendor to update their gas business settings such as price, opening hours, and availability.
+ *     tags:
+ *       - Vendor Dashboard 
+ *     security:
+ *       - bearerAuth: []   # JWT token required
+ *     parameters:
+ *       - in: path
+ *         name: vendorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "d6a1b52c-9a12-4e6a-94b3-6c6b8a01f2ab"
+ *         description: Unique ID of the vendor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pricePerKg:
+ *                 type: number
+ *                 example: 1200
+ *               minimumOrder:
+ *                 type: number
+ *                 example: 5
+ *               openingTime:
+ *                 type: string
+ *                 example: "08:00 AM"
+ *               closingTime:
+ *                 type: string
+ *                 example: "06:00 PM"
+ *               businessAvailability:
+ *                 type: boolean
+ *                 example: true
+ *               inStock:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Vendor settings updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: d6a1b52c-9a12-4e6a-94b3-6c6b8a01f2ab
+ *                     businessName:
+ *                       type: string
+ *                       example: GasPoint Ventures
+ *                     pricePerKg:
+ *                       type: number
+ *                       example: 1200
+ *                     minimumOrder:
+ *                       type: number
+ *                       example: 5
+ *                     openingTime:
+ *                       type: string
+ *                       example: "08:00 AM"
+ *                     closingTime:
+ *                       type: string
+ *                       example: "06:00 PM"
+ *                     businessAvailability:
+ *                       type: boolean
+ *                       example: true
+ *                     inStock:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         description: Unauthorized — missing or invalid authentication token
+ *       404:
+ *         description: Vendor not found
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.put('/vendor/:vendorId/settings', vendorAuthentication,  updateVendorSettingsField)
 module.exports = router
