@@ -31,6 +31,8 @@ app.use('/api/v1', reviewRouter)
 
 const analyticsRouter = require ('./route/analyticsRoute')
 app.use('/api/v1', analyticsRouter)
+const paymentRouter = require("./route/paymentRoute")
+app.use("/api/v1", paymentRouter)
 
 
 

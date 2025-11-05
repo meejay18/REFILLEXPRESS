@@ -474,6 +474,9 @@ router.get('/vendorKyc/getAllVendorKyc', authentication, adminOnly, getAllvendor
  *                   taxRegistrationCertificate: "https://res.cloudinary.com/refillxpress/taxCert.jpg"
  *                   nationalId: "https://res.cloudinary.com/refillxpress/nationalId.jpg"
  *                   businessInsurance: "https://res.cloudinary.com/refillxpress/insurance.jpg"
+ *                   bankAccountName: "sam mba"
+ *                   bankName: "UBA"
+ *                   accountNumber: "0967534256"
  *                   verificationStatus: "verified"
  *       404:
  *         description: Vendor not found

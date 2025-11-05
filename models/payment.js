@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       status: {
-        type: DataTypes.ENUM('card', 'bank-transfer'),
+        type: DataTypes.ENUM('pending', 'success', "failed"),
         defaultValue: 'pending',
       },
       paidAt: {
