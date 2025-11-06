@@ -1,7 +1,24 @@
 const express = require('express')
-const { signUp, verify, resendOtp, login, forgotPassword, resetPassword, changePassword, verifyForgotPasswordOtp, ForgotPasswordOtpResend, getAllUsers, getOneUser, getUserProfile, getNearbyVendors } = require('../controller/userController')
+const {
+  signUp,
+  verify,
+  resendOtp,
+  login,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+  verifyForgotPasswordOtp,
+  ForgotPasswordOtpResend,
+  getAllUsers,
+  getOneUser,
+  getUserProfile,
+  getNearbyVendors,
+  updateUserAccount,
+} = require('../controller/userController')
 const { authentication } = require('../middleware/authentication')
 const { signUpValidation, loginValidator } = require('../middleware/validator')
+
+const upload = require('../middleware/multer')
 
 const route = express.Router()
 
@@ -70,10 +87,7 @@ const route = express.Router()
  *                       type: string
  *                       example: 09056345749
  */
-route.post('/user', signUpValidation,  signUp)
-
-
-
+route.post('/user', signUpValidation, signUp)
 
 /**
  * @swagger
@@ -119,10 +133,7 @@ route.post('/user', signUpValidation,  signUp)
  *                     isVerified:
  *                       type: boolean
  */
-route.post("/user/verify", verify)
-
-
-
+route.post('/user/verify', verify)
 
 /**
  * @swagger
@@ -168,14 +179,7 @@ route.post("/user/verify", verify)
  *       400:
  *         description: User already verified
  */
-route.post("/user/resend-otp", resendOtp)
-
-
-
-
-
-
-
+route.post('/user/resend-otp', resendOtp)
 
 /**
  * @swagger
@@ -258,11 +262,7 @@ route.post("/user/resend-otp", resendOtp)
  *         description: Internal server error
  */
 
-route.post("/user/login", loginValidator, login)
-
-
-
-
+route.post('/user/login', loginValidator, login)
 
 /**
  * @swagger
@@ -309,7 +309,7 @@ route.post("/user/login", loginValidator, login)
  *       500:
  *         description: Internal server error
  */
-route.post('/user/forgot-password', forgotPassword);
+route.post('/user/forgot-password', forgotPassword)
 
 /**
  * @swagger
@@ -356,11 +356,7 @@ route.post('/user/forgot-password', forgotPassword);
  *       500:
  *         description: Internal server error
  */
-route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
-
-
-
-
+route.post('/user/forgot-password/resend', ForgotPasswordOtpResend)
 
 /**
  * @swagger
@@ -433,11 +429,7 @@ route.post('/user/forgot-password/resend', ForgotPasswordOtpResend);
  *                   example: Internal server error
  */
 
-route.post("/user/resetPassword", resetPassword)
-
-
-
-
+route.post('/user/resetPassword', resetPassword)
 
 /**
  * @swagger
@@ -509,10 +501,7 @@ route.post("/user/resetPassword", resetPassword)
  *               message: An unexpected error occurred
  */
 
-
-
-route.put("/user/change-password", authentication, changePassword)
-
+route.put('/user/change-password', authentication, changePassword)
 
 /**
  * @swagger
@@ -588,8 +577,7 @@ route.put("/user/change-password", authentication, changePassword)
  *                   type: string
  *                   example: Internal server error
  */
-route.post("/user/verify-forgot-password-otp", verifyForgotPasswordOtp)
-
+route.post('/user/verify-forgot-password-otp', verifyForgotPasswordOtp)
 
 /**
  * @swagger
@@ -669,12 +657,7 @@ route.post("/user/verify-forgot-password-otp", verifyForgotPasswordOtp)
  *                   example: Internal server error
  */
 
-route.get("/user/getOneUser/:userId", getOneUser)
-
-
-
-
-
+route.get('/user/getOneUser/:userId', getOneUser)
 
 /**
  * @swagger
@@ -751,9 +734,7 @@ route.get("/user/getOneUser/:userId", getOneUser)
  *                   example: Internal server error
  */
 
-route.get("/user/getAllusers", getAllUsers)
-
-
+route.get('/user/getAllusers', getAllUsers)
 
 /**
  * @swagger
@@ -802,10 +783,7 @@ route.get("/user/getAllusers", getAllUsers)
  *         description: Internal server error
  */
 
-
-route.get("/user/getUserProfile", authentication,  getUserProfile)
-
-
+route.get('/user/getUserProfile', authentication, getUserProfile)
 
 /**
  * @swagger
@@ -862,6 +840,64 @@ route.get("/user/getUserProfile", authentication,  getUserProfile)
  *         description: Internal server error
  */
 
+route.get('/user/getNearbyVendors', getNearbyVendors)
 
-route.get("/user/getNearbyVendors",   getNearbyVendors )
+
+
+/**
+ * @swagger
+ * /user/update/Account:
+ *   put:
+ *     summary: Update a user's account details (profile picture and residential address)
+ *     description: Allows an authenticated user to update their profile picture and residential address.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: The user's new profile image file
+ *               residentialAddress:
+ *                 type: string
+ *                 example: "123 Main Street, Lagos, Nigeria"
+ *     responses:
+ *       200:
+ *         description: User account updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: user account updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     profilePicture:
+ *                       type: string
+ *                       example: "https://res.cloudinary.com/your-cloud/image/upload/v1728391023/user123.jpg"
+ *                     residentialAddress:
+ *                       type: string
+ *                       example: "123 Main Street, Lagos, Nigeria"
+ *       400:
+ *         description: Bad request (invalid input or missing fields)
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+
+
+route.put('/user/update/Account', authentication, upload.single('profilePicture'), updateUserAccount)
 module.exports = route

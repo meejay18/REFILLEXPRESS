@@ -15,10 +15,9 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       User.hasMany(models.Review, {
-  foreignKey: 'userId',
-  as: 'reviews'
-});
-
+        foreignKey: 'userId',
+        as: 'reviews',
+      })
 
       User.belongsToMany(models.Vendor, {
         through: models.Order,
@@ -67,6 +66,14 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
       },
+      profilePicture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -112,7 +119,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
-       timestamps: true,
+      timestamps: true,
     }
   )
   return User

@@ -55,6 +55,39 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      earnings: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0,
+      },
+      status: {
+        type: DataTypes.ENUM('active', 'inactive'),
+        allowNull: false,
+        defaultValue: 'inactive',
+      },
+      rating: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0,
+      },
+      refills: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      activeTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      totalRefills: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      totalEarnings: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0,
+      },
+      onTime: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       phoneNumber: {
         type: DataTypes.STRING,
         unique: true,
