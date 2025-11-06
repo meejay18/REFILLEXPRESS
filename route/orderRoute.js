@@ -4,6 +4,7 @@ const {
   getRecentOrders,
   getAllVendorOrders,
   getActiveOrders,
+  getOrderByStatus,
 } = require('../controller/orderController')
 const { authentication, vendorAuthentication } = require('../middleware/authentication')
 const router = express.Router()
@@ -295,4 +296,80 @@ router.get('/order/getAllVendorOrders', vendorAuthentication, getAllVendorOrders
  */
 
 router.get('/orders/getActiveOrders/:userId', authentication, getActiveOrders)
+
+/**
+ * @swagger
+ * /orders/getOrderByStatus:
+ *   get:
+ *     summary: Get all user orders grouped by status
+ *     description: Retrieves all orders for the authenticated user grouped by status (pending, active, completed, cancelled).
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Orders grouped successfully by status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Orders grouped by status
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     pending:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: 9b13e256-8a6a-4b28-8d9e-8f66b3f8a6c4
+ *                           orderNumber:
+ *                             type: string
+ *                             example: REF-20251027-001
+ *                           gasType:
+ *                             type: string
+ *                             example: LPG
+ *                           quantity:
+ *                             type: number
+ *                             example: 10
+ *                           totalPrice:
+ *                             type: number
+ *                             example: 15000
+ *                           deliveryAddress:
+ *                             type: string
+ *                             example: 23 Allen Avenue, Ikeja, Lagos
+ *                           status:
+ *                             type: string
+ *                             example: pending
+ *                           vendor:
+ *                             type: object
+ *                             properties:
+ *                               businessName:
+ *                                 type: string
+ *                                 example: Gas Express
+ *                     active:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     completed:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     cancelled:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *       401:
+ *         description: Unauthorized — missing or invalid token
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
 module.exports = router

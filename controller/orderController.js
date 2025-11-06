@@ -152,3 +152,29 @@ exports.getActiveOrders = async (req, res, next) => {
   }
 }
 
+exports.getOrderByStatus = async (req, res, next) => {
+  const userId = req.user.id
+  try {
+    const statuses = ['pending', 'active', 'completed', 'cancelled']
+    const result = {}
+
+    for (const status of statuses) {
+      const orders = await Order.findAll({
+        where: {
+          userId,
+          status,
+        },
+        include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+        order: [['createdAt', 'DESC']],
+      })
+      result[status] = orders
+    }
+
+    return res.status(200).json({
+      message: 'Orders grouped by status',
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
