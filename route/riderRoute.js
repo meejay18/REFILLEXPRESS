@@ -545,11 +545,71 @@ router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
 router.post("/rider/resetPassword", resetRiderPassword )
 
 
+/**
+ * @swagger
+ * /rider/changePassword:
+ *   post:
+ *     summary: Change rider account password
+ *     description: Allows a rider to securely change their password by providing their old password and confirming a new one.
+ *     tags:
+ *       - Rider 
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *               - confirmPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 example: "OldPass123!"
+ *               newPassword:
+ *                 type: string
+ *                 example: "NewPass456!"
+ *               confirmPassword:
+ *                 type: string
+ *                 example: "NewPass456!"
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password changed successfully
+ *       400:
+ *         description: Old password incorrect or new passwords do not match
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: new password incorrect
+ *       404:
+ *         description: Rider not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: rider not found
+ */
+
+
 router.post("/rider/changePassword", changeRiderPassword)
-
-
-
-
 
 
 /**
@@ -559,7 +619,7 @@ router.post("/rider/changePassword", changeRiderPassword)
  *     summary: Get Rider Dashboard
  *     description: Fetch detailed dashboard information for a specific rider by their ID.
  *     tags:
- *       - Riders
+ *       - Rider Dashboard
  *     parameters:
  *       - in: path
  *         name: riderId
@@ -642,7 +702,7 @@ router.get("/rider/:riderId", getRiderDashboard)
  *     summary: Get Available Refills
  *     description: Retrieve a list of all available refill orders sorted by creation date (most recent first).
  *     tags:
- *       - Refills
+ *       - Rider Dashboard
  *     responses:
  *       200:
  *         description: List of available refills fetched successfully
@@ -701,7 +761,7 @@ router.get('/available-refills', getAvailableRefills);
  *     summary: Get Recent Refills for a Rider
  *     description: Retrieve the 10 most recent completed refill orders assigned to the currently authenticated rider.
  *     tags:
- *       - Refills
+ *       - Rider Dashboard
  *     security:
  *       - bearerAuth: []     # Requires authentication
  *     responses:
@@ -770,91 +830,12 @@ router.get('/recent-refills', getRecentRefills);
 
 /**
  * @swagger
- * /accept-order/{orderId}:
- *   patch:
- *     summary: Accept an Available Order
- *     description: Allows a rider to accept an available order. Once accepted, the order status changes to **accepted**.
- *     tags:
- *       - Orders
- *     security:
- *       - bearerAuth: []     # Requires authentication
- *     parameters:
- *       - in: path
- *         name: orderId
- *         required: true
- *         description: Unique identifier of the order to be accepted
- *         schema:
- *           type: string
- *           example: "a1b2c3d4"
- *     responses:
- *       200:
- *         description: Order accepted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order accepted
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       example: "a1b2c3d4"
- *                     status:
- *                       type: string
- *                       example: accepted
- *                     riderId:
- *                       type: string
- *                       example: "r12345"
- *                     customerName:
- *                       type: string
- *                       example: "John Doe"
- *                     address:
- *                       type: string
- *                       example: "123 Main Street, Springfield"
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: 2025-11-06T12:30:00Z
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: 2025-11-06T12:35:00Z
- *       404:
- *         description: Order not found or already accepted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order not found or already accepted
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
- */
-
-router.patch('/accept-order/:orderId',acceptOrder);
-
-/**
- * @swagger
  * /total-earnings:
  *   get:
  *     summary: Get Total Earnings for a Rider
  *     description: Retrieve the total amount earned by the currently authenticated rider from all completed orders.
  *     tags:
- *       - Earnings
+ *       - Rider Dashboard
  *     security:
  *       - bearerAuth: []     # Requires authentication
  *     responses:
