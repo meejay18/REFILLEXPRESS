@@ -178,3 +178,38 @@ exports.getOrderByStatus = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.acceptOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  const riderId = req.rider.id
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+      },
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    if (order.status !== 'pending') {
+      return res.status(400).json({
+        message: 'No order for acceptance',
+      })
+    }
+
+    order.status = 'active'
+    order.riderId = riderId
+    await order.save()
+
+    return res.status(200).json({
+      message: 'Order accepted successfully',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
