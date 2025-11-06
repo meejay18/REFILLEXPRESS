@@ -48,7 +48,7 @@ exports.initializePayment = async (req, res, next) => {
         email: order.user.email,
       },
     }
-    console.error('Data', data)
+    // console.error('Data', data)
 
     const response = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', data, {
       headers: {

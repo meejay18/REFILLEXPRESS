@@ -842,8 +842,6 @@ route.get('/user/getUserProfile', authentication, getUserProfile)
 
 route.get('/user/getNearbyVendors', getNearbyVendors)
 
-
-
 /**
  * @swagger
  * /user/update/Account:
@@ -851,7 +849,7 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *     summary: Update a user's account details (profile picture and residential address)
  *     description: Allows an authenticated user to update their profile picture and residential address.
  *     tags:
- *       - User
+ *       - User Dashboard
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -897,7 +895,6 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *       500:
  *         description: Internal server error
  */
-
 
 route.put('/user/update/Account', authentication, upload.single('profilePicture'), updateUserAccount)
 module.exports = route
