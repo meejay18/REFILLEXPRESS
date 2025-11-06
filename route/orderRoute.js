@@ -5,8 +5,9 @@ const {
   getAllVendorOrders,
   getActiveOrders,
   getOrderByStatus,
+  acceptOrder,
 } = require('../controller/orderController')
-const { authentication, vendorAuthentication } = require('../middleware/authentication')
+const { authentication, vendorAuthentication, riderAuthentication } = require('../middleware/authentication')
 const router = express.Router()
 
 /**
@@ -372,4 +373,80 @@ router.get('/orders/getActiveOrders/:userId', authentication, getActiveOrders)
  */
 
 router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
+
+
+
+/**
+ * @swagger
+ * /orders/acceptOrder/{orderId}:
+ *   get:
+ *     summary: Rider accepts an order
+ *     description: Allows a rider to accept an available (pending) order and mark it as active.
+ *     tags:
+ *       - Rider Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         description: The unique ID of the order to accept
+ *         schema:
+ *           type: string
+ *           example: "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8"
+ *     responses:
+ *       200:
+ *         description: Order accepted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order accepted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "d7e5a6c1-4f9a-4a34-9e3b-3a2215bbf4cd"
+ *                     status:
+ *                       type: string
+ *                       example: active
+ *                     riderId:
+ *                       type: string
+ *                       example: "rider1234"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-27T10:25:30.000Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-10-27T10:30:00.000Z"
+ *       400:
+ *         description: Order not available for acceptance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No order for acceptance
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ */
+
+
+router.get('/orders/acceptOrder/:orderId', riderAuthentication, acceptOrder)
 module.exports = router
