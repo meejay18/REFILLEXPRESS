@@ -1,6 +1,6 @@
 const express = require ('express');
 // const { vendorAuthentication } = require ('../middleware/authentication');
-const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword, changeRiderPassword} = require('../controller/riderController');
+const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword, changeRiderPassword,getRiderDashboard, getRecentRefills,acceptOrder, getAvailableRefills,getTotalEarnings,getTodaysEarnings} = require('../controller/riderController');
 
 const router = express.Router();
 
@@ -546,4 +546,413 @@ router.post("/rider/resetPassword", resetRiderPassword )
 
 
 router.post("/rider/changePassword", changeRiderPassword)
+
+
+
+
+
+
+/**
+ * @swagger
+ * /rider/{riderId}:
+ *   get:
+ *     summary: Get Rider Dashboard
+ *     description: Fetch detailed dashboard information for a specific rider by their ID.
+ *     tags:
+ *       - Riders
+ *     parameters:
+ *       - in: path
+ *         name: riderId
+ *         required: true
+ *         description: Unique identifier of the rider
+ *         schema:
+ *           type: string
+ *           example: a7b8c9d0
+ *     responses:
+ *       200:
+ *         description: Rider dashboard fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Rider dashboard fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     firstName:
+ *                       type: string
+ *                       example: John
+ *                     lastName:
+ *                       type: string
+ *                       example: Doe
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: johndoe@example.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "+1234567890"
+ *                     operatingArea:
+ *                       type: string
+ *                       example: Downtown
+ *                     earnings:
+ *                       type: number
+ *                       format: float
+ *                       example: 2540.75
+ *                     status:
+ *                       type: string
+ *                       example: active
+ *                     rating:
+ *                       type: number
+ *                       format: float
+ *                       example: 4.8
+ *                     refills:
+ *                       type: integer
+ *                       example: 120
+ *       404:
+ *         description: Rider not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Rider not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get("/rider/:riderId", getRiderDashboard)
+
+/**
+ * @swagger
+ * /available-refills:
+ *   get:
+ *     summary: Get Available Refills
+ *     description: Retrieve a list of all available refill orders sorted by creation date (most recent first).
+ *     tags:
+ *       - Refills
+ *     responses:
+ *       200:
+ *         description: List of available refills fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Available refills
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 12345
+ *                       customerName:
+ *                         type: string
+ *                         example: Jane Doe
+ *                       address:
+ *                         type: string
+ *                         example: 42 Elm Street, Springfield
+ *                       status:
+ *                         type: string
+ *                         example: available
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-11-06T10:15:30Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-11-06T10:20:00Z
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+router.get('/available-refills', getAvailableRefills);
+
+
+/**
+ * @swagger
+ * /recent-refills:
+ *   get:
+ *     summary: Get Recent Refills for a Rider
+ *     description: Retrieve the 10 most recent completed refill orders assigned to the currently authenticated rider.
+ *     tags:
+ *       - Refills
+ *     security:
+ *       - bearerAuth: []     # Requires authentication
+ *     responses:
+ *       200:
+ *         description: Recent refills fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Recent refills
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "12345"
+ *                       riderId:
+ *                         type: string
+ *                         example: "67890"
+ *                       customerName:
+ *                         type: string
+ *                         example: "Jane Doe"
+ *                       address:
+ *                         type: string
+ *                         example: "42 Elm Street, Springfield"
+ *                       status:
+ *                         type: string
+ *                         example: "completed"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-11-06T10:15:30Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-11-06T10:20:00Z
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/recent-refills', getRecentRefills);
+
+
+
+/**
+ * @swagger
+ * /accept-order/{orderId}:
+ *   patch:
+ *     summary: Accept an Available Order
+ *     description: Allows a rider to accept an available order. Once accepted, the order status changes to **accepted**.
+ *     tags:
+ *       - Orders
+ *     security:
+ *       - bearerAuth: []     # Requires authentication
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         description: Unique identifier of the order to be accepted
+ *         schema:
+ *           type: string
+ *           example: "a1b2c3d4"
+ *     responses:
+ *       200:
+ *         description: Order accepted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order accepted
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "a1b2c3d4"
+ *                     status:
+ *                       type: string
+ *                       example: accepted
+ *                     riderId:
+ *                       type: string
+ *                       example: "r12345"
+ *                     customerName:
+ *                       type: string
+ *                       example: "John Doe"
+ *                     address:
+ *                       type: string
+ *                       example: "123 Main Street, Springfield"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-11-06T12:30:00Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-11-06T12:35:00Z
+ *       404:
+ *         description: Order not found or already accepted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found or already accepted
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+router.patch('/accept-order/:orderId',acceptOrder);
+
+/**
+ * @swagger
+ * /total-earnings:
+ *   get:
+ *     summary: Get Total Earnings for a Rider
+ *     description: Retrieve the total amount earned by the currently authenticated rider from all completed orders.
+ *     tags:
+ *       - Earnings
+ *     security:
+ *       - bearerAuth: []     # Requires authentication
+ *     responses:
+ *       200:
+ *         description: Total earnings fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Total earnings
+ *                 earnings:
+ *                   type: number
+ *                   format: float
+ *                   example: 15840.75
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/total-earnings', getTotalEarnings);
+
+
+/**
+ * @swagger
+ * /todays-earnings:
+ *   get:
+ *     summary: Get Today's Earnings for a Rider
+ *     description: Retrieve the total amount earned by the currently authenticated rider for all completed orders made today.
+ *     tags:
+ *       - Earnings
+ *     security:
+ *       - bearerAuth: []     # Requires authentication
+ *     responses:
+ *       200:
+ *         description: Today's earnings fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Todays earnings
+ *                 earnings:
+ *                   type: number
+ *                   format: float
+ *                   example: 350.50
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/todays-earnings', getTodaysEarnings);
+
+
 module.exports = router
+
+
+
+
+
+
+
+
+// riderId
+// 1666b874-0e7f-4483-90b7-c84918a1b19f

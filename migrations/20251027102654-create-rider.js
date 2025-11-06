@@ -76,6 +76,39 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },
+      earnings: {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      },
+      status: {
+        type: Sequelize.ENUM('active', 'inactive'),
+        allowNull: false,
+        defaultValue: 'inactive',
+      },
+      rating: {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      },
+      refills: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      activeTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      totalRefills: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      totalEarnings: {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      },
+      onTime: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
