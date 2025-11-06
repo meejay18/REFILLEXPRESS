@@ -884,7 +884,7 @@ router.get('/total-earnings', getTotalEarnings);
  *     summary: Get Today's Earnings for a Rider
  *     description: Retrieve the total amount earned by the currently authenticated rider for all completed orders made today.
  *     tags:
- *       - Earnings
+ *       - Rider Dashboard
  *     security:
  *       - bearerAuth: []     # Requires authentication
  *     responses:

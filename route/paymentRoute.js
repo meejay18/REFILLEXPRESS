@@ -1,8 +1,7 @@
-const express = require("express")
-const { authentication } = require("../middleware/authentication")
-const { initializePayment, verifyPayment } = require("../controller/paymentController")
+const express = require('express')
+const { authentication } = require('../middleware/authentication')
+const { initializePayment, verifyPayment } = require('../controller/paymentController')
 const router = express.Router()
-
 
 /**
  * @swagger
@@ -93,11 +92,10 @@ const router = express.Router()
  *         description: Internal server error
  */
 
+router.post('/user/initializePayment/:orderId', authentication, initializePayment)
 
+router.post('/payment/verify', verifyPayment)
 
-router.post("/user/initializePayment/:orderId", authentication, initializePayment)
-
-
-router.get("/payment/verify", authentication,  verifyPayment)
+// router.get("/payment/verify", authentication,  verifyPayment)
 
 module.exports = router
