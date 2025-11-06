@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider } = require('../models')
+const { Rider,Order} = require('../models')
 // const Rider = db.Rider
 const bcrypt = require('bcryptjs')
 const {
@@ -8,6 +8,7 @@ const {
   riderForgotPasswordTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
+const { status } = require('init')
 
 exports.RiderSignUp = async (req, res, next) => {
   try {
@@ -351,5 +352,111 @@ exports.changeRiderPassword = async (req, res, next) => {
     })
   } catch (error) {
     next(error)
+  }
+}
+
+
+exports.getRiderDashboard = async (req, res, next) => {
+  const { riderId } = req.params
+  try {   
+    const rider = await Rider.findOne({ where: { id: riderId } })
+    if (!rider) {
+      return res.status(404).json({
+        message: 'Rider not found',
+      })
+    }
+    return res.status(200).json({
+      message: 'Rider dashboard fetched successfully',
+      data: { 
+        firstName: rider.firstName,
+        lastName: rider.lastName,
+        email: rider.email,
+        phoneNumber: rider.phoneNumber,
+        operatingArea: rider.operatingArea,
+        earnings: rider.earnings,
+        status: rider.status,
+        rating: rider.rating,
+        refills: rider.refills,
+       },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getAvailableRefills = async (req, res) => {
+  try {
+    const refills = await Order.findAll({
+      where: { status: 'available' },
+      order: [['createdAt', 'DESC']],
+    })
+    res.status(200).json({ message: 'Available refills', data: refills })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+exports.getRecentRefills = async (req, res) => {
+  try {
+    const riderId = req.user?.id
+    const refills = await Order.findAll({
+      where: { riderId, status: 'completed' },
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+    })
+    res.status(200).json({ message: 'Recent refills', data: refills })
+  } catch (err) {
+    res.status(500).json({ message: err.message})
+}
+}
+
+exports.getTotalEarnings = async (req, res) => {
+  try {
+    const riderId = req.user.id
+    const earnings = await Order.sum('amountEarned', {
+      where: {
+        riderId,  
+        status: 'completed',
+      },
+    })
+    res.status(200).json({ message: 'Total earnings', earnings })
+  } catch (err) {
+    res.status(500).json({ message: err.message})
+}
+}
+
+exports.getTodaysEarnings = async (req, res) => {
+  try {
+    const riderId = req.user.id
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const earnings = await Order.sum('amountEarned', {
+      where: {
+        riderId,
+        status: 'completed',
+        createdAt: { [require('sequelize').Op.gte]: today },
+      },
+    })
+    res.status(200).json({ message: 'Todays earnings', earnings })
+  } catch (err) {
+    res.status(500).json({ message: err.message})
+}
+}
+
+exports.acceptOrder = async (req, res) => {
+  try {
+    // const riderId = req.user.id       
+    const { orderId } = req.params
+    const order = await Order.findOne({ where: { id: orderId, status: 'available' } })
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found or already accepted' })
+    }
+    order.status = 'accepted'
+    // order.riderId = riderId
+    await order.save()
+    console.log(data)
+    res.status(200).json({ message: 'Order accepted', data: order })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
   }
 }

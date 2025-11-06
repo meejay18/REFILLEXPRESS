@@ -34,6 +34,8 @@ app.use('/api/v1', analyticsRouter)
 const paymentRouter = require('./route/paymentRoute')
 app.use('/api/v1', paymentRouter)
 
+// const riderdashboardRouter = require('./route/riderRoute')
+// app.use('/api/v1', riderdashboardRouter)
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
@@ -75,11 +77,6 @@ const swaggerDefinition = {
       description: 'Endpoints for handling Vendor KYC(know your customer details',
     },
     {
-      name: 'Vendor Dashboard',
-      description:
-        'Endpoints that provide vendor performance metrics, statistics, and business insights (orders, revenue, etc.).',
-    },
-    {
       name: 'User Dashboard',
       description:
         'Endpoints that provide user performance metrics, statistics, and business insights (orders, revenue, etc.).',
@@ -88,6 +85,11 @@ const swaggerDefinition = {
       name: 'Payment',
       description:
         'Endpoints that handle payment operations, including payment initialization, status tracking, transaction verification, and integration with third-party payment gateways such as KoraPay.',
+    },
+    {
+      name: 'Rider Dashboard',
+      description:
+        'Endpoints that provide rider performance metrics, statistics, and business insights (earnings, refills, etc.).',
     },
   ],
   components: {
