@@ -443,20 +443,3 @@ exports.getTodaysEarnings = async (req, res) => {
 }
 }
 
-exports.acceptOrder = async (req, res) => {
-  try {
-    // const riderId = req.user.id       
-    const { orderId } = req.params
-    const order = await Order.findOne({ where: { id: orderId, status: 'available' } })
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found or already accepted' })
-    }
-    order.status = 'accepted'
-    // order.riderId = riderId
-    await order.save()
-    console.log(data)
-    res.status(200).json({ message: 'Order accepted', data: order })
-  } catch (err) {
-    res.status(500).json({ message: err.message })
-  }
-}
