@@ -22,6 +22,14 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      profilePicture: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       phoneNumber: {
         type: Sequelize.STRING,
         unique: true,
@@ -46,8 +54,8 @@ module.exports = {
       },
       isVerified: {
         type: Sequelize.BOOLEAN,
-        allowNull : true,
-        defaultValue: false
+        allowNull: true,
+        defaultValue: false,
       },
       verifiedToken: {
         type: Sequelize.STRING,

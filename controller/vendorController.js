@@ -5,6 +5,7 @@ const { User } = require('../models')
 const { VendorKyc } = require('../models')
 const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs')
+const cloudinary = require('../config/cloudinary')
 const {
   vendorSignUpTemplate,
   resendOtpVendorTemplate,
@@ -677,12 +678,52 @@ exports.updateVendorSettingsField = async (req, res, next) => {
       openingTime,
       closingTime,
       businessAvailability,
-      inStock
+      inStock,
     })
 
     return res.status(200).json({
       message: 'Vendor updated successfully',
       data: vendor,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.updateVendorAccount = async (req, res, next) => {
+  const vendorId = req.vendor.id
+  const { businessPhoneNumber, phoneNumber, fullName, businessName, businessAddress, residentialAddress } =
+    req.body
+
+  const file = req.file
+  try {
+    const vendor = await Vendor.findByPk(vendorId)
+    if (!vendor) {
+      return res.status(404).json({
+        message: 'Vendor not found',
+      })
+    }
+    if (vendor.id !== vendorId) {
+      return res.status(400).json({
+        message: 'This account does not belong to you',
+      })
+    }
+
+    const resource = await cloudinary.uploader.upload(file.path)
+
+    const updatedAccount = await vendor.update({
+      vendorImage: resource.secure_url,
+      businessPhoneNumber,
+      phoneNumber,
+      fullName,
+      businessName,
+      businessAddress,
+      residentialAddress,
+    })
+
+    return res.status(200).json({
+      message: 'Vendor updated successfully',
+      data: updatedAccount,
     })
   } catch (error) {
     next(error)

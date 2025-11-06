@@ -17,8 +17,11 @@ const {
   acceptOrRejectOrder,
   updateSettingsField,
   updateVendorSettingsField,
+  updateVendorAccount,
 } = require('../controller/vendorController')
 const { vendorSignUpValidation, vendorLoginValidator } = require('../middleware/validator')
+
+const upload = require('../middleware/multer')
 
 const router = express.Router()
 
@@ -1024,7 +1027,6 @@ router.get('/vendor/getpendingOrders', vendorAuthentication, getPendingOrders)
 
 router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptOrRejectOrder)
 
-
 /**
  * @swagger
  * /vendor/{vendorId}/settings:
@@ -1032,7 +1034,7 @@ router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptO
  *     summary: Update vendor business settings
  *     description: Allows an authenticated vendor to update their gas business settings such as price, opening hours, and availability.
  *     tags:
- *       - Vendor Dashboard 
+ *       - Vendor Dashboard
  *     security:
  *       - bearerAuth: []   # JWT token required
  *     parameters:
@@ -1114,6 +1116,89 @@ router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptO
  *         description: Internal server error
  */
 
+router.put('/vendor/:vendorId/settings', vendorAuthentication, updateVendorSettingsField)
 
-router.put('/vendor/:vendorId/settings', vendorAuthentication,  updateVendorSettingsField)
+
+/**
+ * @swagger
+ * /vendor/account/update:
+ *   put:
+ *     summary: Update vendor account details
+ *     description: Allows an authenticated vendor to update their profile details and upload a new profile image.
+ *     tags:
+ *       - Vendor Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               vendorImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Vendor profile image file to upload.
+ *               businessPhoneNumber:
+ *                 type: string
+ *                 example: "+2348012345678"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+2348098765432"
+ *               fullName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               businessName:
+ *                 type: string
+ *                 example: "Gas Hub Ventures"
+ *               businessAddress:
+ *                 type: string
+ *                 example: "12 Isaac John Street, Ikeja, Lagos"
+ *               residentialAddress:
+ *                 type: string
+ *                 example: "23 Herbert Macaulay Road, Yaba, Lagos"
+ *     responses:
+ *       200:
+ *         description: Vendor account updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Vendor updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "aab205f6-c745-47e7-9ee9-239322aceab4"
+ *                     fullName:
+ *                       type: string
+ *                       example: "John Doe"
+ *                     businessName:
+ *                       type: string
+ *                       example: "Gas Hub Ventures"
+ *                     vendorImage:
+ *                       type: string
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1728848493/vendor_image.jpg"
+ *       400:
+ *         description: Invalid request or account does not belong to the authenticated vendor.
+ *       401:
+ *         description: Unauthorized — Missing or invalid authentication token.
+ *       404:
+ *         description: Vendor not found.
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+router.put(
+  '/vendor/account/update',
+  vendorAuthentication,
+  upload.single('vendorImage'),
+  updateVendorAccount
+)
 module.exports = router

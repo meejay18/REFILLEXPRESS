@@ -4,6 +4,7 @@ const { Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
+const cloudinary = require("../config/cloudinary")
 
 exports.signUp = async (req, res, next) => {
   try {
@@ -486,10 +487,33 @@ exports.getNearbyVendors = async (req, res, next) => {
   }
 }
 
-exports.updateUserProfile = async (req, res, next) => {
+exports.updateUserAccount = async (req, res, next) => {
   const userId = req.user.id
-  const { firstName, lastName, email } = req.body
+  const { residentialAddress } = req.body
+
+  const file = req.file
   try {
+    const user = await User.findByPk(userId)
+    if (!user) {
+      return res.status(404).json({
+        message: 'user not found',
+      })
+    }
+
+    const resource = await cloudinary.uploader.upload(file.path)
+
+    const updatedAccount = await user.update({
+      profilePicture: resource.secure_url,
+      residentialAddress,
+    })
+
+    return res.status(200).json({
+      message: 'user account updated successfully',
+      data: {
+        profilePicture: updatedAccount.profilePicture,
+        residentialAddress: updatedAccount.residentialAddress,
+      },
+    })
   } catch (error) {
     next(error)
   }

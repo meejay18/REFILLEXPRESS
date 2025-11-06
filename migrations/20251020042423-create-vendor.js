@@ -13,6 +13,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      fullName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       businessEmail: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -97,11 +109,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 'open',
       },
-        inStock: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
+      inStock: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
