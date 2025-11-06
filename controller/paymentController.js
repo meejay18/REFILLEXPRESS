@@ -81,59 +81,139 @@ exports.initializePayment = async (req, res, next) => {
 }
 
 exports.verifyPayment = async (req, res, next) => {
-  const { reference } = req.query
+  const { event, data } = req.body
   try {
-    const userId = req.user.id
+    if (event === 'charge.success') {
+      const payment = await Payment.findOne({
+        where: { reference: data.reference },
+      })
+      if (!payment) {
+        return reference.status(404).json({
+          message: 'Payment record not found',
+        })
+      }
 
-    const response = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
-      headers: {
-        Authorization: `Bearer ${SECRET_KEY}`,
-      },
-    })
+      const order = await Order.findOne({
+        where: { id: payment.orderId },
+      })
 
-    const transaction = response?.data?.data
-    if (!transaction || transaction.status !== 'success') {
-      return res.status(400).json({
-        message: 'Payment verification failed',
+      if (!order) {
+        return res.status(404).json({
+          message: 'Order not found or unauthorized',
+        })
+      }
+
+      payment.status = 'success'
+      payment.paidAt = new Date()
+      await payment.save()
+
+      order.paymentStatus = 'paid'
+      await order.save()
+
+      return res.status(200).json({
+        message: 'Payment verified successfully',
+        data: {
+          orderId: order.id,
+          paymentStatus: order.paymentStatus,
+          transactionDetails: transaction,
+        },
       })
     }
 
-    const payment = await Payment.findOne({
-      where: { reference },
-    })
-    if (!payment) {
-      return reference.status(404).json({
-        message: 'Payment record not found',
+    if (event === 'charge.failed') {
+      const payment = await Payment.findOne({
+        where: { reference: data.reference },
+      })
+      if (!payment) {
+        return reference.status(404).json({
+          message: 'Payment record not found',
+        })
+      }
+
+      const order = await Order.findOne({
+        where: { id: payment.orderId },
+      })
+
+      if (!order) {
+        return res.status(404).json({
+          message: 'Order not found or unauthorized',
+        })
+      }
+
+      payment.status = 'failed'
+      payment.paidAt = new Date()
+      await payment.save()
+
+      order.paymentStatus = 'failed'
+      await order.save()
+
+      return res.status(200).json({
+        message: 'Payment failed',
+        data: {
+          orderId: order.id,
+          paymentStatus: order.paymentStatus,
+          transactionDetails: transaction,
+        },
       })
     }
-
-    const order = await Order.findOne({
-      where: { id: payment.orderId, userId },
-    })
-
-    if (!order) {
-      return res.status(404).json({
-        message: 'Order not found or unauthorized',
-      })
-    }
-
-    payment.status = 'success'
-    payment.paidAt = new Date()
-    await payment.save()
-
-    order.paymentStatus = 'paid'
-    await order.save()
-
-    return res.status(200).json({
-      message: 'Payment verified successfully',
-      data: {
-        orderId: order.id,
-        paymentStatus : order.paymentStatus,
-        transactionDetails : transaction
-      },
-    })
-    
   } catch (error) {
     next(error)
   }
 }
+// exports.verifyPayment = async (req, res, next) => {
+//   const { reference } = req.query
+//   try {
+//     const userId = req.user.id
+
+//     const response = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
+//       headers: {
+//         Authorization: `Bearer ${SECRET_KEY}`,
+//       },
+//     })
+
+//     const transaction = response?.data?.data
+//     if (!transaction || transaction.status !== 'success') {
+//       return res.status(400).json({
+//         message: 'Payment verification failed',
+//       })
+//     }
+
+//     const payment = await Payment.findOne({
+//       where: { reference },
+//     })
+//     if (!payment) {
+//       return reference.status(404).json({
+//         message: 'Payment record not found',
+//       })
+//     }
+
+//     const order = await Order.findOne({
+//       where: { id: payment.orderId, userId },
+//     })
+
+//     if (!order) {
+//       return res.status(404).json({
+//         message: 'Order not found or unauthorized',
+//       })
+//     }
+
+//     payment.status = 'success'
+//     payment.paidAt = new Date()
+//     await payment.save()
+
+//     order.paymentStatus = 'paid'
+//     await order.save()
+
+//     return res.status(200).json({
+//       message: 'Payment verified successfully',
+//       data: {
+//         orderId: order.id,
+//         paymentStatus : order.paymentStatus,
+//         transactionDetails : transaction
+//       },
+//     })
+
+//   } catch (error) {
+//     next(error)
+//   }
+// }
