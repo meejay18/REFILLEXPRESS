@@ -9,8 +9,7 @@ exports.placeOrder = async (req, res, next) => {
     const userId = req.user.id
 
     const vendor = await Vendor.findOne({
-      where: { isAvailable: true },
-      pricePerKg: { [Op.ne]: null },
+      where: { isAvailable: true, pricePerKg: { [Op.ne]: null } },
       attributes: ['id', 'businessName', 'pricePerKg', 'businessAddress'],
     })
     if (!vendor) {
