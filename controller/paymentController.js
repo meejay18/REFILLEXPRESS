@@ -17,7 +17,6 @@ exports.initializePayment = async (req, res, next) => {
         },
       ],
     })
-    console.log(order.totalPrice)
 
     if (!order) {
       return res.status(404).json({
