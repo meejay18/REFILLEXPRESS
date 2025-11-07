@@ -143,6 +143,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      isAvailable: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+      },
       businessAvailability: {
         type: DataTypes.ENUM('open', 'closed'),
         allowNull: false,
