@@ -4,7 +4,7 @@ const { Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const cloudinary = require("../config/cloudinary")
+const cloudinary = require('../config/cloudinary')
 
 exports.signUp = async (req, res, next) => {
   try {
@@ -473,7 +473,7 @@ exports.getUserProfile = async (req, res, next) => {
 exports.getNearbyVendors = async (req, res, next) => {
   try {
     const vendors = await Vendor.findAll({
-      where: { isAvailable: true },
+      where: { businessAvailability: 'open' },
       attributes: ['businessName', 'pricePerKg', 'openingTime', 'rating', 'businessAddress'],
       order: [['rating', 'DESC']],
     })
