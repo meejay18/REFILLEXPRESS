@@ -1085,4 +1085,105 @@ const riderForgotPasswordTemplate = (newOtp, firstName) => {
 };
 
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate}
+const acceptOrderStatusTemplate = (
+  customerName,
+  orderNumber,
+  quantity,
+  totalPrice,
+  otp
+) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Order Accepted - OTP Confirmation</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #f97316, #2563eb);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h2 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .otp-box {
+              margin: 20px 0;
+              text-align: center;
+          }
+          .otp-box p {
+              font-weight: bold;
+              font-size: 16px;
+              color: #2563eb;
+          }
+          .otp-code {
+              background-color: #f3f4f6;
+              display: inline-block;
+              padding: 15px 25px;
+              border-radius: 8px;
+              font-size: 28px;
+              letter-spacing: 5px;
+              font-weight: bold;
+              color: #111;
+          }
+          .footer {
+              background-color: #2563eb;
+              color: #e5e7eb;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h2>Order Confirmed</h2>
+          </div>
+          <div class="content">
+              <p>Hello ${customerName},</p>
+              <p>Great news! Your gas order <strong>#${orderNumber}</strong> for <strong>${quantity}kg</strong> has been <strong>accepted</strong>.</p>
+              <p>Our delivery team will be on their way shortly. The total cost is <strong>₦${totalPrice}</strong>.</p>
+              <div class="otp-box">
+                <p>Please provide this OTP to the rider upon delivery:</p>
+                <div class="otp-code">${otp}</div>
+              </div>
+              <p>Keep this OTP safe, it will be required to complete your delivery.</p>
+              <p>Best regards,<br><strong>RefillXpress Team</strong></p>
+          </div>
+          <div class="footer">
+              &copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.
+          </div>
+      </div>
+  </body>
+  </html>
+  `
+}
+
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate, acceptOrderStatusTemplate}

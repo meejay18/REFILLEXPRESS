@@ -43,6 +43,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
+      otp: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       price: {
         type: DataTypes.FLOAT,
         allowNull: true,

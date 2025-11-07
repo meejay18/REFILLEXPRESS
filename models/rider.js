@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'rider',
       })
 
+      Rider.hasOne(models.RiderKyc, {
+        foreignKey: 'riderId',
+        as: 'kyc',
+      })
+
       Rider.belongsToMany(models.Vendor, {
         through: models.Order,
         foreignKey: 'RiderId',
