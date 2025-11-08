@@ -443,3 +443,114 @@ exports.getTodaysEarnings = async (req, res) => {
 }
 }
 
+exports.getRiderOrders = async (req, res, next) => {
+  try {
+    const { riderId } = req.params;
+
+    const orders = await Order.findAll({
+      where: { riderId },
+      include: [
+        { model: User, attributes: ['firstName', 'lastName', 'address', 'phone'] },
+        { model: Vendor, attributes: ['businessName', 'address', 'phone'] },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Orders fetched successfully',
+      data: orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getRiderEarningsOverview = async (req, res, next) => {
+  try {
+    const { riderId } = req.params;
+
+    const deliveries = await Delivery.findAll({
+      where: { riderId, status: ['completed', 'paid'] },
+      order: [['createdAt', 'DESC']],
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    const todayEarnings = deliveries
+      .filter((d) => d.createdAt.toISOString().split('T')[0] === today)
+      .reduce((sum, d) => sum + d.amount, 0);
+
+    const thisWeekEarnings = deliveries
+      .filter((d) => new Date(d.createdAt) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+      .reduce((sum, d) => sum + d.amount, 0);
+
+    const thisMonthEarnings = deliveries
+      .filter((d) => new Date(d.createdAt).getMonth() === new Date().getMonth())
+      .reduce((sum, d) => sum + d.amount, 0);
+
+    const pendingEarnings = deliveries
+      .filter((d) => d.status === 'pending')
+      .reduce((sum, d) => sum + d.amount, 0);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        todayEarnings,
+        thisWeekEarnings,
+        thisMonthEarnings,
+        pendingEarnings,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.getRecentDeliveries = async (req, res, next) => {
+  try {
+    const { riderId } = req.params;
+
+    const deliveries = await Delivery.findAll({
+      where: { riderId },
+      include: [
+        { model: User, attributes: ['firstName', 'lastName', 'address'] },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: 5,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Recent deliveries fetched successfully',
+      data: deliveries,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.getPayoutSchedule = async (req, res, next) => {
+  try {
+    const { riderId } = req.params;
+
+    const pendingDeliveries = await Delivery.findAll({
+      where: { riderId, status: 'completed' },
+    });
+
+    const expectedAmount = pendingDeliveries.reduce((sum, d) => sum + d.amount, 0);
+    const nextPayoutDate = 'Friday, ' + new Date().toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        nextPayoutDate,
+        expectedAmount,
+        message: 'Your earnings are paid out every Friday.',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
