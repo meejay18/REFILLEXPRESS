@@ -4,7 +4,7 @@ const { Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const cloudinary = require("../config/cloudinary")
+const cloudinary = require('../config/cloudinary')
 
 exports.signUp = async (req, res, next) => {
   try {
@@ -457,10 +457,13 @@ exports.getUserProfile = async (req, res, next) => {
   const userId = req.user.id
 
   try {
-    const user = await User.findByPk(userId, {
-      attributes: ['firstName', 'lastName', 'email'],
-    })
+    const user = await User.findByPk(userId)
 
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
     return res.status(200).json({
       message: 'User profile fetched successfully',
       data: user,
