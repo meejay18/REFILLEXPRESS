@@ -1,7 +1,7 @@
 const emailSender = require('../middleware/nodemailer')
 const { Op } = require('sequelize')
 const { Vendor, Order, User } = require('../models')
-const { placeOrderTemplate } = require('../utils/emailTemplate')
+const { placeOrderTemplate, acceptOrderStatusTemplate } = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
   const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
@@ -178,14 +178,22 @@ exports.getOrderByStatus = async (req, res, next) => {
   }
 }
 
-exports.acceptOrder = async (req, res, next) => {
-  const { orderId } = req.params
+exports.confirmOrder = async (req, res, next) => {
+  const { orderId, userId } = req.params
   const riderId = req.rider.id
   try {
     const order = await Order.findOne({
       where: {
         id: orderId,
+        userId,
       },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'email'],
+        },
+      ],
     })
 
     if (!order) {
@@ -200,12 +208,29 @@ exports.acceptOrder = async (req, res, next) => {
       })
     }
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
     order.status = 'active'
     order.riderId = riderId
+    order.otp = otp
     await order.save()
 
+    const emailOptions = {
+      email: order.user.email,
+      subject: 'Order Confirmation Mail',
+      html: acceptOrderStatusTemplate(
+        order.user.firstName,
+        order.orderNumber,
+        order.quantity,
+        order.totalPrice,
+        otp
+      ),
+    }
+
+     await emailSender(emailOptions)
+
     return res.status(200).json({
-      message: 'Order accepted successfully',
+      message: 'Order confirmed successfully',
       data: order,
     })
   } catch (error) {

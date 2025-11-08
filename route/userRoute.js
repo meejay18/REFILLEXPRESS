@@ -741,14 +741,14 @@ route.get('/user/getAllusers', getAllUsers)
  * /user/getUserProfile:
  *   get:
  *     summary: Get user profile
- *     description: Fetch the authenticated user's profile details such as name and email.
+ *     description: Retrieves the authenticated user's profile information.
  *     tags:
- *       - User Dashboard
+ *       - User
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User profile fetched successfully
+ *         description: User profile fetched successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -760,6 +760,9 @@ route.get('/user/getAllusers', getAllUsers)
  *                 data:
  *                   type: object
  *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 4b2a6ef9-9a0e-4f91-9d19-45dfc4c674b2
  *                     firstName:
  *                       type: string
  *                       example: John
@@ -768,20 +771,32 @@ route.get('/user/getAllusers', getAllUsers)
  *                       example: Doe
  *                     email:
  *                       type: string
- *                       example: johndoe@example.com
+ *                       example: johndoe@gmail.com
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: +2348012345678
+ *                     residentialAddress:
+ *                       type: string
+ *                       example: 123, Lekki Phase 1, Lagos
+ *                     profilePicture:
+ *                       type: string
+ *                       example: https://res.cloudinary.com/demo/image/upload/profile.jpg
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:00:00.000Z
  *       401:
- *         description: Unauthorized - Missing or invalid token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Authentication failed
+ *         description: Unauthorized — Missing or invalid token.
+ *       404:
+ *         description: User not found.
  *       500:
- *         description: Internal server error
+ *         description: Internal server error.
  */
+
 
 route.get('/user/getUserProfile', authentication, getUserProfile)
 

@@ -5,7 +5,7 @@ const {
   getAllVendorOrders,
   getActiveOrders,
   getOrderByStatus,
-  acceptOrder,
+  confirmOrder,
 } = require('../controller/orderController')
 const { authentication, vendorAuthentication, riderAuthentication } = require('../middleware/authentication')
 const router = express.Router()
@@ -374,79 +374,65 @@ router.get('/orders/getActiveOrders/:userId', authentication, getActiveOrders)
 
 router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
 
-
-
 /**
  * @swagger
- * /orders/acceptOrder/{orderId}:
+ * /orders/confirmOrder/{orderId}/{userId}:
  *   get:
- *     summary: Rider accepts an order
- *     description: Allows a rider to accept an available (pending) order and mark it as active.
+ *     summary: Confirm a user's order and assign a rider
+ *     description: This endpoint allows a rider to confirm an order, generate a one-time OTP, assign themselves to the order, and send a confirmation email to the user.
  *     tags:
  *       - Rider Dashboard
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: orderId
+ *       - name: orderId
+ *         in: path
  *         required: true
- *         description: The unique ID of the order to accept
+ *         description: The unique ID of the order to be confirmed.
  *         schema:
  *           type: string
- *           example: "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8"
+ *           example: "8c5b68c1-0fa3-4b83-bd5a-47f32df54329"
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         description: The unique ID of the user who placed the order.
+ *         schema:
+ *           type: string
+ *           example: "b1a29f48-df8e-42b4-8b97-153de77c8d29"
  *     responses:
  *       200:
- *         description: Order accepted successfully
+ *         description: Order confirmed successfully and OTP sent to user via email.
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order accepted successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       example: "d7e5a6c1-4f9a-4a34-9e3b-3a2215bbf4cd"
- *                     status:
- *                       type: string
- *                       example: active
- *                     riderId:
- *                       type: string
- *                       example: "rider1234"
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2025-10-27T10:25:30.000Z"
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2025-10-27T10:30:00.000Z"
+ *             example:
+ *               message: "Order confirmed successfully"
+ *               data:
+ *                 id: "8c5b68c1-0fa3-4b83-bd5a-47f32df54329"
+ *                 orderNumber: "ORD-00123"
+ *                 userId: "b1a29f48-df8e-42b4-8b97-153de77c8d29"
+ *                 riderId: "f9d3f59a-2a4b-4c6e-8264-2f89b1c52c8f"
+ *                 status: "active"
+ *                 otp: "539284"
  *       400:
- *         description: Order not available for acceptance
+ *         description: Order is not pending or cannot be accepted.
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: No order for acceptance
+ *             example:
+ *               message: "No order for acceptance"
  *       404:
- *         description: Order not found
+ *         description: Order not found.
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Order not found
+ *             example:
+ *               message: "Order not found"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal server error"
  */
 
 
-router.get('/orders/acceptOrder/:orderId', riderAuthentication, acceptOrder)
+router.get('/orders/confirmOrder/:orderId/:userId', riderAuthentication, confirmOrder)
 module.exports = router
