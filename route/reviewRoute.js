@@ -277,7 +277,7 @@ router.get('/reviews/stats', getReviewStats)
 
 /**
  * @swagger
- * /api/vendors/{vendorId}/reviews:
+ * /vendors/{vendorId}/reviews:
  *   post:
  *     summary: Create a review for a vendor
  *     description: Allows an authenticated user to submit a review for a vendor they have previously purchased from.
@@ -399,7 +399,7 @@ router.post('/vendors/:vendorId/reviews', authentication, createUserReview)
 
 /**
  * @swagger
- * /api/vendors/{vendorId}/reviews:
+ * /vendors/{vendorId}/reviews:
  *   get:
  *     summary: Get all reviews for a vendor
  *     description: Fetches all reviews for a specific vendor, including the reviewer's name and the date of review.
@@ -493,7 +493,7 @@ router.get('/vendors/:vendorId/reviews', authentication, getVendorReviews)
 
 /**
  * @swagger
- * /api/vendors/{vendorId}/reviews/summary:
+ * /vendors/{vendorId}/reviews/summary:
  *   get:
  *     summary: Get vendor review summary
  *     description: Returns a summary of reviews for a vendor, including average rating, total reviews, and rating distribution.
