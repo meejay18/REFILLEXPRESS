@@ -34,6 +34,9 @@ app.use('/api/v1', analyticsRouter)
 const paymentRouter = require('./route/paymentRoute')
 app.use('/api/v1', paymentRouter)
 
+const riderKycRouter = require('./route/riderKycRoute')
+app.use('/api/v1', riderKycRouter)
+
 // const riderdashboardRouter = require('./route/riderRoute')
 // app.use('/api/v1', riderdashboardRouter)
 const swaggerDefinition = {
