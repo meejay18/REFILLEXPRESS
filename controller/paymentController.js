@@ -46,8 +46,7 @@ exports.initializePayment = async (req, res, next) => {
         name: order.user.firstName + order.user.lastName,
         email: order.user.email,
       },
-      redirect_url:
-        'http://localhost:5173/userdashboard/userPayment?orderId=442511de-2ce4-46c9-bce7-5f7beaeb450c',
+      redirect_url: `http://localhost:5173/userdashboard/userPayment?orderId=${order.id}&reference=${reference}`,
     }
 
     const response = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', data, {
