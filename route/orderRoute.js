@@ -535,7 +535,7 @@ router.delete('/orders/deleteOrder/:orderId', authentication, adminOnly, deleteO
  *     summary: Cancel an existing order
  *     description: Allows an authenticated user to cancel their order if it has not yet been completed or delivered.
  *     tags:
- *       - User - User Dashboard
+ *       - User Dashboard
  *     security:
  *       - bearerAuth: []
  *     parameters:
