@@ -46,7 +46,7 @@ exports.initializePayment = async (req, res, next) => {
         name: order.user.firstName + order.user.lastName,
         email: order.user.email,
       },
-      redirect_url: `http://localhost:5173/userdashboard/userPayment?orderId=${order.id}&reference=${reference}`,
+      redirect_url: 'https://refill-xpress.vercel.app/userdashboard/userPayment',
     }
 
     const response = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', data, {
