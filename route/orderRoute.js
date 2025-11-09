@@ -6,8 +6,15 @@ const {
   getActiveOrders,
   getOrderByStatus,
   confirmOrder,
+  deleteOrder,
+  cancelOrder,
 } = require('../controller/orderController')
-const { authentication, vendorAuthentication, riderAuthentication } = require('../middleware/authentication')
+const {
+  authentication,
+  vendorAuthentication,
+  riderAuthentication,
+  adminOnly,
+} = require('../middleware/authentication')
 const router = express.Router()
 
 /**
@@ -433,6 +440,178 @@ router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
  *               message: "Internal server error"
  */
 
-
 router.get('/orders/confirmOrder/:orderId/:userId', riderAuthentication, confirmOrder)
+
+/**
+ * @swagger
+ * /orders/deleteOrder/{orderId}:
+ *   delete:
+ *     summary: Delete a user's order (Admin only)
+ *     description: Allows an authenticated admin to delete a user's order, provided the order has not yet been completed or delivered.
+ *     tags:
+ *       - Admin - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique ID of the order to delete.
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: order deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 2d4c3d6e-8c76-49a5-9a1e-1f6b8e2d4f90
+ *                     userId:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     status:
+ *                       type: string
+ *                       example: pending
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 1500.75
+ *                     quantity:
+ *                       type: number
+ *                       example: 5
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:34:56.000Z
+ *       400:
+ *         description: Cannot delete an order that has already been completed or delivered.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You cannot delete an order that has already been completed or delivered
+ *       403:
+ *         description: Forbidden — user is not an admin.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Access denied. Admins only.
+ *       404:
+ *         description: Order not found or does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order does not exist
+ *       500:
+ *         description: Internal server error.
+ */
+
+router.delete('/orders/deleteOrder/:orderId', authentication, adminOnly, deleteOrder)
+
+/**
+ * @swagger
+ * /orders/{orderId}/cancel:
+ *   patch:
+ *     summary: Cancel an existing order
+ *     description: Allows an authenticated user to cancel their order if it has not yet been completed or delivered.
+ *     tags:
+ *       - User - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique ID of the order to cancel.
+ *     responses:
+ *       200:
+ *         description: Order cancelled successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order cancelled successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 2d4c3d6e-8c76-49a5-9a1e-1f6b8e2d4f90
+ *                     status:
+ *                       type: string
+ *                       example: cancelled
+ *                     userId:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 3500.50
+ *                     quantity:
+ *                       type: number
+ *                       example: 2
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T10:15:30.000Z
+ *       400:
+ *         description: The order cannot be cancelled because it has been delivered or completed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You cannot cancel a completed or delivered order
+ *       404:
+ *         description: The order was not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       401:
+ *         description: Unauthorized — missing or invalid authentication token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access. Please log in.
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
 module.exports = router
