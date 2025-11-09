@@ -400,7 +400,7 @@ exports.getRecentRefills = async (req, res) => {
   try {
     const riderId = req.rider?.id
     const refills = await Order.findAll({
-      where: { riderId, status: 'completed' },
+      where: { status: 'completed', riderId },
       order: [['createdAt', 'DESC']],
       limit: 10,
     })

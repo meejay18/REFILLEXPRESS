@@ -732,22 +732,21 @@ router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
  *         description: Internal server error
  */
 
+router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefills)
 
-router.get('/rider/get/available-refills', riderAuthentication,  getAvailableRefills)
 
 /**
  * @swagger
  * /recent-refills:
  *   get:
- *     summary: Get Recent Refills for a Rider
- *     description: Retrieve the 10 most recent completed refill orders assigned to the currently authenticated rider.
+ *     summary: Get the 10 most recent completed refills for the authenticated rider
  *     tags:
  *       - Rider Dashboard
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Recent refills fetched successfully
+ *         description: Successful response with recent refills
  *         content:
  *           application/json:
  *             schema:
@@ -755,57 +754,36 @@ router.get('/rider/get/available-refills', riderAuthentication,  getAvailableRef
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Recent refills
+ *                   example: "Recent refills"
  *                 data:
  *                   type: array
  *                   items:
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: string
- *                         example: "12345"
- *                       riderId:
- *                         type: string
- *                         example: "67890"
- *                       customerName:
- *                         type: string
- *                         example: "Jane Doe"
- *                       address:
- *                         type: string
- *                         example: "42 Elm Street, Springfield"
+ *                         type: integer
+ *                         example: 1
  *                       status:
  *                         type: string
  *                         example: "completed"
+ *                       riderId:
+ *                         type: integer
+ *                         example: 5
  *                       createdAt:
  *                         type: string
  *                         format: date-time
- *                         example: 2025-11-06T10:15:30Z
+ *                         example: "2025-11-09T10:00:00.000Z"
  *                       updatedAt:
  *                         type: string
  *                         format: date-time
- *                         example: 2025-11-06T10:20:00Z
+ *                         example: "2025-11-09T10:00:00.000Z"
  *       401:
- *         description: Unauthorized - Rider not authenticated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized access
+ *         description: Unauthorized, rider not authenticated
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
-router.get('/recent-refills', getRecentRefills)
+
+router.get('/recent-refills', riderAuthentication, getRecentRefills)
 
 /**
  * @swagger
