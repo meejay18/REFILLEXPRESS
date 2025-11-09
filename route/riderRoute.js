@@ -15,6 +15,7 @@ const {
   getAvailableRefills,
   getTotalEarnings,
   getTodaysEarnings,
+  getActiveAndCompletedOrders,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
 
@@ -881,6 +882,50 @@ router.get('/total-earnings', getTotalEarnings)
  */
 router.get('/todays-earnings', getTodaysEarnings)
 
+
+/**
+ * @swagger
+ * /rider/get/getActiveAndCompletedOrders:
+ *   get:
+ *     summary: Get rider's active and completed orders
+ *     description: This endpoint retrieves all active and completed orders assigned to the authenticated rider.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved rider's active and completed orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     active:
+ *                       type: array
+ *                       description: List of active orders assigned to the rider
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     completed:
+ *                       type: array
+ *                       description: List of completed orders assigned to the rider
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Rider ID missing or invalid request
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.get("/rider/get/getActiveAndCompletedOrders", riderAuthentication, getActiveAndCompletedOrders)
 module.exports = router
 
 // riderId

@@ -2,13 +2,14 @@ const emailSender = require('../middleware/nodemailer')
 const { Rider, Order, RiderKyc } = require('../models')
 // const Rider = db.Rider
 const bcrypt = require('bcryptjs')
+const { Op } = require('sequelize')
+
 const {
   riderSignUpTemplate,
   riderResendOtpTemplate,
   riderForgotPasswordTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const { status } = require('init')
 
 exports.RiderSignUp = async (req, res, next) => {
   try {
@@ -396,7 +397,7 @@ exports.getAvailableRefills = async (req, res, next) => {
   }
 }
 
-exports.getRecentRefills = async (req, res) => {
+exports.getRecentRefills = async (req, res, next) => {
   try {
     const riderId = req.rider?.id
     const refills = await Order.findAll({
@@ -405,27 +406,27 @@ exports.getRecentRefills = async (req, res) => {
       limit: 10,
     })
     res.status(200).json({ message: 'Recent refills', data: refills })
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  } catch (error) {
+    next(error)
   }
 }
 
-exports.getTotalEarnings = async (req, res) => {
+exports.getTotalEarnings = async (req, res, next) => {
   try {
-    const riderId = req.user.id
-    const earnings = await Order.sum('amountEarned', {
+    const riderId = req.rider?.id
+    const earnings = await Order.sum('earnings', {
       where: {
         riderId,
         status: 'completed',
       },
     })
     res.status(200).json({ message: 'Total earnings', earnings })
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  } catch (error) {
+    next(error)
   }
 }
 
-exports.getTodaysEarnings = async (req, res) => {
+exports.getTodaysEarnings = async (req, res, next) => {
   try {
     const riderId = req.user.id
     const today = new Date()
@@ -438,7 +439,40 @@ exports.getTodaysEarnings = async (req, res) => {
       },
     })
     res.status(200).json({ message: 'Todays earnings', earnings })
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  } catch (error) {
+    next(error)
   }
 }
+
+exports.getActiveAndCompletedOrders = async (req, res, next) => {
+  try {
+    const riderId = req.rider?.id;
+    if (!riderId) {
+      return res.status(400).json({ success: false, message: 'Rider ID missing' });
+    }
+
+    const orders = await Order.findAll({
+      where: {
+        riderId,
+        status: {
+          [Op.in]: ['active', 'completed']
+        }
+      },
+      order: [['createdAt', 'DESC']]
+    });
+
+    const activeOrders = orders.filter(order => order.status === 'active');
+    const completedOrders = orders.filter(order => order.status === 'completed');
+
+    res.status(200).json({
+      success: true,
+      data: {
+        active: activeOrders,
+        completed: completedOrders
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
