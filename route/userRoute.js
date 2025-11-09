@@ -864,7 +864,7 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *     summary: Update user account details
  *     description: Updates a user's profile picture, residential address, home address, and office address. The profile picture upload is optional.
  *     tags:
- *       - User
+ *       - User Dashboard
  *     security:
  *       - bearerAuth: []
  *     requestBody:
