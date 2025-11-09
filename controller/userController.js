@@ -513,6 +513,8 @@ exports.updateUserAccount = async (req, res, next) => {
     const updatedAccount = await user.update({
       profilePicture,
       residentialAddress,
+      home,
+      office,
     })
 
     return res.status(200).json({
@@ -520,6 +522,8 @@ exports.updateUserAccount = async (req, res, next) => {
       data: {
         profilePicture: updatedAccount.profilePicture,
         residentialAddress: updatedAccount.residentialAddress,
+        home: updatedAccount.home,
+        office: updatedAccount.office,
       },
     })
   } catch (error) {
