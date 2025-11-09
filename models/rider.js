@@ -106,6 +106,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      kycVerificationStatus: {
+        type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+        defaultValue: 'pending',
+      },
       otpExpiredAt: {
         type: DataTypes.DATE,
         allowNull: true,

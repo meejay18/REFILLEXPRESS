@@ -68,6 +68,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      kycVerificationStatus: {
+        type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+        defaultValue: 'pending',
+      },
       otpExpiredAt: {
         type: Sequelize.DATE,
         allowNull: true,

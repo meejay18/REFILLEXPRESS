@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider,Order} = require('../models')
+const { Rider,Order, RiderKyc} = require('../models')
 // const Rider = db.Rider
 const bcrypt = require('bcryptjs')
 const {
@@ -377,6 +377,7 @@ exports.getRiderDashboard = async (req, res, next) => {
         status: rider.status,
         rating: rider.rating,
         refills: rider.refills,
+        kycStatus: rider.kycVerificationStatus
        },
     })
   } catch (error) {
