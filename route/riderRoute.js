@@ -1,8 +1,24 @@
-const express = require ('express');
+const express = require('express')
 // const { vendorAuthentication } = require ('../middleware/authentication');
-const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword, changeRiderPassword,getRiderDashboard, getRecentRefills,acceptOrder, getAvailableRefills,getTotalEarnings,getTodaysEarnings} = require('../controller/riderController');
+const {
+  RiderSignUp,
+  verifyRider,
+  resendRiderOtp,
+  riderForgotPassword,
+  riderlogin,
+  verifyRiderForgotPasswordOtp,
+  resetRiderPassword,
+  changeRiderPassword,
+  getRiderDashboard,
+  getRecentRefills,
+  acceptOrder,
+  getAvailableRefills,
+  getTotalEarnings,
+  getTodaysEarnings,
+} = require('../controller/riderController')
+const { riderAuthentication } = require('../middleware/authentication')
 
-const router = express.Router();
+const router = express.Router()
 
 /**
  * @swagger
@@ -10,10 +26,10 @@ const router = express.Router();
  *   post:
  *     summary: Register a new rider
  *     description: |
- *       This endpoint allows a new rider to sign up by providing their details.  
+ *       This endpoint allows a new rider to sign up by providing their details.
  *       After successful registration, an OTP is sent to the rider's email for verification.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -87,17 +103,16 @@ const router = express.Router();
 
 router.post('/rider', RiderSignUp)
 
-
 /**
  * @swagger
  * /rider/verify:
  *   post:
  *     summary: Verify a rider's account using OTP
  *     description: |
- *       This endpoint verifies a **rider's email** using a One-Time Password (OTP) sent to their email during signup.  
+ *       This endpoint verifies a **rider's email** using a One-Time Password (OTP) sent to their email during signup.
  *       Once verified, the rider can proceed to log in.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -162,8 +177,7 @@ router.post('/rider', RiderSignUp)
  *         description: Internal server error.
  */
 
-
-router.post("/rider/verify", verifyRider)
+router.post('/rider/verify', verifyRider)
 
 /**
  * @swagger
@@ -172,7 +186,7 @@ router.post("/rider/verify", verifyRider)
  *     summary: Resend OTP to a rider's email
  *     description: This endpoint resends a new one-time password (OTP) to a rider’s registered email for verification. OTP expires after 5 minutes.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -239,8 +253,7 @@ router.post("/rider/verify", verifyRider)
  *                   example: Internal server error
  */
 
-
-router.post("/rider/resendOtp", resendRiderOtp)
+router.post('/rider/resendOtp', resendRiderOtp)
 
 /**
  * @swagger
@@ -297,7 +310,7 @@ router.post("/rider/resendOtp", resendRiderOtp)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/forgotPassword", riderForgotPassword)
+router.post('/rider/forgotPassword', riderForgotPassword)
 
 /**
  * @swagger
@@ -388,9 +401,7 @@ router.post("/rider/forgotPassword", riderForgotPassword)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/login", riderlogin)
-
-
+router.post('/rider/login', riderlogin)
 
 /**
  * @swagger
@@ -468,8 +479,7 @@ router.post("/rider/login", riderlogin)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
-
+router.post('/rider/verifyForgotPasswordOtp', verifyRiderForgotPasswordOtp)
 
 /**
  * @swagger
@@ -542,8 +552,7 @@ router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/resetPassword", resetRiderPassword )
-
+router.post('/rider/resetPassword', resetRiderPassword)
 
 /**
  * @swagger
@@ -552,7 +561,7 @@ router.post("/rider/resetPassword", resetRiderPassword )
  *     summary: Change rider account password
  *     description: Allows a rider to securely change their password by providing their old password and confirming a new one.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -608,9 +617,7 @@ router.post("/rider/resetPassword", resetRiderPassword )
  *                   example: rider not found
  */
 
-
-router.post("/rider/changePassword", changeRiderPassword)
-
+router.post('/rider/changePassword', changeRiderPassword)
 
 /**
  * @swagger
@@ -693,7 +700,7 @@ router.post("/rider/changePassword", changeRiderPassword)
  *                   type: string
  *                   example: Internal server error
  */
-router.get("/rider/:riderId", getRiderDashboard)
+router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
 
 /**
  * @swagger
@@ -751,8 +758,7 @@ router.get("/rider/:riderId", getRiderDashboard)
  *                   example: Internal server error
  */
 
-router.get('/available-refills', getAvailableRefills);
-
+router.get('/available-refills', getAvailableRefills)
 
 /**
  * @swagger
@@ -824,9 +830,7 @@ router.get('/available-refills', getAvailableRefills);
  *                   type: string
  *                   example: Internal server error
  */
-router.get('/recent-refills', getRecentRefills);
-
-
+router.get('/recent-refills', getRecentRefills)
 
 /**
  * @swagger
@@ -874,8 +878,7 @@ router.get('/recent-refills', getRecentRefills);
  *                   type: string
  *                   example: Internal server error
  */
-router.get('/total-earnings', getTotalEarnings);
-
+router.get('/total-earnings', getTotalEarnings)
 
 /**
  * @swagger
@@ -923,17 +926,9 @@ router.get('/total-earnings', getTotalEarnings);
  *                   type: string
  *                   example: Internal server error
  */
-router.get('/todays-earnings', getTodaysEarnings);
-
+router.get('/todays-earnings', getTodaysEarnings)
 
 module.exports = router
-
-
-
-
-
-
-
 
 // riderId
 // 1666b874-0e7f-4483-90b7-c84918a1b19f

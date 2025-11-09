@@ -46,9 +46,9 @@ exports.initializePayment = async (req, res, next) => {
         name: order.user.firstName + order.user.lastName,
         email: order.user.email,
       },
-      redirect_url : "http://localhost:5173/userdashboard/payment-page?orderId=442511de-2ce4-46c9-bce7-5f7beaeb450c"
+      redirect_url:
+        'http://localhost:5173/userdashboard/userPayment?orderId=442511de-2ce4-46c9-bce7-5f7beaeb450c',
     }
-    // console.error('Data', data)
 
     const response = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', data, {
       headers: {
@@ -56,7 +56,6 @@ exports.initializePayment = async (req, res, next) => {
         Authorization: `Bearer ${SECRET_KEY}`,
       },
     })
-    // console.error('Res', response)
     const checkoutUrl = response?.data?.data?.checkout_url
 
     await Payment.create({
