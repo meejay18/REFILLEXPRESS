@@ -74,6 +74,72 @@ exports.placeOrder = async (req, res, next) => {
     next(error)
   }
 }
+exports.deleteOrder = async (req, res, next) => {
+  const userId = req.user.id
+  const { orderId } = req.params
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName'] }],
+    })
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order does not exist',
+      })
+    }
+
+    if (order.status === 'delivered' || order.status === 'completed') {
+      return res.status(400).json({
+        message: 'You cannot delete an order that has already been completed or delivered',
+      })
+    }
+
+    const deletedOrder = await order.destroy()
+
+    return res.status(200).json({
+      message: 'order deleted successfully',
+      data: deletedOrder,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.cancelOrder = async (req, res, next) => {
+  const userId = req.user.id
+  const { orderId } = req.params
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId, userId },
+      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName'] }],
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    if (['delivered', 'completed'].includes(order.status)) {
+      return res.status(400).json({
+        message: 'You cannot cancel a completed or delivered order',
+      })
+    }
+
+    order.status = 'cancelled'
+    await order.save()
+
+    return res.status(200).json({
+      message: 'Order cancelled successfully',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
 exports.getRecentOrders = async (req, res, next) => {
   const userId = req.user.id
@@ -227,7 +293,7 @@ exports.confirmOrder = async (req, res, next) => {
       ),
     }
 
-     await emailSender(emailOptions)
+    await emailSender(emailOptions)
 
     return res.status(200).json({
       message: 'Order confirmed successfully',
