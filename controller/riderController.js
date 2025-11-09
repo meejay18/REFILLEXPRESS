@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider,Order, RiderKyc} = require('../models')
+const { Rider, Order, RiderKyc } = require('../models')
 // const Rider = db.Rider
 const bcrypt = require('bcryptjs')
 const {
@@ -355,10 +355,9 @@ exports.changeRiderPassword = async (req, res, next) => {
   }
 }
 
-
 exports.getRiderDashboard = async (req, res, next) => {
   const { riderId } = req.params
-  try {   
+  try {
     const rider = await Rider.findOne({ where: { id: riderId } })
     if (!rider) {
       return res.status(404).json({
@@ -367,7 +366,7 @@ exports.getRiderDashboard = async (req, res, next) => {
     }
     return res.status(200).json({
       message: 'Rider dashboard fetched successfully',
-      data: { 
+      data: {
         firstName: rider.firstName,
         lastName: rider.lastName,
         email: rider.email,
@@ -377,29 +376,29 @@ exports.getRiderDashboard = async (req, res, next) => {
         status: rider.status,
         rating: rider.rating,
         refills: rider.refills,
-        kycStatus: rider.kycVerificationStatus
-       },
+        kycStatus: rider.kycVerificationStatus,
+      },
     })
   } catch (error) {
     next(error)
   }
 }
 
-exports.getAvailableRefills = async (req, res) => {
+exports.getAvailableRefills = async (req, res, next) => {
   try {
     const refills = await Order.findAll({
-      where: { status: 'available' },
+      where: { status: 'pending', riderId: null },
       order: [['createdAt', 'DESC']],
     })
-    res.status(200).json({ message: 'Available refills', data: refills })
+    res.status(200).json({ message: 'pending refills', data: refills })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    next(err)
   }
 }
 
 exports.getRecentRefills = async (req, res) => {
   try {
-    const riderId = req.user?.id
+    const riderId = req.rider?.id
     const refills = await Order.findAll({
       where: { riderId, status: 'completed' },
       order: [['createdAt', 'DESC']],
@@ -407,8 +406,8 @@ exports.getRecentRefills = async (req, res) => {
     })
     res.status(200).json({ message: 'Recent refills', data: refills })
   } catch (err) {
-    res.status(500).json({ message: err.message})
-}
+    res.status(500).json({ message: err.message })
+  }
 }
 
 exports.getTotalEarnings = async (req, res) => {
@@ -416,14 +415,14 @@ exports.getTotalEarnings = async (req, res) => {
     const riderId = req.user.id
     const earnings = await Order.sum('amountEarned', {
       where: {
-        riderId,  
+        riderId,
         status: 'completed',
       },
     })
     res.status(200).json({ message: 'Total earnings', earnings })
   } catch (err) {
-    res.status(500).json({ message: err.message})
-}
+    res.status(500).json({ message: err.message })
+  }
 }
 
 exports.getTodaysEarnings = async (req, res) => {
@@ -440,7 +439,6 @@ exports.getTodaysEarnings = async (req, res) => {
     })
     res.status(200).json({ message: 'Todays earnings', earnings })
   } catch (err) {
-    res.status(500).json({ message: err.message})
+    res.status(500).json({ message: err.message })
+  }
 }
-}
-

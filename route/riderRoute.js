@@ -704,15 +704,16 @@ router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
 
 /**
  * @swagger
- * /available-refills:
+ * /rider/get/available-refills:
  *   get:
- *     summary: Get Available Refills
- *     description: Retrieve a list of all available refill orders sorted by creation date (most recent first).
- *     tags:
- *       - Rider Dashboard
+ *     summary: Retrieve all available pending refill orders (unassigned orders)
+ *     description: This endpoint allows authenticated riders to view all refill orders that are currently pending and have not been assigned to any rider.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of available refills fetched successfully
+ *         description: List of available pending refill orders
  *         content:
  *           application/json:
  *             schema:
@@ -720,45 +721,19 @@ router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Available refills
+ *                   example: pending refills
  *                 data:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         example: 12345
- *                       customerName:
- *                         type: string
- *                         example: Jane Doe
- *                       address:
- *                         type: string
- *                         example: 42 Elm Street, Springfield
- *                       status:
- *                         type: string
- *                         example: available
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-11-06T10:15:30Z
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-11-06T10:20:00Z
+ *                     $ref: '#/components/schemas/Order'
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
 
-router.get('/available-refills', getAvailableRefills)
+
+router.get('/rider/get/available-refills', riderAuthentication,  getAvailableRefills)
 
 /**
  * @swagger

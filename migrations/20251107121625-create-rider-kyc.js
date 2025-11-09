@@ -69,6 +69,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+        verificationStatus: {
+        type: Sequelize.ENUM('pending', 'verified', 'rejected'),
+        defaultValue: 'pending',
+      },
       driversLicense: {
         type: Sequelize.STRING,
         allowNull: true,
