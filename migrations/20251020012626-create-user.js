@@ -30,6 +30,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      home: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      office: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       phoneNumber: {
         type: Sequelize.STRING,
         unique: true,

@@ -492,7 +492,7 @@ exports.getNearbyVendors = async (req, res, next) => {
 
 exports.updateUserAccount = async (req, res, next) => {
   const userId = req.user.id
-  const { residentialAddress } = req.body
+  const { residentialAddress, home, office } = req.body
 
   const file = req.file
   try {
@@ -503,10 +503,15 @@ exports.updateUserAccount = async (req, res, next) => {
       })
     }
 
-    const resource = await cloudinary.uploader.upload(file.path)
+    let profilePicture = user.profilePicture
+
+    if (file) {
+      const resource = await cloudinary.uploader.upload(file.path)
+      profilePicture = resource.secure_url
+    }
 
     const updatedAccount = await user.update({
-      profilePicture: resource.secure_url,
+      profilePicture,
       residentialAddress,
     })
 
