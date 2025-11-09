@@ -449,7 +449,7 @@ router.get('/orders/confirmOrder/:orderId/:userId', riderAuthentication, confirm
  *     summary: Delete a user's order (Admin only)
  *     description: Allows an authenticated admin to delete a user's order, provided the order has not yet been completed or delivered.
  *     tags:
- *       - Admin - Admin
+ *       - Admin
  *     security:
  *       - bearerAuth: []
  *     parameters:
