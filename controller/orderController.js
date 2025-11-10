@@ -1,7 +1,11 @@
 const emailSender = require('../middleware/nodemailer')
 const { Op } = require('sequelize')
 const { Vendor, Order, User } = require('../models')
-const { placeOrderTemplate, acceptOrderStatusTemplate } = require('../utils/emailTemplate')
+const {
+  placeOrderTemplate,
+  acceptOrderStatusTemplate,
+  completeOrderStatusTemplate,
+} = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
   const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
@@ -297,6 +301,55 @@ exports.confirmOrder = async (req, res, next) => {
 
     return res.status(200).json({
       message: 'Order confirmed successfully',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.completeOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  const riderId = req.rider.id
+
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId, riderId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'email'],
+        },
+      ],
+    })
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found or unauthorized' })
+    }
+
+    if (order.status !== 'active') {
+      return res.status(400).json({ message: 'Only active orders can be completed' })
+    }
+    order.status = 'completed'
+    order.completedAt = new Date()
+    await order.save()
+
+    const emailOptions = {
+      email: order.user.email,
+      subject: 'Order Completed',
+      html: completeOrderStatusTemplate(
+        order.user.firstName,
+        order.orderNumber,
+        order.quantity,
+        order.totalPrice
+      ),
+    }
+
+    await emailSender(emailOptions)
+
+    return res.status(200).json({
+      message: 'Order marked as completed',
       data: order,
     })
   } catch (error) {
