@@ -832,7 +832,7 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *                   type: string
  *                   example: Internal server error
  */
-router.get('/total-earnings', getTotalEarnings)
+router.get('/total-earnings', riderAuthentication, getTotalEarnings)
 
 /**
  * @swagger
