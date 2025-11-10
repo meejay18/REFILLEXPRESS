@@ -1185,5 +1185,93 @@ const acceptOrderStatusTemplate = (
   `
 }
 
+const completeOrderStatusTemplate = (
+  customerName,
+  orderNumber,
+  quantity,
+  totalPrice
+) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Order Completed</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #f97316, #2563eb);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h2 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .summary-box {
+              margin: 20px 0;
+              background-color: #f3f4f6;
+              padding: 15px;
+              border-radius: 8px;
+              font-size: 16px;
+              color: #111;
+          }
+          .footer {
+              background-color: #2563eb;
+              color: #e5e7eb;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h2>Order Completed</h2>
+          </div>
+          <div class="content">
+              <p>Hello ${customerName},</p>
+              <p>Your gas order <strong>#${orderNumber}</strong> has been <strong>successfully delivered</strong>.</p>
+              <div class="summary-box">
+                  <p><strong>Quantity:</strong> ${quantity}kg</p>
+                  <p><strong>Total Paid:</strong> ₦${totalPrice}</p>
+              </div>
+              <p>Thank you for choosing RefillXpress. We hope to serve you again soon!</p>
+              <p>Best regards,<br><strong>RefillXpress Team</strong></p>
+          </div>
+          <div class="footer">
+              &copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+};
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate, acceptOrderStatusTemplate}
+
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate, acceptOrderStatusTemplate,completeOrderStatusTemplate}

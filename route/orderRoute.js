@@ -8,6 +8,7 @@ const {
   confirmOrder,
   deleteOrder,
   cancelOrder,
+  completeOrder,
 } = require('../controller/orderController')
 const {
   authentication,
@@ -614,4 +615,65 @@ router.delete('/orders/deleteOrder/:orderId', authentication, adminOnly, deleteO
 
 
 router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
+
+
+
+/**
+ * @swagger
+ * /rider/complete/order/{orderId}:
+ *   patch:
+ *     summary: Mark an active order as completed
+ *     description: Allows an authenticated rider to mark an active order as completed. Sends a confirmation email to the user after successful completion.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         description: The unique ID of the order to complete
+ *         schema:
+ *           type: string
+ *           example: "a8b1c2d3-1234-5678-90ef-abcdef123456"
+ *     responses:
+ *       200:
+ *         description: Order marked as completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order marked as completed
+ *                 data:
+ *                   $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Invalid request — only active orders can be completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only active orders can be completed
+ *       404:
+ *         description: Order not found or unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found or unauthorized
+ *       401:
+ *         description: Unauthorized — rider not authenticated
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.patch("/rider/complete/order/:orderId", riderAuthentication, completeOrder)
 module.exports = router
