@@ -9,6 +9,8 @@ const {
   deleteOrder,
   cancelOrder,
   completeOrder,
+  getAllOrders,
+  getOneOrder,
 } = require('../controller/orderController')
 const {
   authentication,
@@ -676,4 +678,145 @@ router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
 
 
 router.patch("/rider/complete/order/:orderId", riderAuthentication, completeOrder)
+
+/**
+ * @swagger
+ * /orders/getAllorders:
+ *   get:
+ *     summary: Get all orders
+ *     description: Retrieve a list of all orders from the database.
+ *     tags:
+ *       - Orders
+ *     responses:
+ *       200:
+ *         description: Orders retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Orders retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 12
+ *                       orderNumber:
+ *                         type: string
+ *                         example: ORD-123456
+ *                       userId:
+ *                         type: integer
+ *                         example: 5
+ *                       riderId:
+ *                         type: integer
+ *                         example: 2
+ *                       status:
+ *                         type: string
+ *                         example: pending
+ *                       totalPrice:
+ *                         type: number
+ *                         format: float
+ *                         example: 4500.75
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:34:56.000Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T14:20:30.000Z
+ *       404:
+ *         description: No orders found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No orders found
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.get("/orders/getAllorders", getAllOrders)
+
+/**
+ * @swagger
+ * /orders/getOneOrder/{orderId}:
+ *   get:
+ *     summary: Get details of a specific order
+ *     description: Retrieve details of a single order by its ID.
+ *     tags:
+ *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the order to retrieve
+ *     responses:
+ *       200:
+ *         description: Order retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 12
+ *                     orderNumber:
+ *                       type: string
+ *                       example: ORD-123456
+ *                     userId:
+ *                       type: integer
+ *                       example: 5
+ *                     riderId:
+ *                       type: integer
+ *                       example: 2
+ *                     status:
+ *                       type: string
+ *                       example: completed
+ *                     totalPrice:
+ *                       type: number
+ *                       format: float
+ *                       example: 3500.50
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:34:56.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T14:20:30.000Z
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       500:
+ *         description: Internal server error
+ */
+
+
+router.get("/orders/getOneOrder/:orderId", getOneOrder)
 module.exports = router
