@@ -686,7 +686,7 @@ router.patch("/rider/complete/order/:orderId", riderAuthentication, completeOrde
  *     summary: Get all orders
  *     description: Retrieve a list of all orders from the database.
  *     tags:
- *       - Orders
+ *       - Rider Dashboard
  *     responses:
  *       200:
  *         description: Orders retrieved successfully
@@ -754,7 +754,7 @@ router.get("/orders/getAllorders", getAllOrders)
  *     summary: Get details of a specific order
  *     description: Retrieve details of a single order by its ID.
  *     tags:
- *       - Orders
+ *       - Rider Dashboard
  *     parameters:
  *       - in: path
  *         name: orderId
