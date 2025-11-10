@@ -356,3 +356,41 @@ exports.completeOrder = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getOneOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  try {
+    const order = await Order.findByPk(orderId)
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Order retrieved successfully',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.findAll()
+    if (orders.length === 0) {
+      return res.status(404).json({
+        message: 'No orders found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Orders retrieved successfully',
+      data: orders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}

@@ -236,6 +236,7 @@ exports.riderlogin = async (req, res, next) => {
         firstName: rider.firstName,
         lastName: rider.lastName,
         email: rider.email,
+        kycStatus : rider.kycVerificationStatus
       },
       token: token,
     })
