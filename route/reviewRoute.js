@@ -87,10 +87,11 @@ router.get('/reviews', getReviews)
  *       - name: vendorId
  *         in: path
  *         required: true
- *         description: ID of the vendor to review
+ *         description: ID of the vendor to review (UUID/string)
  *         schema:
- *           type: integer
- *           example: 3
+ *           type: string
+ *           format: uuid
+ *           example: "aab205f6-c745-47e7-9ee9-239322aceab4"
  *     requestBody:
  *       required: true
  *       content:
@@ -116,8 +117,8 @@ router.get('/reviews', getReviews)
  *               type: object
  *               properties:
  *                 id:
- *                   type: integer
- *                   example: 10
+ *                   type: string
+ *                   example: "6f1e2d3c-4b5a-6c7d-8e9f-abcdef123456"
  *                 status:
  *                   type: string
  *                   example: success
@@ -131,8 +132,6 @@ router.get('/reviews', getReviews)
  *       500:
  *         description: Server error
  */
-
-
 router.post('/vendor/reviews/:vendorId', authentication,createReview)
 
 
