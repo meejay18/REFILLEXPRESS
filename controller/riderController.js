@@ -1,8 +1,8 @@
 const emailSender = require('../middleware/nodemailer')
 const { Rider, Order, RiderKyc } = require('../models')
-// const Rider = db.Rider
 const bcrypt = require('bcryptjs')
 const { Op } = require('sequelize')
+const cloudinary = require("../config/cloudinary")
 
 const {
   riderSignUpTemplate,
@@ -226,7 +226,7 @@ exports.riderlogin = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: rider.id, email: rider.email }, process.env.JWT_SECRET, {
-      expiresIn: '2hr',
+      expiresIn: '1d',
     })
 
     return res.status(200).json({
@@ -236,7 +236,7 @@ exports.riderlogin = async (req, res, next) => {
         firstName: rider.firstName,
         lastName: rider.lastName,
         email: rider.email,
-        kycStatus : rider.kycVerificationStatus
+        kycStatus: rider.kycVerificationStatus,
       },
       token: token,
     })
@@ -414,24 +414,23 @@ exports.getRecentRefills = async (req, res, next) => {
 
 exports.getTotalEarnings = async (req, res, next) => {
   try {
-    const riderId = req.rider?.id;
+    const riderId = req.rider?.id
 
     const orders = await Order.findAll({
       where: { riderId, status: 'completed' },
-      attributes: ['totalPrice'], 
-    });
+      attributes: ['totalPrice'],
+    })
 
-    const totalEarnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0); 
+    const totalEarnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
 
     res.status(200).json({
       message: 'Total earnings calculated successfully',
       totalEarnings,
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
+}
 
 exports.getTodaysEarnings = async (req, res, next) => {
   try {
@@ -460,44 +459,52 @@ exports.getTodaysEarnings = async (req, res, next) => {
   }
 }
 
-
 exports.getActiveAndCompletedOrders = async (req, res, next) => {
   try {
-    const riderId = req.rider?.id;
+    const riderId = req.rider?.id
     if (!riderId) {
-      return res.status(400).json({ success: false, message: 'Rider ID missing' });
+      return res.status(400).json({ success: false, message: 'Rider ID missing' })
     }
 
     const orders = await Order.findAll({
       where: {
         riderId,
         status: {
-          [Op.in]: ['active', 'completed']
-        }
+          [Op.in]: ['active', 'completed'],
+        },
       },
-      order: [['createdAt', 'DESC']]
-    });
+      order: [['createdAt', 'DESC']],
+    })
 
-    const activeOrders = orders.filter(order => order.status === 'active');
-    const completedOrders = orders.filter(order => order.status === 'completed');
+    const activeOrders = orders.filter((order) => order.status === 'active')
+    const completedOrders = orders.filter((order) => order.status === 'completed')
 
     res.status(200).json({
       success: true,
       data: {
         active: activeOrders,
-        completed: completedOrders
-      }
-    });
+        completed: completedOrders,
+      },
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
 
-
-exports.updateRiderAccount = async(req, res, next) => {
-  const {riderId} = req.params
-  const {} = req.body
+exports.updateRiderAccount = async (req, res, next) => {
+  const files = req.files
+  const { riderId } = req.params
+  const { residentialAddress, fullName, phoneNumber, accountName, accountNumber, bankName } = req.body
   try {
+    const rider = await Rider.findByPk(riderId)
+    if (!rider) {
+      return res.status(404).json({
+        message: 'Rider doe not exist',
+      })
+    }
+
+
+    const resource = await cloudinary.uploader.upload()
     
   } catch (error) {
     next(error)

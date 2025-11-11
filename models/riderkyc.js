@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       verificationStatus: {
         type: DataTypes.ENUM('not completed', 'pending', 'verified', 'rejected'),
-        defaultValue: 'pending',
+        defaultValue: 'not completed',
       },
       driversLicense: {
         type: DataTypes.STRING,
