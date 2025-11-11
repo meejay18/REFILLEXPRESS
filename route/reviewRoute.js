@@ -75,22 +75,22 @@ router.get('/reviews', getReviews)
 
 /**
  * @swagger
- * /vendors/{vendorId}/reviews:
+ * /vendor/reviews/{vendorId}:
  *   post:
  *     summary: Submit a review for a vendor
- *     description: Allows an authenticated user to submit a review for a specific vendor.
+ *     description: Allows an authenticated user to create a review for a specific vendor.
  *     tags:
  *       - Reviews
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: vendorId
+ *       - name: vendorId
+ *         in: path
  *         required: true
+ *         description: ID of the vendor to review
  *         schema:
- *           type: string
- *           format: uuid
- *         description: UUID of the vendor being reviewed
+ *           type: integer
+ *           example: 3
  *     requestBody:
  *       required: true
  *       content:
@@ -102,23 +102,22 @@ router.get('/reviews', getReviews)
  *               - message
  *             properties:
  *               rating:
- *                 type: integer
- *                 example: 5
+ *                 type: number
+ *                 example: 4.5
  *               message:
  *                 type: string
- *                 example: Excellent service and fast delivery!
+ *                 example: "The service was excellent and fast!"
  *     responses:
  *       201:
- *         description: Review submitted successfully
+ *         description: Review created successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
- *                   example: 5cb7de6c-2d8e-4234-a53f-fa80942ec9c2
+ *                   type: integer
+ *                   example: 10
  *                 status:
  *                   type: string
  *                   example: success
@@ -126,36 +125,13 @@ router.get('/reviews', getReviews)
  *                   type: string
  *                   example: Review submitted successfully.
  *       400:
- *         description: Missing or invalid request data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Rating and message are required
+ *         description: Missing rating or message
  *       404:
  *         description: User or vendor not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Vendor not found
  *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
+ *         description: Server error
  */
+
 
 router.post('/vendor/reviews/:vendorId', authentication,createReview)
 
@@ -303,7 +279,7 @@ router.get('/reviews/stats', getReviewStats)
  *               - message
  *             properties:
  *               rating:
- *                 type: string
+ *                 type: number
  *                 example: 4
  *                 description: Rating between 1 and 5
  *               message:
