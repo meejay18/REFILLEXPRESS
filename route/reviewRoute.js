@@ -303,7 +303,7 @@ router.get('/reviews/stats', getReviewStats)
  *               - message
  *             properties:
  *               rating:
- *                 type: number
+ *                 type: string
  *                 example: 4
  *                 description: Rating between 1 and 5
  *               message:
@@ -483,12 +483,6 @@ router.post('/vendors/:vendorId/reviews', authentication, createUserReview)
  */
 
 router.get('/vendors/:vendorId/reviews', authentication, getVendorReviews)
-
-
-
-
-
-
 
 
 /**

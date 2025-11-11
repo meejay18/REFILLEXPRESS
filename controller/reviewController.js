@@ -13,6 +13,7 @@ exports.getReviews = async (req, res, next) => {
     })
     res.status(200).json({
       message: 'Reviews fetched successfully',
+      data: reviews
     })
   } catch (error) {
     next(error)
