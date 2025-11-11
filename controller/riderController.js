@@ -414,36 +414,52 @@ exports.getRecentRefills = async (req, res, next) => {
 
 exports.getTotalEarnings = async (req, res, next) => {
   try {
-    const riderId = req.rider?.id
-    const earnings = await Order.sum('earnings', {
+    const riderId = req.rider?.id;
+
+    const orders = await Order.findAll({
+      where: { riderId, status: 'completed' },
+      attributes: ['totalPrice'], 
+    });
+
+    const totalEarnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0); 
+
+    res.status(200).json({
+      message: 'Total earnings calculated successfully',
+      totalEarnings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.getTodaysEarnings = async (req, res, next) => {
+  try {
+    const riderId = req.rider.id
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const { Op } = require('sequelize')
+
+    const orders = await Order.findAll({
       where: {
         riderId,
         status: 'completed',
+        createdAt: { [Op.gte]: today },
       },
+      attributes: ['totalPrice'],
     })
-    res.status(200).json({ message: 'Total earnings', earnings })
+
+    const earnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
+
+    res.status(200).json({
+      message: "Today's earnings",
+      earnings,
+    })
   } catch (error) {
     next(error)
   }
 }
 
-exports.getTodaysEarnings = async (req, res, next) => {
-  try {
-    const riderId = req.user.id
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const earnings = await Order.sum('amountEarned', {
-      where: {
-        riderId,
-        status: 'completed',
-        createdAt: { [require('sequelize').Op.gte]: today },
-      },
-    })
-    res.status(200).json({ message: 'Todays earnings', earnings })
-  } catch (error) {
-    next(error)
-  }
-}
 
 exports.getActiveAndCompletedOrders = async (req, res, next) => {
   try {
@@ -477,3 +493,13 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
   }
 };
 
+
+exports.updateRiderAccount = async(req, res, next) => {
+  const {riderId} = req.params
+  const {} = req.body
+  try {
+    
+  } catch (error) {
+    next(error)
+  }
+}
