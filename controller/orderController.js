@@ -360,8 +360,31 @@ exports.completeOrder = async (req, res, next) => {
 
 exports.getOneOrder = async (req, res, next) => {
   const { orderId } = req.params
+
   try {
-    const order = await Order.findByPk(orderId)
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: [
+            'id',
+            'businessName',
+            'businessAddress',
+            'pricePerKg',
+            'openingTime',
+            'closingTime',
+            'isAvailable',
+          ],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'phoneNumber', 'residentialAddress'],
+        },
+      ],
+    })
 
     if (!order) {
       return res.status(404).json({
