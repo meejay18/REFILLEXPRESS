@@ -121,7 +121,7 @@ const router = express.Router()
  *         description: Internal server error
  */
 
-router.post('/order/create-order', authentication, placeOrder)
+router.post('/order/create-order/:vendorId', authentication, placeOrder)
 
 /**
  * @swagger

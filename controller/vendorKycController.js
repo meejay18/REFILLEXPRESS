@@ -143,6 +143,11 @@ exports.verifyVendorKyc = async (req, res, next) => {
       })
     }
 
+    if(verificationStatus === "verified") {
+      kyc.vendor.verificationStatus = "verified",
+      await kyc.vendor.save()
+    }
+
     console.log(kyc.verificationStatus)
 
     await kyc.update({ verificationStatus })

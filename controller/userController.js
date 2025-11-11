@@ -477,10 +477,11 @@ exports.getNearbyVendors = async (req, res, next) => {
   try {
     const vendors = await Vendor.findAll({
       where: { isAvailable: true },
-      attributes: ['businessName', 'pricePerKg', 'openingTime', 'rating', 'businessAddress'],
       order: [['rating', 'DESC']],
     })
 
+    console.log(vendors);
+    
     return res.status(200).json({
       message: 'Nearby vendors retrieved successfully',
       data: vendors,

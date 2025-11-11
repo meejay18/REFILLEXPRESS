@@ -9,11 +9,12 @@ const {
 
 exports.placeOrder = async (req, res, next) => {
   const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
+  const { vendorId } = req.params
   try {
     const userId = req.user.id
 
     const vendor = await Vendor.findOne({
-      where: { isAvailable: true, pricePerKg: { [Op.ne]: null } },
+      where: { id: vendorId, isAvailable: true, pricePerKg: { [Op.ne]: null } },
       attributes: ['id', 'businessName', 'pricePerKg', 'businessAddress'],
     })
     if (!vendor) {

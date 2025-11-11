@@ -17,6 +17,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      fullName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -69,7 +81,7 @@ module.exports = {
         allowNull: true,
       },
       kycVerificationStatus: {
-        type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+        type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
         defaultValue: 'pending',
       },
       otpExpiredAt: {

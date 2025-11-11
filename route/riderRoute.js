@@ -786,19 +786,21 @@ router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefi
 
 router.get('/recent-refills', riderAuthentication, getRecentRefills)
 
+
+
 /**
  * @swagger
  * /total-earnings:
  *   get:
- *     summary: Get Total Earnings for a Rider
- *     description: Retrieve the total amount earned by the currently authenticated rider from all completed orders.
+ *     summary: Get total earnings for the authenticated rider
+ *     description: Calculates the total earnings of a rider based on all completed orders. Each completed order contributes 5% of its total price to the rider's earnings.
  *     tags:
  *       - Rider Dashboard
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []    # Requires rider authentication
  *     responses:
  *       200:
- *         description: Total earnings fetched successfully
+ *         description: Total earnings calculated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -806,13 +808,12 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Total earnings
- *                 earnings:
+ *                   example: Total earnings calculated successfully
+ *                 totalEarnings:
  *                   type: number
- *                   format: float
- *                   example: 15840.75
- *       401:
- *         description: Unauthorized - Rider not authenticated
+ *                   example: 7500.50
+ *       400:
+ *         description: Rider ID missing or invalid
  *         content:
  *           application/json:
  *             schema:
@@ -820,9 +821,9 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Unauthorized access
+ *                   example: Rider ID missing
  *       500:
- *         description: Internal server error
+ *         description: Server error while fetching earnings
  *         content:
  *           application/json:
  *             schema:
@@ -832,21 +833,22 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *                   type: string
  *                   example: Internal server error
  */
+
+
 router.get('/total-earnings', riderAuthentication, getTotalEarnings)
+
 
 /**
  * @swagger
  * /todays-earnings:
  *   get:
- *     summary: Get Today's Earnings for a Rider
- *     description: Retrieve the total amount earned by the currently authenticated rider for all completed orders made today.
- *     tags:
- *       - Rider Dashboard
+ *     summary: Get today's earnings for the authenticated rider
+ *     tags: [Rider Dashboard]
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Today's earnings fetched successfully
+ *         description: Total earnings calculated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -854,33 +856,17 @@ router.get('/total-earnings', riderAuthentication, getTotalEarnings)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Todays earnings
+ *                   example: "Today's earnings"
  *                 earnings:
  *                   type: number
- *                   format: float
- *                   example: 350.50
+ *                   example: 150.75
  *       401:
- *         description: Unauthorized - Rider not authenticated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized access
+ *         description: Unauthorized - rider not authenticated
  *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
+ *         description: Server error
  */
-router.get('/todays-earnings', getTodaysEarnings)
+
+router.get('/todays-earnings', riderAuthentication,  getTodaysEarnings)
 
 
 /**
