@@ -120,7 +120,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       kycVerificationStatus: {
         type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
-        defaultValue: 'pending',
+        defaultValue: 'not completed',
       },
       otpExpiredAt: {
         type: DataTypes.DATE,
@@ -148,6 +148,22 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 0,
       },
       activeTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      // automaticPayouts: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: false,
+      // },
+      accountName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      bankName: {
         type: DataTypes.STRING,
         allowNull: true,
       },

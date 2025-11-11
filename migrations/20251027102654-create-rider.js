@@ -55,6 +55,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      automaticPayouts: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      accountName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      bankName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       totalRefills: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
@@ -82,7 +98,7 @@ module.exports = {
       },
       kycVerificationStatus: {
         type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
-        defaultValue: 'pending',
+        defaultValue: 'not completed',
       },
       otpExpiredAt: {
         type: Sequelize.DATE,
@@ -110,6 +126,18 @@ module.exports = {
         defaultValue: 0,
       },
       activeTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      bankName: {
         type: Sequelize.STRING,
         allowNull: true,
       },
