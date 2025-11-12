@@ -265,7 +265,7 @@ router.get('/reviews/stats', getReviewStats)
  *         name: vendorId
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID of the vendor being reviewed
  *     requestBody:
  *       required: true
@@ -385,7 +385,7 @@ router.post('/vendors/:vendorId/reviews', authentication, createUserReview)
  *         name: vendorId
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID of the vendor
  *     responses:
  *       200:
@@ -473,7 +473,7 @@ router.get('/vendors/:vendorId/reviews', authentication, getVendorReviews)
  *         name: vendorId
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID of the vendor
  *     responses:
  *       200:
