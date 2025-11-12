@@ -11,6 +11,8 @@ const {
   completeOrder,
   getAllOrders,
   getOneOrder,
+  trackOrder,
+  getUserOrderTracking,
 } = require('../controller/orderController')
 const {
   authentication,
@@ -615,10 +617,7 @@ router.delete('/orders/deleteOrder/:orderId', authentication, adminOnly, deleteO
  *         description: Internal server error.
  */
 
-
 router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
-
-
 
 /**
  * @swagger
@@ -676,8 +675,7 @@ router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
  *         description: Internal server error
  */
 
-
-router.patch("/rider/complete/order/:orderId", riderAuthentication, completeOrder)
+router.patch('/rider/complete/order/:orderId', riderAuthentication, completeOrder)
 
 /**
  * @swagger
@@ -744,8 +742,7 @@ router.patch("/rider/complete/order/:orderId", riderAuthentication, completeOrde
  *         description: Internal server error
  */
 
-
-router.get("/orders/getAllorders", getAllOrders)
+router.get('/orders/getAllorders', getAllOrders)
 
 /**
  * @swagger
@@ -817,6 +814,176 @@ router.get("/orders/getAllorders", getAllOrders)
  *         description: Internal server error
  */
 
+router.get('/orders/getOneOrder/:orderId', getOneOrder)
 
-router.get("/orders/getOneOrder/:orderId", getOneOrder)
+/**
+ * @swagger
+ * /order/tracking/{orderId}/status:
+ *   put:
+ *     summary: Update the tracking status of an order
+ *     description: Allows an authenticated rider to update the current status of an assigned order.
+ *     tags:
+ *       - Rider Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: orderId
+ *         in: path
+ *         required: true
+ *         description: ID of the order to update
+ *         schema:
+ *           type: string
+ *           example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - navigatingToCustomer
+ *                   - pickedUpCylinder
+ *                   - navigatingToVendor
+ *                   - refillingCylinder
+ *                   - returningToCustomer
+ *                   - completed
+ *                 example: "pickedUpCylinder"
+ *     responses:
+ *       200:
+ *         description: Order tracking status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order tracking updated to pickedUpCylinder
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
+ *                     status:
+ *                       type: string
+ *                       example: "pickedUpCylinder"
+ *       400:
+ *         description: Invalid status provided
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
+
+router.put('/order/tracking/:orderId/status', riderAuthentication, trackOrder)
+
+/**
+ * @swagger
+ * /user/order/tracking/{orderId}:
+ *   get:
+ *     summary: Get tracking details for a specific user order
+ *     description: Retrieves the full tracking status and related vendor and user information for a given order.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: orderId
+ *         in: path
+ *         required: true
+ *         description: ID of the order to retrieve tracking for
+ *         schema:
+ *           type: string
+ *           example: "b9a72f35-7b52-44b3-9372-d4c4a6c8f730"
+ *     responses:
+ *       200:
+ *         description: Order tracking details fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order status fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     orderId:
+ *                       type: string
+ *                       example: "b9a72f35-7b52-44b3-9372-d4c4a6c8f730"
+ *                     orderNumber:
+ *                       type: string
+ *                       example: "ORD-102938"
+ *                     cylinderSize:
+ *                       type: string
+ *                       example: "12.5kg"
+ *                     quantity:
+ *                       type: integer
+ *                       example: 2
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 12500
+ *                     deliveryFee:
+ *                       type: number
+ *                       example: 1500
+ *                     scheduledTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-11-12T10:30:00.000Z"
+ *                     currentStatus:
+ *                       type: string
+ *                       example: "refillingCylinder"
+ *                     currentStage:
+ *                       type: string
+ *                       example: "refillingCylinder"
+ *                     trackingStages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example:
+ *                         - navigatingToCustomer
+ *                         - pickedUpCylinder
+ *                         - navigatingToVendor
+ *                         - refillingCylinder
+ *                         - returningToCustomer
+ *                         - completed
+ *                     vendor:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Gas Point Nigeria"
+ *                         address:
+ *                           type: string
+ *                           example: "23 Industrial Layout, Lekki"
+ *                         phone:
+ *                           type: string
+ *                           example: "09012345678"
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "John Doe"
+ *                         address:
+ *                           type: string
+ *                           example: "12B Ikoyi Crescent, Lagos"
+ *                         phone:
+ *                           type: string
+ *                           example: "08123456789"
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
+
+
+router.get('/user/order/tracking/:orderId', authentication, getUserOrderTracking)
 module.exports = router
