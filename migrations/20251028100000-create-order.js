@@ -70,8 +70,18 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.ENUM('pending', 'active', 'completed', 'cancelled'),
+         status: {
+        type: Sequelize.ENUM(
+          'pending',
+          'active',
+          'navigatingToCustomer',
+          'pickedUpCylinder',
+          'navigatingToVendor',
+          'refillingCylinder',
+          'returningToCustomer',
+          'completed',
+          'cancelled'
+        ),
         defaultValue: 'pending',
       },
       paymentStatus: {

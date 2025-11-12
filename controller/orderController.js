@@ -418,3 +418,128 @@ exports.getAllOrders = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.trackOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  const { status } = req.body
+  const riderId = req.rider.id
+  try {
+    const validStatus = [
+      'navigatingToCustomer',
+      'pickedUpCylinder',
+      'navigatingToVendor',
+      'refillingCylinder',
+      'returningToCustomer',
+      'completed',
+    ]
+
+    if (!validStatus.includes(status)) {
+      return res.status(400).json({
+        message: 'Invalid status',
+      })
+    }
+
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        riderId,
+      },
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    order.status = status
+    await order.save()
+
+    return res.status(200).json({
+      message: `Order tracking updated to ${status}`,
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getUserOrderTracking = async (req, res, next) => {
+  const { orderId } = req.params
+  const userId = req.user.id
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber', 'residentialAddress'],
+        },
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessName', 'businessPhoneNumber', 'businessAddress'],
+        },
+      ],
+    })
+    // console.log(order)
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    const trackingStages = [
+      'navigatingToCustomer',
+      'pickedUpCylinder',
+      'navigatingToVendor',
+      'refillingCylinder',
+      'returningToCustomer',
+      'completed',
+    ]
+
+    const stageMap = {
+      navigatingToCustomer: 0,
+      pickedUpCylinder: 1,
+      navigatingToVendor: 2,
+      refillingCylinder: 3,
+      returningToCustomer: 4,
+      completed: 5,
+    }
+
+    const currentStageIndex = stageMap[order.status] ?? 0
+
+    return res.status(200).json({
+      message: 'Order status fetched successfully',
+      data: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        cylinderSize: order.cylinderSize,
+        quantity: order.quantity,
+        totalPrice: order.totalPrice,
+        deliveryFee: order.deliveryFee,
+        scheduledTime: order.scheduledTime,
+        currentStatus: order.status,
+        currentStage: trackingStages[currentStageIndex],
+        trackingStages,
+        vendor: {
+          name: order.vendor.businessName,
+          address: order.vendor.businessAddress,
+          phone: order.vendor.businessPhoneNumber,
+        },
+        user: {
+          name: order.user.firstName,
+          address: order.user.phoneNumber,
+          phone: order.user.residentialAddress,
+        },
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
