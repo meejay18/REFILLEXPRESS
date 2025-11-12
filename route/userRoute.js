@@ -861,14 +861,14 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  * @swagger
  * /user/update/Account:
  *   put:
- *     summary: Update a user's account details (profile picture and residential address)
- *     description: Allows an authenticated user to update their profile picture and residential address.
+ *     summary: Update user account details
+ *     description: Updates a user's profile picture, residential address, home address, and office address. The profile picture upload is optional.
  *     tags:
  *       - User Dashboard
  *     security:
  *       - bearerAuth: []
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
@@ -877,10 +877,16 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *               profilePicture:
  *                 type: string
  *                 format: binary
- *                 description: The user's new profile image file
+ *                 description: Optional profile picture to upload
  *               residentialAddress:
  *                 type: string
- *                 example: "123 Main Street, Lagos, Nigeria"
+ *                 example: 123 Freedom Street, Lagos
+ *               home:
+ *                 type: string
+ *                 example: No. 45 Banana Island, Lagos
+ *               office:
+ *                 type: string
+ *                 example: Tech Hub, Yaba, Lagos
  *     responses:
  *       200:
  *         description: User account updated successfully
@@ -897,12 +903,18 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *                   properties:
  *                     profilePicture:
  *                       type: string
- *                       example: "https://res.cloudinary.com/your-cloud/image/upload/v1728391023/user123.jpg"
+ *                       example: https://res.cloudinary.com/example/image/upload/v123456789/profile.jpg
  *                     residentialAddress:
  *                       type: string
- *                       example: "123 Main Street, Lagos, Nigeria"
+ *                       example: 123 Freedom Street, Lagos
+ *                     home:
+ *                       type: string
+ *                       example: No. 45 Banana Island, Lagos
+ *                     office:
+ *                       type: string
+ *                       example: Tech Hub, Yaba, Lagos
  *       400:
- *         description: Bad request (invalid input or missing fields)
+ *         description: Bad request (invalid input)
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       404:
@@ -910,6 +922,7 @@ route.get('/user/getNearbyVendors', getNearbyVendors)
  *       500:
  *         description: Internal server error
  */
+
 
 route.put('/user/update/Account', authentication, upload.single('profilePicture'), updateUserAccount)
 module.exports = route

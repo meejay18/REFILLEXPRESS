@@ -1,15 +1,20 @@
 const emailSender = require('../middleware/nodemailer')
 const { Op } = require('sequelize')
 const { Vendor, Order, User } = require('../models')
-const { placeOrderTemplate, acceptOrderStatusTemplate } = require('../utils/emailTemplate')
+const {
+  placeOrderTemplate,
+  acceptOrderStatusTemplate,
+  completeOrderStatusTemplate,
+} = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
   const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
+  const { vendorId } = req.params
   try {
     const userId = req.user.id
 
     const vendor = await Vendor.findOne({
-      where: { isAvailable: true, pricePerKg: { [Op.ne]: null } },
+      where: { id: vendorId, isAvailable: true, pricePerKg: { [Op.ne]: null } },
       attributes: ['id', 'businessName', 'pricePerKg', 'businessAddress'],
     })
     if (!vendor) {
@@ -69,6 +74,72 @@ exports.placeOrder = async (req, res, next) => {
     return res.status(201).json({
       message: 'Order created successfully, A rider will be contact you shortly to complete your order',
       order: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+exports.deleteOrder = async (req, res, next) => {
+  const userId = req.user.id
+  const { orderId } = req.params
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName'] }],
+    })
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order does not exist',
+      })
+    }
+
+    if (order.status === 'delivered' || order.status === 'completed') {
+      return res.status(400).json({
+        message: 'You cannot delete an order that has already been completed or delivered',
+      })
+    }
+
+    const deletedOrder = await order.destroy()
+
+    return res.status(200).json({
+      message: 'order deleted successfully',
+      data: deletedOrder,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.cancelOrder = async (req, res, next) => {
+  const userId = req.user.id
+  const { orderId } = req.params
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId, userId },
+      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName'] }],
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    if (['delivered', 'completed'].includes(order.status)) {
+      return res.status(400).json({
+        message: 'You cannot cancel a completed or delivered order',
+      })
+    }
+
+    order.status = 'cancelled'
+    await order.save()
+
+    return res.status(200).json({
+      message: 'Order cancelled successfully',
+      data: order,
     })
   } catch (error) {
     next(error)
@@ -227,11 +298,246 @@ exports.confirmOrder = async (req, res, next) => {
       ),
     }
 
-     await emailSender(emailOptions)
+    await emailSender(emailOptions)
 
     return res.status(200).json({
       message: 'Order confirmed successfully',
       data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.completeOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  const riderId = req.rider.id
+
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId, riderId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'email'],
+        },
+      ],
+    })
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found or unauthorized' })
+    }
+
+    if (order.status !== 'active') {
+      return res.status(400).json({ message: 'Only active orders can be completed' })
+    }
+    order.status = 'completed'
+    order.completedAt = new Date()
+    await order.save()
+
+    const emailOptions = {
+      email: order.user.email,
+      subject: 'Order Completed',
+      html: completeOrderStatusTemplate(
+        order.user.firstName,
+        order.orderNumber,
+        order.quantity,
+        order.totalPrice
+      ),
+    }
+
+    await emailSender(emailOptions)
+
+    return res.status(200).json({
+      message: 'Order marked as completed',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getOneOrder = async (req, res, next) => {
+  const { orderId } = req.params
+
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: [
+            'id',
+            'businessName',
+            'businessAddress',
+            'pricePerKg',
+            'openingTime',
+            'closingTime',
+            'isAvailable',
+          ],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'phoneNumber', 'residentialAddress'],
+        },
+      ],
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Order retrieved successfully',
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.findAll()
+    if (orders.length === 0) {
+      return res.status(404).json({
+        message: 'No orders found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Orders retrieved successfully',
+      data: orders,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.trackOrder = async (req, res, next) => {
+  const { orderId } = req.params
+  const { status } = req.body
+  const riderId = req.rider.id
+  try {
+    const validStatus = [
+      'navigatingToCustomer',
+      'pickedUpCylinder',
+      'navigatingToVendor',
+      'refillingCylinder',
+      'returningToCustomer',
+      'completed',
+    ]
+
+    if (!validStatus.includes(status)) {
+      return res.status(400).json({
+        message: 'Invalid status',
+      })
+    }
+
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        riderId,
+      },
+    })
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    order.status = status
+    await order.save()
+
+    return res.status(200).json({
+      message: `Order tracking updated to ${status}`,
+      data: order,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getUserOrderTracking = async (req, res, next) => {
+  const { orderId } = req.params
+  const userId = req.user.id
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName', 'phoneNumber', 'residentialAddress'],
+        },
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessName', 'businessPhoneNumber', 'businessAddress'],
+        },
+      ],
+    })
+    // console.log(order)
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      })
+    }
+
+    const trackingStages = [
+      'navigatingToCustomer',
+      'pickedUpCylinder',
+      'navigatingToVendor',
+      'refillingCylinder',
+      'returningToCustomer',
+      'completed',
+    ]
+
+    const stageMap = {
+      navigatingToCustomer: 0,
+      pickedUpCylinder: 1,
+      navigatingToVendor: 2,
+      refillingCylinder: 3,
+      returningToCustomer: 4,
+      completed: 5,
+    }
+
+    const currentStageIndex = stageMap[order.status] ?? 0
+
+    return res.status(200).json({
+      message: 'Order status fetched successfully',
+      data: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        cylinderSize: order.cylinderSize,
+        quantity: order.quantity,
+        totalPrice: order.totalPrice,
+        deliveryFee: order.deliveryFee,
+        scheduledTime: order.scheduledTime,
+        currentStatus: order.status,
+        currentStage: trackingStages[currentStageIndex],
+        trackingStages,
+        vendor: {
+          name: order.vendor.businessName,
+          address: order.vendor.businessAddress,
+          phone: order.vendor.businessPhoneNumber,
+        },
+        user: {
+          name: order.user.firstName,
+          address: order.user.phoneNumber,
+          phone: order.user.residentialAddress,
+        },
+      },
     })
   } catch (error) {
     next(error)

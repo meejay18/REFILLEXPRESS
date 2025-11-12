@@ -9,6 +9,10 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
+      riderId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+      },
       city: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -64,6 +68,10 @@ module.exports = {
       accountNumber: {
         type: Sequelize.STRING,
         allowNull: true,
+      },
+        verificationStatus: {
+        type: Sequelize.ENUM('pending', 'verified', 'rejected'),
+        defaultValue: 'pending',
       },
       driversLicense: {
         type: Sequelize.STRING,

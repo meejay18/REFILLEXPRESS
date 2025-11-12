@@ -288,7 +288,7 @@ exports.login = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '2hr',
+      expiresIn: '1d',
     })
 
     return res.status(200).json({
@@ -477,10 +477,11 @@ exports.getNearbyVendors = async (req, res, next) => {
   try {
     const vendors = await Vendor.findAll({
       where: { isAvailable: true },
-      attributes: ['businessName', 'pricePerKg', 'openingTime', 'rating', 'businessAddress'],
       order: [['rating', 'DESC']],
     })
 
+    console.log(vendors);
+    
     return res.status(200).json({
       message: 'Nearby vendors retrieved successfully',
       data: vendors,
@@ -492,7 +493,7 @@ exports.getNearbyVendors = async (req, res, next) => {
 
 exports.updateUserAccount = async (req, res, next) => {
   const userId = req.user.id
-  const { residentialAddress } = req.body
+  const { residentialAddress, home, office } = req.body
 
   const file = req.file
   try {
@@ -503,11 +504,18 @@ exports.updateUserAccount = async (req, res, next) => {
       })
     }
 
-    const resource = await cloudinary.uploader.upload(file.path)
+    let profilePicture = user.profilePicture
+
+    if (file) {
+      const resource = await cloudinary.uploader.upload(file.path)
+      profilePicture = resource.secure_url
+    }
 
     const updatedAccount = await user.update({
-      profilePicture: resource.secure_url,
+      profilePicture,
       residentialAddress,
+      home,
+      office,
     })
 
     return res.status(200).json({
@@ -515,6 +523,8 @@ exports.updateUserAccount = async (req, res, next) => {
       data: {
         profilePicture: updatedAccount.profilePicture,
         residentialAddress: updatedAccount.residentialAddress,
+        home: updatedAccount.home,
+        office: updatedAccount.office,
       },
     })
   } catch (error) {

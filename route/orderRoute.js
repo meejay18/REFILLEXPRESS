@@ -6,8 +6,20 @@ const {
   getActiveOrders,
   getOrderByStatus,
   confirmOrder,
+  deleteOrder,
+  cancelOrder,
+  completeOrder,
+  getAllOrders,
+  getOneOrder,
+  trackOrder,
+  getUserOrderTracking,
 } = require('../controller/orderController')
-const { authentication, vendorAuthentication, riderAuthentication } = require('../middleware/authentication')
+const {
+  authentication,
+  vendorAuthentication,
+  riderAuthentication,
+  adminOnly,
+} = require('../middleware/authentication')
 const router = express.Router()
 
 /**
@@ -111,7 +123,7 @@ const router = express.Router()
  *         description: Internal server error
  */
 
-router.post('/order/create-order', authentication, placeOrder)
+router.post('/order/create-order/:vendorId', authentication, placeOrder)
 
 /**
  * @swagger
@@ -433,6 +445,545 @@ router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
  *               message: "Internal server error"
  */
 
-
 router.get('/orders/confirmOrder/:orderId/:userId', riderAuthentication, confirmOrder)
+
+/**
+ * @swagger
+ * /orders/deleteOrder/{orderId}:
+ *   delete:
+ *     summary: Delete a user's order (Admin only)
+ *     description: Allows an authenticated admin to delete a user's order, provided the order has not yet been completed or delivered.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique ID of the order to delete.
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: order deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 2d4c3d6e-8c76-49a5-9a1e-1f6b8e2d4f90
+ *                     userId:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     status:
+ *                       type: string
+ *                       example: pending
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 1500.75
+ *                     quantity:
+ *                       type: number
+ *                       example: 5
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:34:56.000Z
+ *       400:
+ *         description: Cannot delete an order that has already been completed or delivered.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You cannot delete an order that has already been completed or delivered
+ *       403:
+ *         description: Forbidden — user is not an admin.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Access denied. Admins only.
+ *       404:
+ *         description: Order not found or does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order does not exist
+ *       500:
+ *         description: Internal server error.
+ */
+
+router.delete('/orders/deleteOrder/:orderId', authentication, adminOnly, deleteOrder)
+
+/**
+ * @swagger
+ * /orders/{orderId}/cancel:
+ *   patch:
+ *     summary: Cancel an existing order
+ *     description: Allows an authenticated user to cancel their order if it has not yet been completed or delivered.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique ID of the order to cancel.
+ *     responses:
+ *       200:
+ *         description: Order cancelled successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order cancelled successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 2d4c3d6e-8c76-49a5-9a1e-1f6b8e2d4f90
+ *                     status:
+ *                       type: string
+ *                       example: cancelled
+ *                     userId:
+ *                       type: string
+ *                       example: 123e4567-e89b-12d3-a456-426614174000
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 3500.50
+ *                     quantity:
+ *                       type: number
+ *                       example: 2
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T10:15:30.000Z
+ *       400:
+ *         description: The order cannot be cancelled because it has been delivered or completed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You cannot cancel a completed or delivered order
+ *       404:
+ *         description: The order was not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       401:
+ *         description: Unauthorized — missing or invalid authentication token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access. Please log in.
+ *       500:
+ *         description: Internal server error.
+ */
+
+router.patch('/orders/:orderId/cancel', authentication, cancelOrder)
+
+/**
+ * @swagger
+ * /rider/complete/order/{orderId}:
+ *   patch:
+ *     summary: Mark an active order as completed
+ *     description: Allows an authenticated rider to mark an active order as completed. Sends a confirmation email to the user after successful completion.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         description: The unique ID of the order to complete
+ *         schema:
+ *           type: string
+ *           example: "a8b1c2d3-1234-5678-90ef-abcdef123456"
+ *     responses:
+ *       200:
+ *         description: Order marked as completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order marked as completed
+ *                 data:
+ *                   $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Invalid request — only active orders can be completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only active orders can be completed
+ *       404:
+ *         description: Order not found or unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found or unauthorized
+ *       401:
+ *         description: Unauthorized — rider not authenticated
+ *       500:
+ *         description: Internal server error
+ */
+
+router.patch('/rider/complete/order/:orderId', riderAuthentication, completeOrder)
+
+/**
+ * @swagger
+ * /orders/getAllorders:
+ *   get:
+ *     summary: Get all orders
+ *     description: Retrieve a list of all orders from the database.
+ *     tags:
+ *       - Rider Dashboard
+ *     responses:
+ *       200:
+ *         description: Orders retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Orders retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 12
+ *                       orderNumber:
+ *                         type: string
+ *                         example: ORD-123456
+ *                       userId:
+ *                         type: integer
+ *                         example: 5
+ *                       riderId:
+ *                         type: integer
+ *                         example: 2
+ *                       status:
+ *                         type: string
+ *                         example: pending
+ *                       totalPrice:
+ *                         type: number
+ *                         format: float
+ *                         example: 4500.75
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T12:34:56.000Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-27T14:20:30.000Z
+ *       404:
+ *         description: No orders found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No orders found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/orders/getAllorders', getAllOrders)
+
+/**
+ * @swagger
+ * /orders/getOneOrder/{orderId}:
+ *   get:
+ *     summary: Get details of a specific order
+ *     description: Retrieve details of a single order by its ID.
+ *     tags:
+ *       - Rider Dashboard
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the order to retrieve
+ *     responses:
+ *       200:
+ *         description: Order retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 12
+ *                     orderNumber:
+ *                       type: string
+ *                       example: ORD-123456
+ *                     userId:
+ *                       type: integer
+ *                       example: 5
+ *                     riderId:
+ *                       type: integer
+ *                       example: 2
+ *                     status:
+ *                       type: string
+ *                       example: completed
+ *                     totalPrice:
+ *                       type: number
+ *                       format: float
+ *                       example: 3500.50
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T12:34:56.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-10-27T14:20:30.000Z
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/orders/getOneOrder/:orderId', getOneOrder)
+
+/**
+ * @swagger
+ * /order/tracking/{orderId}/status:
+ *   put:
+ *     summary: Update the tracking status of an order
+ *     description: Allows an authenticated rider to update the current status of an assigned order.
+ *     tags:
+ *       - Rider Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: orderId
+ *         in: path
+ *         required: true
+ *         description: ID of the order to update
+ *         schema:
+ *           type: string
+ *           example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - navigatingToCustomer
+ *                   - pickedUpCylinder
+ *                   - navigatingToVendor
+ *                   - refillingCylinder
+ *                   - returningToCustomer
+ *                   - completed
+ *                 example: "pickedUpCylinder"
+ *     responses:
+ *       200:
+ *         description: Order tracking status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order tracking updated to pickedUpCylinder
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
+ *                     status:
+ *                       type: string
+ *                       example: "pickedUpCylinder"
+ *       400:
+ *         description: Invalid status provided
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
+
+router.put('/order/tracking/:orderId/status', riderAuthentication, trackOrder)
+
+/**
+ * @swagger
+ * /user/order/tracking/{orderId}:
+ *   get:
+ *     summary: Get tracking details for a specific user order
+ *     description: Retrieves the full tracking status and related vendor and user information for a given order.
+ *     tags:
+ *       - User Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: orderId
+ *         in: path
+ *         required: true
+ *         description: ID of the order to retrieve tracking for
+ *         schema:
+ *           type: string
+ *           example: "b9a72f35-7b52-44b3-9372-d4c4a6c8f730"
+ *     responses:
+ *       200:
+ *         description: Order tracking details fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order status fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     orderId:
+ *                       type: string
+ *                       example: "b9a72f35-7b52-44b3-9372-d4c4a6c8f730"
+ *                     orderNumber:
+ *                       type: string
+ *                       example: "ORD-102938"
+ *                     cylinderSize:
+ *                       type: string
+ *                       example: "12.5kg"
+ *                     quantity:
+ *                       type: integer
+ *                       example: 2
+ *                     totalPrice:
+ *                       type: number
+ *                       example: 12500
+ *                     deliveryFee:
+ *                       type: number
+ *                       example: 1500
+ *                     scheduledTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-11-12T10:30:00.000Z"
+ *                     currentStatus:
+ *                       type: string
+ *                       example: "refillingCylinder"
+ *                     currentStage:
+ *                       type: string
+ *                       example: "refillingCylinder"
+ *                     trackingStages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example:
+ *                         - navigatingToCustomer
+ *                         - pickedUpCylinder
+ *                         - navigatingToVendor
+ *                         - refillingCylinder
+ *                         - returningToCustomer
+ *                         - completed
+ *                     vendor:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Gas Point Nigeria"
+ *                         address:
+ *                           type: string
+ *                           example: "23 Industrial Layout, Lekki"
+ *                         phone:
+ *                           type: string
+ *                           example: "09012345678"
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "John Doe"
+ *                         address:
+ *                           type: string
+ *                           example: "12B Ikoyi Crescent, Lagos"
+ *                         phone:
+ *                           type: string
+ *                           example: "08123456789"
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
+
+
+router.get('/user/order/tracking/:orderId', authentication, getUserOrderTracking)
 module.exports = router

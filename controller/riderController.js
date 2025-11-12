@@ -1,14 +1,15 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider,Order} = require('../models')
-// const Rider = db.Rider
+const { Rider, Order, RiderKyc } = require('../models')
 const bcrypt = require('bcryptjs')
+const { Op } = require('sequelize')
+const cloudinary = require("../config/cloudinary")
+
 const {
   riderSignUpTemplate,
   riderResendOtpTemplate,
   riderForgotPasswordTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const { status } = require('init')
 
 exports.RiderSignUp = async (req, res, next) => {
   try {
@@ -225,7 +226,7 @@ exports.riderlogin = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: rider.id, email: rider.email }, process.env.JWT_SECRET, {
-      expiresIn: '2hr',
+      expiresIn: '1d',
     })
 
     return res.status(200).json({
@@ -235,6 +236,7 @@ exports.riderlogin = async (req, res, next) => {
         firstName: rider.firstName,
         lastName: rider.lastName,
         email: rider.email,
+        kycStatus: rider.kycVerificationStatus,
       },
       token: token,
     })
@@ -355,10 +357,9 @@ exports.changeRiderPassword = async (req, res, next) => {
   }
 }
 
-
 exports.getRiderDashboard = async (req, res, next) => {
   const { riderId } = req.params
-  try {   
+  try {
     const rider = await Rider.findOne({ where: { id: riderId } })
     if (!rider) {
       return res.status(404).json({
@@ -367,7 +368,7 @@ exports.getRiderDashboard = async (req, res, next) => {
     }
     return res.status(200).json({
       message: 'Rider dashboard fetched successfully',
-      data: { 
+      data: {
         firstName: rider.firstName,
         lastName: rider.lastName,
         email: rider.email,
@@ -377,180 +378,135 @@ exports.getRiderDashboard = async (req, res, next) => {
         status: rider.status,
         rating: rider.rating,
         refills: rider.refills,
-       },
+        kycStatus: rider.kycVerificationStatus,
+      },
     })
   } catch (error) {
     next(error)
   }
 }
 
-exports.getAvailableRefills = async (req, res) => {
+exports.getAvailableRefills = async (req, res, next) => {
   try {
     const refills = await Order.findAll({
-      where: { status: 'available' },
+      where: { status: 'pending', riderId: null },
       order: [['createdAt', 'DESC']],
     })
-    res.status(200).json({ message: 'Available refills', data: refills })
+    res.status(200).json({ message: 'pending refills', data: refills })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    next(err)
   }
 }
 
-exports.getRecentRefills = async (req, res) => {
+exports.getRecentRefills = async (req, res, next) => {
   try {
-    const riderId = req.user?.id
+    const riderId = req.rider?.id
     const refills = await Order.findAll({
-      where: { riderId, status: 'completed' },
+      where: { status: 'completed', riderId },
       order: [['createdAt', 'DESC']],
       limit: 10,
     })
     res.status(200).json({ message: 'Recent refills', data: refills })
-  } catch (err) {
-    res.status(500).json({ message: err.message})
-}
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.getTotalEarnings = async (req, res) => {
+exports.getTotalEarnings = async (req, res, next) => {
   try {
-    const riderId = req.user.id
-    const earnings = await Order.sum('amountEarned', {
-      where: {
-        riderId,  
-        status: 'completed',
-      },
+    const riderId = req.rider?.id
+
+    const orders = await Order.findAll({
+      where: { riderId, status: 'completed' },
+      attributes: ['totalPrice'],
     })
-    res.status(200).json({ message: 'Total earnings', earnings })
-  } catch (err) {
-    res.status(500).json({ message: err.message})
-}
+
+    const totalEarnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
+
+    res.status(200).json({
+      message: 'Total earnings calculated successfully',
+      totalEarnings,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.getTodaysEarnings = async (req, res) => {
+exports.getTodaysEarnings = async (req, res, next) => {
   try {
-    const riderId = req.user.id
+    const riderId = req.rider.id
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const earnings = await Order.sum('amountEarned', {
+    const { Op } = require('sequelize')
+
+    const orders = await Order.findAll({
       where: {
         riderId,
         status: 'completed',
-        createdAt: { [require('sequelize').Op.gte]: today },
+        createdAt: { [Op.gte]: today },
       },
+      attributes: ['totalPrice'],
     })
-    res.status(200).json({ message: 'Todays earnings', earnings })
-  } catch (err) {
-    res.status(500).json({ message: err.message})
-}
+
+    const earnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
+
+    res.status(200).json({
+      message: "Today's earnings",
+      earnings,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.getRiderOrders = async (req, res, next) => {
+exports.getActiveAndCompletedOrders = async (req, res, next) => {
   try {
-    const { riderId } = req.params;
+    const riderId = req.rider?.id
+    if (!riderId) {
+      return res.status(400).json({ success: false, message: 'Rider ID missing' })
+    }
 
     const orders = await Order.findAll({
-      where: { riderId },
-      include: [
-        { model: User, attributes: ['firstName', 'lastName', 'address', 'phone'] },
-        { model: Vendor, attributes: ['businessName', 'address', 'phone'] },
-      ],
-      order: [['createdAt', 'DESC']],
-    });
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Orders fetched successfully',
-      data: orders,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.getRiderEarningsOverview = async (req, res, next) => {
-  try {
-    const { riderId } = req.params;
-
-    const deliveries = await Delivery.findAll({
-      where: { riderId, status: ['completed', 'paid'] },
-      order: [['createdAt', 'DESC']],
-    });
-
-    const today = new Date().toISOString().split('T')[0];
-    const todayEarnings = deliveries
-      .filter((d) => d.createdAt.toISOString().split('T')[0] === today)
-      .reduce((sum, d) => sum + d.amount, 0);
-
-    const thisWeekEarnings = deliveries
-      .filter((d) => new Date(d.createdAt) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-      .reduce((sum, d) => sum + d.amount, 0);
-
-    const thisMonthEarnings = deliveries
-      .filter((d) => new Date(d.createdAt).getMonth() === new Date().getMonth())
-      .reduce((sum, d) => sum + d.amount, 0);
-
-    const pendingEarnings = deliveries
-      .filter((d) => d.status === 'pending')
-      .reduce((sum, d) => sum + d.amount, 0);
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        todayEarnings,
-        thisWeekEarnings,
-        thisMonthEarnings,
-        pendingEarnings,
+      where: {
+        riderId,
+        status: {
+          [Op.in]: ['active', 'completed'],
+        },
       },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-exports.getRecentDeliveries = async (req, res, next) => {
-  try {
-    const { riderId } = req.params;
-
-    const deliveries = await Delivery.findAll({
-      where: { riderId },
-      include: [
-        { model: User, attributes: ['firstName', 'lastName', 'address'] },
-      ],
       order: [['createdAt', 'DESC']],
-      limit: 5,
-    });
+    })
+
+    const activeOrders = orders.filter((order) => order.status === 'active')
+    const completedOrders = orders.filter((order) => order.status === 'completed')
 
     res.status(200).json({
-      status: 'success',
-      message: 'Recent deliveries fetched successfully',
-      data: deliveries,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-exports.getPayoutSchedule = async (req, res, next) => {
-  try {
-    const { riderId } = req.params;
-
-    const pendingDeliveries = await Delivery.findAll({
-      where: { riderId, status: 'completed' },
-    });
-
-    const expectedAmount = pendingDeliveries.reduce((sum, d) => sum + d.amount, 0);
-    const nextPayoutDate = 'Friday, ' + new Date().toLocaleString('en-US', { month: 'short', day: 'numeric' });
-
-    res.status(200).json({
-      status: 'success',
+      success: true,
       data: {
-        nextPayoutDate,
-        expectedAmount,
-        message: 'Your earnings are paid out every Friday.',
+        active: activeOrders,
+        completed: completedOrders,
       },
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
+
+exports.updateRiderAccount = async (req, res, next) => {
+  const files = req.files
+  const { riderId } = req.params
+  const { residentialAddress, fullName, phoneNumber, accountName, accountNumber, bankName } = req.body
+  try {
+    const rider = await Rider.findByPk(riderId)
+    if (!rider) {
+      return res.status(404).json({
+        message: 'Rider doe not exist',
+      })
+    }
+
+
+    const resource = await cloudinary.uploader.upload()
+    
+  } catch (error) {
+    next(error)
+  }
+}

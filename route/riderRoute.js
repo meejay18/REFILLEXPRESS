@@ -1,8 +1,25 @@
-const express = require ('express');
+const express = require('express')
 // const { vendorAuthentication } = require ('../middleware/authentication');
-const {RiderSignUp, verifyRider, resendRiderOtp, riderForgotPassword, riderlogin, verifyRiderForgotPasswordOtp, resetRiderPassword, changeRiderPassword,getRiderDashboard, getRecentRefills,acceptOrder, getAvailableRefills,getTotalEarnings,getTodaysEarnings} = require('../controller/riderController');
+const {
+  RiderSignUp,
+  verifyRider,
+  resendRiderOtp,
+  riderForgotPassword,
+  riderlogin,
+  verifyRiderForgotPasswordOtp,
+  resetRiderPassword,
+  changeRiderPassword,
+  getRiderDashboard,
+  getRecentRefills,
+  acceptOrder,
+  getAvailableRefills,
+  getTotalEarnings,
+  getTodaysEarnings,
+  getActiveAndCompletedOrders,
+} = require('../controller/riderController')
+const { riderAuthentication } = require('../middleware/authentication')
 
-const router = express.Router();
+const router = express.Router()
 
 /**
  * @swagger
@@ -10,10 +27,10 @@ const router = express.Router();
  *   post:
  *     summary: Register a new rider
  *     description: |
- *       This endpoint allows a new rider to sign up by providing their details.  
+ *       This endpoint allows a new rider to sign up by providing their details.
  *       After successful registration, an OTP is sent to the rider's email for verification.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -87,17 +104,16 @@ const router = express.Router();
 
 router.post('/rider', RiderSignUp)
 
-
 /**
  * @swagger
  * /rider/verify:
  *   post:
  *     summary: Verify a rider's account using OTP
  *     description: |
- *       This endpoint verifies a **rider's email** using a One-Time Password (OTP) sent to their email during signup.  
+ *       This endpoint verifies a **rider's email** using a One-Time Password (OTP) sent to their email during signup.
  *       Once verified, the rider can proceed to log in.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -162,8 +178,7 @@ router.post('/rider', RiderSignUp)
  *         description: Internal server error.
  */
 
-
-router.post("/rider/verify", verifyRider)
+router.post('/rider/verify', verifyRider)
 
 /**
  * @swagger
@@ -172,7 +187,7 @@ router.post("/rider/verify", verifyRider)
  *     summary: Resend OTP to a rider's email
  *     description: This endpoint resends a new one-time password (OTP) to a rider’s registered email for verification. OTP expires after 5 minutes.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     requestBody:
  *       required: true
  *       content:
@@ -239,8 +254,7 @@ router.post("/rider/verify", verifyRider)
  *                   example: Internal server error
  */
 
-
-router.post("/rider/resendOtp", resendRiderOtp)
+router.post('/rider/resendOtp', resendRiderOtp)
 
 /**
  * @swagger
@@ -297,7 +311,7 @@ router.post("/rider/resendOtp", resendRiderOtp)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/forgotPassword", riderForgotPassword)
+router.post('/rider/forgotPassword', riderForgotPassword)
 
 /**
  * @swagger
@@ -388,9 +402,7 @@ router.post("/rider/forgotPassword", riderForgotPassword)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/login", riderlogin)
-
-
+router.post('/rider/login', riderlogin)
 
 /**
  * @swagger
@@ -468,8 +480,7 @@ router.post("/rider/login", riderlogin)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
-
+router.post('/rider/verifyForgotPasswordOtp', verifyRiderForgotPasswordOtp)
 
 /**
  * @swagger
@@ -542,8 +553,7 @@ router.post("/rider/verifyForgotPasswordOtp", verifyRiderForgotPasswordOtp)
  *                   example: An unexpected error occurred
  */
 
-router.post("/rider/resetPassword", resetRiderPassword )
-
+router.post('/rider/resetPassword', resetRiderPassword)
 
 /**
  * @swagger
@@ -552,7 +562,7 @@ router.post("/rider/resetPassword", resetRiderPassword )
  *     summary: Change rider account password
  *     description: Allows a rider to securely change their password by providing their old password and confirming a new one.
  *     tags:
- *       - Rider 
+ *       - Rider
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -608,9 +618,7 @@ router.post("/rider/resetPassword", resetRiderPassword )
  *                   example: rider not found
  */
 
-
-router.post("/rider/changePassword", changeRiderPassword)
-
+router.post('/rider/changePassword', changeRiderPassword)
 
 /**
  * @swagger
@@ -693,19 +701,20 @@ router.post("/rider/changePassword", changeRiderPassword)
  *                   type: string
  *                   example: Internal server error
  */
-router.get("/rider/:riderId", getRiderDashboard)
+router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
 
 /**
  * @swagger
- * /available-refills:
+ * /rider/get/available-refills:
  *   get:
- *     summary: Get Available Refills
- *     description: Retrieve a list of all available refill orders sorted by creation date (most recent first).
- *     tags:
- *       - Rider Dashboard
+ *     summary: Retrieve all available pending refill orders (unassigned orders)
+ *     description: This endpoint allows authenticated riders to view all refill orders that are currently pending and have not been assigned to any rider.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of available refills fetched successfully
+ *         description: List of available pending refill orders
  *         content:
  *           application/json:
  *             schema:
@@ -713,60 +722,32 @@ router.get("/rider/:riderId", getRiderDashboard)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Available refills
+ *                   example: pending refills
  *                 data:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         example: 12345
- *                       customerName:
- *                         type: string
- *                         example: Jane Doe
- *                       address:
- *                         type: string
- *                         example: 42 Elm Street, Springfield
- *                       status:
- *                         type: string
- *                         example: available
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-11-06T10:15:30Z
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-11-06T10:20:00Z
+ *                     $ref: '#/components/schemas/Order'
+ *       401:
+ *         description: Unauthorized - Rider not authenticated
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
 
-router.get('/available-refills', getAvailableRefills);
+router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefills)
 
 
 /**
  * @swagger
  * /recent-refills:
  *   get:
- *     summary: Get Recent Refills for a Rider
- *     description: Retrieve the 10 most recent completed refill orders assigned to the currently authenticated rider.
+ *     summary: Get the 10 most recent completed refills for the authenticated rider
  *     tags:
  *       - Rider Dashboard
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Recent refills fetched successfully
+ *         description: Successful response with recent refills
  *         content:
  *           application/json:
  *             schema:
@@ -774,57 +755,36 @@ router.get('/available-refills', getAvailableRefills);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Recent refills
+ *                   example: "Recent refills"
  *                 data:
  *                   type: array
  *                   items:
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: string
- *                         example: "12345"
- *                       riderId:
- *                         type: string
- *                         example: "67890"
- *                       customerName:
- *                         type: string
- *                         example: "Jane Doe"
- *                       address:
- *                         type: string
- *                         example: "42 Elm Street, Springfield"
+ *                         type: integer
+ *                         example: 1
  *                       status:
  *                         type: string
  *                         example: "completed"
+ *                       riderId:
+ *                         type: integer
+ *                         example: 5
  *                       createdAt:
  *                         type: string
  *                         format: date-time
- *                         example: 2025-11-06T10:15:30Z
+ *                         example: "2025-11-09T10:00:00.000Z"
  *                       updatedAt:
  *                         type: string
  *                         format: date-time
- *                         example: 2025-11-06T10:20:00Z
+ *                         example: "2025-11-09T10:00:00.000Z"
  *       401:
- *         description: Unauthorized - Rider not authenticated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized access
+ *         description: Unauthorized, rider not authenticated
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
-router.get('/recent-refills', getRecentRefills);
+
+router.get('/recent-refills', riderAuthentication, getRecentRefills)
 
 
 
@@ -832,15 +792,15 @@ router.get('/recent-refills', getRecentRefills);
  * @swagger
  * /total-earnings:
  *   get:
- *     summary: Get Total Earnings for a Rider
- *     description: Retrieve the total amount earned by the currently authenticated rider from all completed orders.
+ *     summary: Get total earnings for the authenticated rider
+ *     description: Calculates the total earnings of a rider based on all completed orders. Each completed order contributes 5% of its total price to the rider's earnings.
  *     tags:
  *       - Rider Dashboard
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []    # Requires rider authentication
  *     responses:
  *       200:
- *         description: Total earnings fetched successfully
+ *         description: Total earnings calculated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -848,13 +808,12 @@ router.get('/recent-refills', getRecentRefills);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Total earnings
- *                 earnings:
+ *                   example: Total earnings calculated successfully
+ *                 totalEarnings:
  *                   type: number
- *                   format: float
- *                   example: 15840.75
- *       401:
- *         description: Unauthorized - Rider not authenticated
+ *                   example: 7500.50
+ *       400:
+ *         description: Rider ID missing or invalid
  *         content:
  *           application/json:
  *             schema:
@@ -862,9 +821,9 @@ router.get('/recent-refills', getRecentRefills);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Unauthorized access
+ *                   example: Rider ID missing
  *       500:
- *         description: Internal server error
+ *         description: Server error while fetching earnings
  *         content:
  *           application/json:
  *             schema:
@@ -874,22 +833,22 @@ router.get('/recent-refills', getRecentRefills);
  *                   type: string
  *                   example: Internal server error
  */
-router.get('/total-earnings', getTotalEarnings);
+
+
+router.get('/total-earnings', riderAuthentication, getTotalEarnings)
 
 
 /**
  * @swagger
  * /todays-earnings:
  *   get:
- *     summary: Get Today's Earnings for a Rider
- *     description: Retrieve the total amount earned by the currently authenticated rider for all completed orders made today.
- *     tags:
- *       - Rider Dashboard
+ *     summary: Get today's earnings for the authenticated rider
+ *     tags: [Rider Dashboard]
  *     security:
- *       - bearerAuth: []     # Requires authentication
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Today's earnings fetched successfully
+ *         description: Total earnings calculated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -897,43 +856,63 @@ router.get('/total-earnings', getTotalEarnings);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Todays earnings
+ *                   example: "Today's earnings"
  *                 earnings:
  *                   type: number
- *                   format: float
- *                   example: 350.50
+ *                   example: 150.75
+ *       401:
+ *         description: Unauthorized - rider not authenticated
+ *       500:
+ *         description: Server error
+ */
+
+router.get('/todays-earnings', riderAuthentication,  getTodaysEarnings)
+
+
+/**
+ * @swagger
+ * /rider/get/getActiveAndCompletedOrders:
+ *   get:
+ *     summary: Get rider's active and completed orders
+ *     description: This endpoint retrieves all active and completed orders assigned to the authenticated rider.
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved rider's active and completed orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     active:
+ *                       type: array
+ *                       description: List of active orders assigned to the rider
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *                     completed:
+ *                       type: array
+ *                       description: List of completed orders assigned to the rider
+ *                       items:
+ *                         $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Rider ID missing or invalid request
  *       401:
  *         description: Unauthorized - Rider not authenticated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized access
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
  */
-router.get('/todays-earnings', getTodaysEarnings);
 
 
+router.get("/rider/get/getActiveAndCompletedOrders", riderAuthentication, getActiveAndCompletedOrders)
 module.exports = router
-
-
-
-
-
-
-
 
 // riderId
 // 1666b874-0e7f-4483-90b7-c84918a1b19f

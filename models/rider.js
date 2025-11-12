@@ -42,6 +42,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      fullName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -106,6 +118,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      kycVerificationStatus: {
+        type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
+        defaultValue: 'not completed',
+      },
       otpExpiredAt: {
         type: DataTypes.DATE,
         allowNull: true,
@@ -132,6 +148,22 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 0,
       },
       activeTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      // automaticPayouts: {
+      //   type: DataTypes.BOOLEAN,
+      //   defaultValue: false,
+      // },
+      accountName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      bankName: {
         type: DataTypes.STRING,
         allowNull: true,
       },

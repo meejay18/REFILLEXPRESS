@@ -17,6 +17,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      fullName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      residentialAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -40,6 +52,22 @@ module.exports = {
         defaultValue: 0,
       },
       activeTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      automaticPayouts: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      accountName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      bankName: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -68,6 +96,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      kycVerificationStatus: {
+        type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
+        defaultValue: 'not completed',
+      },
       otpExpiredAt: {
         type: Sequelize.DATE,
         allowNull: true,
@@ -94,6 +126,18 @@ module.exports = {
         defaultValue: 0,
       },
       activeTime: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      accountNumber: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      bankName: {
         type: Sequelize.STRING,
         allowNull: true,
       },
