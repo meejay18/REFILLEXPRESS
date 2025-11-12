@@ -472,6 +472,7 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
         status: {
           [Op.in]: ['active', 'completed'],
         },
+        paymentStatus: "paid"
       },
       order: [['createdAt', 'DESC']],
     })
