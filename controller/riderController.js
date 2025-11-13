@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider, Order, RiderKyc } = require('../models')
+const { Rider, Order, RiderKyc, Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { Op, where } = require('sequelize')
 const cloudinary = require('../config/cloudinary')
@@ -475,6 +475,13 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
         },
         paymentStatus: 'paid',
       },
+      include: [
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessName', 'phoneNumber', 'businessAddress'],
+        },
+      ],
       order: [['createdAt', 'DESC']],
     })
 
@@ -484,6 +491,13 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
         status: 'active',
         paymentStatus: 'paid',
       },
+      include: [
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessName', 'phoneNumber', 'businessAddress'],
+        },
+      ],
     })
 
     const activeOrders = orders.filter((order) => order.status === 'active')
@@ -494,7 +508,7 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
       data: {
         active: activeOrders,
         completed: completedOrders,
-        available: availableOrders
+        available: availableOrders,
       },
     })
   } catch (error) {
