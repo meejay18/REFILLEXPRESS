@@ -1,8 +1,8 @@
 const emailSender = require('../middleware/nodemailer')
 const { Rider, Order, RiderKyc } = require('../models')
 const bcrypt = require('bcryptjs')
-const { Op } = require('sequelize')
-const cloudinary = require("../config/cloudinary")
+const { Op, where } = require('sequelize')
+const cloudinary = require('../config/cloudinary')
 
 const {
   riderSignUpTemplate,
@@ -10,6 +10,7 @@ const {
   riderForgotPasswordTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
+const { status } = require('init')
 
 exports.RiderSignUp = async (req, res, next) => {
   try {
@@ -472,9 +473,17 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
         status: {
           [Op.in]: ['active', 'completed'],
         },
-        paymentStatus: "paid"
+        paymentStatus: 'paid',
       },
       order: [['createdAt', 'DESC']],
+    })
+
+    const availableOrders = await Order.findAll({
+      where: {
+        riderId: null,
+        status: 'active',
+        paymentStatus: 'paid',
+      },
     })
 
     const activeOrders = orders.filter((order) => order.status === 'active')
@@ -485,6 +494,7 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
       data: {
         active: activeOrders,
         completed: completedOrders,
+        available: availableOrders
       },
     })
   } catch (error) {
@@ -504,9 +514,7 @@ exports.updateRiderAccount = async (req, res, next) => {
       })
     }
 
-
     const resource = await cloudinary.uploader.upload()
-    
   } catch (error) {
     next(error)
   }
