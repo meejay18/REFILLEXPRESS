@@ -1118,15 +1118,14 @@ router.post('/vendor/accept/rejectOrder/:orderId', vendorAuthentication, acceptO
 
 router.put('/vendor/:vendorId/settings', vendorAuthentication, updateVendorSettingsField)
 
-
 /**
  * @swagger
  * /vendor/account/update:
  *   put:
- *     summary: Update vendor account details
- *     description: Allows an authenticated vendor to update their profile details and upload a new profile image.
+ *     summary: Update vendor account information
+ *     description: Allows an authenticated vendor to update their profile details, including contact info, business info, and optionally upload a profile image.
  *     tags:
- *       - Vendor Dashboard
+ *       - Vendor
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -1139,28 +1138,28 @@ router.put('/vendor/:vendorId/settings', vendorAuthentication, updateVendorSetti
  *               vendorImage:
  *                 type: string
  *                 format: binary
- *                 description: Vendor profile image file to upload.
+ *                 description: Optional vendor profile image to upload.
  *               businessPhoneNumber:
  *                 type: string
- *                 example: "+2348012345678"
+ *                 example: "08012345678"
  *               phoneNumber:
  *                 type: string
- *                 example: "+2348098765432"
+ *                 example: "08123456789"
  *               fullName:
  *                 type: string
  *                 example: "John Doe"
  *               businessName:
  *                 type: string
- *                 example: "Gas Hub Ventures"
+ *                 example: "GasPro Refill Services"
  *               businessAddress:
  *                 type: string
- *                 example: "12 Isaac John Street, Ikeja, Lagos"
+ *                 example: "12 Adeola Odeku Street, Victoria Island, Lagos"
  *               residentialAddress:
  *                 type: string
- *                 example: "23 Herbert Macaulay Road, Yaba, Lagos"
+ *                 example: "15, Obafemi Street, Ikeja, Lagos"
  *     responses:
  *       200:
- *         description: Vendor account updated successfully.
+ *         description: Vendor account updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -1174,31 +1173,35 @@ router.put('/vendor/:vendorId/settings', vendorAuthentication, updateVendorSetti
  *                   properties:
  *                     id:
  *                       type: string
- *                       example: "aab205f6-c745-47e7-9ee9-239322aceab4"
+ *                       example: 52b1d30c-3e6b-4b92-9a9e-3ad0a1c2d012
  *                     fullName:
  *                       type: string
- *                       example: "John Doe"
+ *                       example: John Doe
  *                     businessName:
  *                       type: string
- *                       example: "Gas Hub Ventures"
+ *                       example: GasPro Refill Services
+ *                     businessPhoneNumber:
+ *                       type: string
+ *                       example: "08012345678"
+ *                     phoneNumber:
+ *                       type: string
+ *                       example: "08123456789"
+ *                     businessAddress:
+ *                       type: string
+ *                       example: "12 Adeola Odeku Street, Victoria Island, Lagos"
+ *                     residentialAddress:
+ *                       type: string
+ *                       example: "15, Obafemi Street, Ikeja, Lagos"
  *                     vendorImage:
  *                       type: string
- *                       example: "https://res.cloudinary.com/demo/image/upload/v1728848493/vendor_image.jpg"
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1731538500/vendor.jpg"
  *       400:
- *         description: Invalid request or account does not belong to the authenticated vendor.
- *       401:
- *         description: Unauthorized — Missing or invalid authentication token.
+ *         description: Invalid request or unauthorized vendor
  *       404:
- *         description: Vendor not found.
+ *         description: Vendor not found
  *       500:
- *         description: Internal server error.
+ *         description: Server error
  */
 
-
-router.put(
-  '/vendor/account/update',
-  vendorAuthentication,
-  upload.single('vendorImage'),
-  updateVendorAccount
-)
+router.put('/vendor/account/update', vendorAuthentication, upload.single('vendorImage'), updateVendorAccount)
 module.exports = router

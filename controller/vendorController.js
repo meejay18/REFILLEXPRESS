@@ -1,6 +1,6 @@
 const emailSender = require('../middleware/nodemailer')
 const { Vendor } = require('../models')
-const { Order } = require('../models')
+const { Order, Rider } = require('../models')
 const { User } = require('../models')
 const { VendorKyc } = require('../models')
 const { Op } = require('sequelize')
@@ -11,6 +11,7 @@ const {
   resendOtpVendorTemplate,
   forgotPasswordVendorTemplate,
   orderStatusTemplate,
+  bulkEmailRiderTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
 
@@ -598,7 +599,12 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
         {
           model: User,
           as: 'user',
-          attributes: ['firstName', 'lastName', 'phoneNumber', 'email'],
+          attributes: ['firstName', 'lastName', 'phoneNumber', 'email', 'residentialAddress'],
+        },
+        {
+          model: Vendor,
+          as: 'vendor',
+          attributes: ['businessName', 'phoneNumber'],
         },
       ],
     })
@@ -649,6 +655,33 @@ exports.acceptOrRejectOrder = async (req, res, next) => {
     }
 
     await emailSender(emailOptions)
+
+    const riders = await Rider.findAll({
+      where: {
+        status: 'active',
+      },
+    })
+
+    for (const rider of riders) {
+      try {
+        const riderOptions = {
+          email: rider.email,
+          subject: 'Order Notification',
+          html: bulkEmailRiderTemplate(
+            rider.firstName,
+            order.orderNumber,
+            order.vendor.businessName,
+            order.user.residentialAddress,
+            order.quantity,
+            order.cylinderSize
+          ),
+        }
+        await emailSender(riderOptions)
+        console.log('bulk email sent', rider.email)
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
 
     return res.status(200).json({
       message: actionMessages[action],
@@ -709,10 +742,16 @@ exports.updateVendorAccount = async (req, res, next) => {
       })
     }
 
-    const resource = await cloudinary.uploader.upload(file.path)
+    let vendorImage = vendor.vendorImage
+    console.log(vendor)
+
+    if (file) {
+      const resource = await cloudinary.uploader.upload(file.path)
+      vendorImage = resource.secure_url
+    }
 
     const updatedAccount = await vendor.update({
-      vendorImage: resource.secure_url,
+      vendorImage,
       businessPhoneNumber,
       phoneNumber,
       fullName,

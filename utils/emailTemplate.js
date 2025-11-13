@@ -1272,6 +1272,113 @@ const completeOrderStatusTemplate = (
   `;
 };
 
+const bulkEmailRiderTemplate = (
+  riderName,
+  orderNumber,
+  vendorName,
+  deliveryAddress,
+  quantity,
+  cylinderSize
+) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Order Alert - RefillXpress</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f8f9fa;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              width: 90%;
+              max-width: 600px;
+              margin: 30px auto;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+          }
+          .header {
+              background: linear-gradient(90deg, #2563eb, #f97316);
+              padding: 25px;
+              text-align: center;
+              color: #fff;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.6;
+              color: #444;
+          }
+          .order-box {
+              background-color: #dbeafe;
+              color: #2563eb;
+              padding: 15px;
+              margin: 20px 0;
+              border-radius: 8px;
+              font-weight: bold;
+              text-align: center;
+          }
+          .details {
+              background-color: #f3f4f6;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 15px;
+          }
+          .footer {
+              background-color: #f97316;
+              color: #fff7ed;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>New Order Available</h1>
+          </div>
+          <div class="content">
+              <p>Hi ${riderName},</p>
+              <p>A new order has just been placed on <strong>RefillXpress</strong> and may soon be ready for pickup.</p>
+
+              <div class="order-box">
+                  Order Number: <strong>${orderNumber}</strong>
+              </div>
+
+              <div class="details">
+                  <p><strong>Vendor:</strong> ${vendorName}</p>
+                  <p><strong>Delivery Address:</strong> ${deliveryAddress}</p>
+                  <p><strong>Cylinder Size:</strong> ${cylinderSize}kg</p>
+                  <p><strong>Quantity:</strong> ${quantity}kg</p>
+                  <p><strong>Status:</strong> Awaiting Confirmation & Payment</p>
+              </div>
+
+              <p>Keep an eye on your dashboard. Once the vendor confirms and payment is received, this order may be assigned to you.</p>
+              <p>— The RefillXpress Dispatch Team</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} RefillXpress. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+};
 
 
-module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate, acceptOrderStatusTemplate,completeOrderStatusTemplate}
+
+
+module.exports = { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate, kycVerificationTemplate, orderStatusTemplate, vendorSignUpTemplate, resendOtpVendorTemplate , forgotPasswordVendorTemplate, placeOrderTemplate, riderSignUpTemplate, riderResendOtpTemplate, riderForgotPasswordTemplate, acceptOrderStatusTemplate, 
+    bulkEmailRiderTemplate, completeOrderStatusTemplate}
