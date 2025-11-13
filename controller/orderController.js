@@ -300,11 +300,11 @@ exports.confirmOrder = async (req, res, next) => {
       })
     }
 
-    if (order.status !== 'pending') {
-      return res.status(400).json({
-        message: 'No order for acceptance',
-      })
-    }
+    // if (order.status !== 'pending') {
+    //   return res.status(400).json({
+    //     message: 'No order for acceptance',
+    //   })
+    // }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
