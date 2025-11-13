@@ -743,6 +743,7 @@ exports.updateVendorAccount = async (req, res, next) => {
     }
 
     let vendorImage = vendor.vendorImage
+    console.log(vendor)
 
     if (file) {
       const resource = await cloudinary.uploader.upload(file.path)
