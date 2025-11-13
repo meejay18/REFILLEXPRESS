@@ -1,10 +1,11 @@
 const emailSender = require('../middleware/nodemailer')
 const { Op } = require('sequelize')
-const { Vendor, Order, User } = require('../models')
+const { Vendor, Order, User, Rider } = require('../models')
 const {
   placeOrderTemplate,
   acceptOrderStatusTemplate,
   completeOrderStatusTemplate,
+  bulkEmailRiderTemplate,
 } = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
@@ -71,6 +72,32 @@ exports.placeOrder = async (req, res, next) => {
 
     await emailSender(emailOptions)
 
+    // const riders = await Rider.findAll({
+    //   where: {
+    //     status: 'active',
+    //   },
+    // })
+
+    // for (const rider of riders) {
+    //   try {
+    //     const riderOptions = {
+    //       email: rider.email,
+    //       subject: 'Order Notification',
+    //       html: bulkEmailRiderTemplate(
+    //         rider.firstName,
+    //         order.orderNumber,
+    //         vendor.businessName,
+    //         user.residentialAddress,
+    //         order.quantity,
+    //         order.cylinderSize
+    //       ),
+    //     }
+    //     await emailSender(riderOptions)
+    //     // console.log('bulk email sent', rider.email)
+    //   } catch (error) {
+    //     console.log(error.message)
+    //   }
+    // }
     return res.status(201).json({
       message: 'Order created successfully, A rider will be contact you shortly to complete your order',
       order: order,
@@ -484,9 +511,13 @@ exports.getUserOrderTracking = async (req, res, next) => {
           as: 'vendor',
           attributes: ['businessName', 'businessPhoneNumber', 'businessAddress'],
         },
+        {
+          model: Rider,
+          as: 'rider',
+          attributes: ['firstName', 'phoneNumber'],
+        },
       ],
     })
-    // console.log(order)
 
     if (!order) {
       return res.status(404).json({
