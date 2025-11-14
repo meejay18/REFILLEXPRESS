@@ -640,8 +640,8 @@ exports.getUserOrderTracking = async (req, res, next) => {
           phone: order.user.phoneNumber,
         },
         rider: {
-          name: order.rider.firstName,
-          phoneNumber: order.rider.phoneNumber,
+          name: order.rider?.firstName,
+          phoneNumber: order.rider?.phoneNumber,
         },
       },
     })
