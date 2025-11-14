@@ -24,11 +24,11 @@ exports.signUpValidation = async (req, res, next) => {
     }),
     phoneNumber: joi
       .string()
-      .pattern(/^\+234[7-9][0-9]{9}$/)
+      .pattern(/^[7-9][0-9]{9}$/)
       .required()
       .messages({
         'string.empty': 'Phone number is required',
-        'string.pattern.base': 'Phone number must be valid (e.g. +2348012345678)',
+        'string.pattern.base': 'Phone number must be a valid 10-digit number (e.g. 8012345678)',
       }),
 
     password: joi
@@ -126,15 +126,14 @@ exports.vendorSignUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    businessPhoneNumber: joi
+    phoneNumber: joi
       .string()
-      .pattern(/^\+234[7-9][0-9]{9}$/)
+      .pattern(/^[7-9][0-9]{9}$/)
       .required()
       .messages({
         'string.empty': 'Phone number is required',
-        'string.pattern.base': 'Phone number must be valid (e.g. +2348012345678)',
+        'string.pattern.base': 'Phone number must be a valid 10-digit number (e.g. 8012345678)',
       }),
-
     password: joi
       .string()
       .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])([a-zA-Z0-9@$!%*?&]{8,})$'))
