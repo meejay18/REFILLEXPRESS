@@ -290,24 +290,28 @@ exports.getOrderByStatus = async (req, res, next) => {
 
   try {
     const [pending, accepted, active, completed, cancelled] = await Promise.all([
+      // Pending orders
       Order.findAll({
         where: { userId, status: 'pending' },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
       }),
 
+      // Accepted = active + unpaid
       Order.findAll({
         where: { userId, status: 'active', paymentStatus: 'unpaid' },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
       }),
 
+      // Active = active + paid
       Order.findAll({
         where: { userId, status: 'active', paymentStatus: 'paid' },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
       }),
 
+      // Completed = completed + paid
       Order.findAll({
         where: { userId, status: 'completed', paymentStatus: 'paid' },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
@@ -464,6 +468,7 @@ exports.getOneOrder = async (req, res, next) => {
             'openingTime',
             'closingTime',
             'isAvailable',
+            "businessPhoneNumber"
           ],
         },
         {
