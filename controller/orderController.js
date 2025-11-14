@@ -590,11 +590,11 @@ exports.getUserOrderTracking = async (req, res, next) => {
       })
     }
 
-    if (order.riderId === null) {
-      return res.status(400).json({
-        message: 'Tracking info not available, No rider has accepted the order',
-      })
-    }
+    // if (order.riderId === null) {
+    //   return res.status(400).json({
+    //     message: 'Tracking info not available, No rider has accepted the order',
+    //   })
+    // }
 
     const trackingStages = [
       'navigatingToCustomer',
