@@ -97,7 +97,7 @@ module.exports = {
         allowNull: true,
       },
       kycVerificationStatus: {
-        type: DataTypes.ENUM('not completed', 'pending', 'approved', 'rejected'),
+        type: Sequelize.ENUM('not completed', 'pending', 'approved', 'rejected'),
         defaultValue: 'not completed',
       },
       otpExpiredAt: {
