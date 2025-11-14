@@ -16,8 +16,16 @@ const {
   getTotalEarnings,
   getTodaysEarnings,
   getActiveAndCompletedOrders,
+  updateRiderAccount,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
+const upload = require('../middleware/multer')
+const riderUpdateUpload = upload.fields([
+  { name: 'driversLicense', maxCount: 1 },
+  { name: 'vehicleRegistration', maxCount: 1 },
+  { name: 'ownerIdCard', maxCount: 1 },
+  { name: 'utilityBill', maxCount: 1 },
+])
 
 const router = express.Router()
 
@@ -735,7 +743,6 @@ router.get('/rider/:riderId', riderAuthentication, getRiderDashboard)
 
 router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefills)
 
-
 /**
  * @swagger
  * /recent-refills:
@@ -786,8 +793,6 @@ router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefi
 
 router.get('/recent-refills', riderAuthentication, getRecentRefills)
 
-
-
 /**
  * @swagger
  * /total-earnings:
@@ -834,9 +839,7 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *                   example: Internal server error
  */
 
-
 router.get('/total-earnings', riderAuthentication, getTotalEarnings)
-
 
 /**
  * @swagger
@@ -866,8 +869,7 @@ router.get('/total-earnings', riderAuthentication, getTotalEarnings)
  *         description: Server error
  */
 
-router.get('/todays-earnings', riderAuthentication,  getTodaysEarnings)
-
+router.get('/todays-earnings', riderAuthentication, getTodaysEarnings)
 
 /**
  * @swagger
@@ -910,8 +912,9 @@ router.get('/todays-earnings', riderAuthentication,  getTodaysEarnings)
  *         description: Internal server error
  */
 
+router.get('/rider/get/getActiveAndCompletedOrders', riderAuthentication, getActiveAndCompletedOrders)
 
-router.get("/rider/get/getActiveAndCompletedOrders", riderAuthentication, getActiveAndCompletedOrders)
+router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUpload, updateRiderAccount)
 module.exports = router
 
 // riderId

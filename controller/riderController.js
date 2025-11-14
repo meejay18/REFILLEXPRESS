@@ -521,14 +521,77 @@ exports.updateRiderAccount = async (req, res, next) => {
   const { riderId } = req.params
   const { residentialAddress, fullName, phoneNumber, accountName, accountNumber, bankName } = req.body
   try {
-    const rider = await Rider.findByPk(riderId)
+    const rider = await Rider.findOne({
+      where: { id: riderId },
+      include: [
+        {
+          model: RiderKyc,
+          as: 'kyc',
+          attributes: ['driversLicense', 'vehicleRegistration', 'ownerIdCard', 'utilityBill'],
+        },
+      ],
+    })
     if (!rider) {
       return res.status(404).json({
-        message: 'Rider doe not exist',
+        message: 'Rider does not exist',
       })
     }
 
-    const resource = await cloudinary.uploader.upload()
+    const updatedData = {
+      residentialAddress: residentialAddress ?? rider.residentialAddress,
+      fullName: fullName ?? rider.fullName,
+      phoneNumber: phoneNumber ?? rider.phoneNumber,
+      accountName: accountName ?? rider.accountName,
+      accountNumber: accountNumber ?? rider.accountNumber,
+      bankName: bankName ?? rider.bankName,
+    }
+
+    const kycData = {}
+
+    if (files?.driversLicense) {
+      const upload = await cloudinary.uploader.upload(files['driversLicense'][0].path)
+      kycData.driversLicense = upload.secure_url
+    }
+    if (files?.vehicleRegistration) {
+      const upload = await cloudinary.uploader.upload(files['vehicleRegistration'][0].path)
+      kycData.vehicleRegistration = upload.secure_url
+    }
+    if (files?.ownerIdCard) {
+      const upload = await cloudinary.uploader.upload(files['ownerIdCard'][0].path)
+      kycData.ownerIdCard = upload.secure_url
+    }
+    if (files?.utilityBill) {
+      const upload = await cloudinary.uploader.upload(files['utilityBill'][0].path)
+      kycData.utilityBill = upload.secure_url
+    }
+    if (Object.keys(kycData).length > 0) {
+      if (rider.kyc) {
+        await rider.kyc.update(kycData)
+      } else {
+        await RiderKyc.create({ riderId: rider.id, ...kycData })
+      }
+    }
+
+    console.log(files['utilityBill'][0].path)
+    await rider.update(updatedData)
+
+    const refreshedRider = await Rider.findOne({
+      where: { id: riderId },
+      include: [
+        {
+          model: RiderKyc,
+          as: 'kyc',
+          attributes: ['driversLicense', 'vehicleRegistration', 'ownerIdCard', 'utilityBill'],
+        },
+      ],
+    })
+
+    console.log(refreshedRider)
+
+    return res.status(200).json({
+      message: 'Rider account updated successfully',
+      data: refreshedRider,
+    })
   } catch (error) {
     next(error)
   }
