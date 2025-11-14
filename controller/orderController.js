@@ -639,6 +639,10 @@ exports.getUserOrderTracking = async (req, res, next) => {
           address: order.user.phoneNumber,
           phone: order.user.residentialAddress,
         },
+        rider: {
+          name: order.user.firstName,
+          address: order.user.phoneNumber,
+        },
       },
     })
   } catch (error) {
