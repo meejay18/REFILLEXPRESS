@@ -252,7 +252,7 @@ exports.getActiveOrders = async (req, res, next) => {
 exports.getOrderByStatus = async (req, res, next) => {
   const userId = req.user.id
   try {
-    const statuses = ['pending', 'active', 'completed', 'cancelled']
+    const statuses = ['pending', 'accepted', 'active', 'completed', 'cancelled']
     const result = {}
 
     for (const status of statuses) {
@@ -479,7 +479,7 @@ exports.trackOrder = async (req, res, next) => {
       })
     }
 
-    order.status = status
+    // order.status = status
     await order.save()
 
     return res.status(200).json({
