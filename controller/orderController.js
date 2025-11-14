@@ -210,6 +210,7 @@ exports.getAllVendorOrders = async (req, res, next) => {
     const groupedOrders = {
       pending: [],
       active: [],
+      accepted: [],
       completed: [],
       cancelled: [],
     }
@@ -249,32 +250,78 @@ exports.getActiveOrders = async (req, res, next) => {
   }
 }
 
+// exports.getOrderByStatus = async (req, res, next) => {
+//   const userId = req.user.id
+//   try {
+//     const statuses = ['pending', 'active', 'completed', 'cancelled']
+//     const result = {}
+
+//     for (const status of statuses) {
+//       const orders = await Order.findAll({
+//         where: {
+//           userId,
+//           status,
+//         },
+//         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+//         order: [['createdAt', 'DESC']],
+//       })
+//       result[status] = orders
+//     }
+
+//     const accepted = await Order.findAll({
+//       where: {
+//         id: userId,
+//         status: 'active',
+//         paymentStatus: 'unpaid',
+//       },
+//     })
+
+//     return res.status(200).json({
+//       message: 'Orders grouped by status',
+//       data: [result, accepted],
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// }
+
 exports.getOrderByStatus = async (req, res, next) => {
-  const userId = req.user.id
+  const userId = req.user.id;
+
   try {
-    const statuses = ['pending', 'accepted', 'active', 'completed', 'cancelled']
-    const result = {}
+    const statuses = ['pending', 'active', 'completed', 'cancelled'];
+    const result = {};
 
     for (const status of statuses) {
       const orders = await Order.findAll({
-        where: {
-          userId,
-          status,
-        },
+        where: { userId, status },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
-      })
-      result[status] = orders
+      });
+      result[status] = orders;
     }
+
+    const accepted = await Order.findAll({
+      where: {
+        userId,
+        status: 'active', 
+        paymentStatus: 'unpaid',
+      },
+      include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    result.accepted = accepted;
 
     return res.status(200).json({
       message: 'Orders grouped by status',
       data: result,
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+
 
 exports.confirmOrder = async (req, res, next) => {
   const { orderId, userId } = req.params

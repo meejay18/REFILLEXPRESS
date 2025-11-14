@@ -914,6 +914,77 @@ router.get('/todays-earnings', riderAuthentication, getTodaysEarnings)
 
 router.get('/rider/get/getActiveAndCompletedOrders', riderAuthentication, getActiveAndCompletedOrders)
 
+/**
+ * @swagger
+ * /rider/{riderId}/accountUpdate:
+ *   patch:
+ *     summary: Update rider account details and upload KYC documents
+ *     tags: [Rider Dashboard]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: riderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the rider to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               residentialAddress:
+ *                 type: string
+ *                 example: "12 Example Street, Lagos"
+ *               fullName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "08012345678"
+ *               accountName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               accountNumber:
+ *                 type: string
+ *                 example: "0123456789"
+ *               bankName:
+ *                 type: string
+ *                 example: "Access Bank"
+ *               driversLicense:
+ *                 type: string
+ *                 format: binary
+ *               vehicleRegistration:
+ *                 type: string
+ *                 format: binary
+ *               ownerIdCard:
+ *                 type: string
+ *                 format: binary
+ *               utilityBill:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Rider account updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Rider account updated successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Rider'
+ *       404:
+ *         description: Rider not found
+ *       500:
+ *         description: Server error
+ */
+
 router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUpload, updateRiderAccount)
 module.exports = router
 
