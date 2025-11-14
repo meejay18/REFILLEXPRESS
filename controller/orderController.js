@@ -308,7 +308,7 @@ exports.confirmOrder = async (req, res, next) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
-    order.status = 'active'
+    // order.status = 'active'
     order.riderId = riderId
     order.otp = otp
     await order.save()
