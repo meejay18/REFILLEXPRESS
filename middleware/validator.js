@@ -126,7 +126,7 @@ exports.vendorSignUpValidation = async (req, res, next) => {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Invalid email format',
     }),
-    phoneNumber: joi
+    businessPhoneNumber: joi
       .string()
       .pattern(/^[7-9][0-9]{9}$/)
       .required()
