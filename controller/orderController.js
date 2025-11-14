@@ -286,7 +286,7 @@ exports.getActiveOrders = async (req, res, next) => {
 // }
 
 exports.getOrderByStatus = async (req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.user.id
 
   try {
     const [pending, accepted, active, completed, cancelled] = await Promise.all([
@@ -323,7 +323,7 @@ exports.getOrderByStatus = async (req, res, next) => {
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
       }),
-    ]);
+    ])
 
     return res.status(200).json({
       message: 'Orders grouped by status',
@@ -334,12 +334,11 @@ exports.getOrderByStatus = async (req, res, next) => {
         completed,
         cancelled,
       },
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
+}
 
 exports.confirmOrder = async (req, res, next) => {
   const { orderId, userId } = req.params
@@ -468,7 +467,7 @@ exports.getOneOrder = async (req, res, next) => {
             'openingTime',
             'closingTime',
             'isAvailable',
-            "businessPhoneNumber"
+            'businessPhoneNumber',
           ],
         },
         {
@@ -588,6 +587,12 @@ exports.getUserOrderTracking = async (req, res, next) => {
     if (!order) {
       return res.status(404).json({
         message: 'Order not found',
+      })
+    }
+
+    if (order.riderId === null) {
+      return res.status(400).json({
+        message: 'Tracking info not available, No rider has accepted the order',
       })
     }
 
