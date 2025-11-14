@@ -289,33 +289,47 @@ exports.getOrderByStatus = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
-    const statuses = ['pending', 'active', 'completed', 'cancelled'];
-    const result = {};
-
-    for (const status of statuses) {
-      const orders = await Order.findAll({
-        where: { userId, status },
+    const [pending, accepted, active, completed, cancelled] = await Promise.all([
+      Order.findAll({
+        where: { userId, status: 'pending' },
         include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
         order: [['createdAt', 'DESC']],
-      });
-      result[status] = orders;
-    }
+      }),
 
-    const accepted = await Order.findAll({
-      where: {
-        userId,
-        status: 'active', 
-        paymentStatus: 'unpaid',
-      },
-      include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
-      order: [['createdAt', 'DESC']],
-    });
+      Order.findAll({
+        where: { userId, status: 'active', paymentStatus: 'unpaid' },
+        include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+        order: [['createdAt', 'DESC']],
+      }),
 
-    result.accepted = accepted;
+      Order.findAll({
+        where: { userId, status: 'active', paymentStatus: 'paid' },
+        include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+        order: [['createdAt', 'DESC']],
+      }),
+
+      Order.findAll({
+        where: { userId, status: 'completed', paymentStatus: 'paid' },
+        include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+        order: [['createdAt', 'DESC']],
+      }),
+
+      Order.findAll({
+        where: { userId, status: 'cancelled' },
+        include: [{ model: Vendor, as: 'vendor', attributes: ['businessName'] }],
+        order: [['createdAt', 'DESC']],
+      }),
+    ]);
 
     return res.status(200).json({
       message: 'Orders grouped by status',
-      data: result,
+      data: {
+        pending,
+        accepted,
+        active,
+        completed,
+        cancelled,
+      },
     });
   } catch (error) {
     next(error);
