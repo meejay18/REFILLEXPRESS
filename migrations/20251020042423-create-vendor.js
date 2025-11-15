@@ -25,6 +25,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      isNewUser: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
       businessEmail: {
         type: Sequelize.STRING,
         allowNull: false,
