@@ -460,6 +460,55 @@ exports.getTodaysEarnings = async (req, res, next) => {
   }
 }
 
+exports.getEarningsOverview = async (req, res, next) => {
+  const riderId = req.rider.id
+  const now = new Date()
+  const startOfToday = new Date(now.setHours(0, 0, 0, 0))
+  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  try {
+    const [today, thisWeek, thisMonth, pending] = await Promise.all([
+      Delivery.sum('earning', {
+        where: {
+          riderId,
+          createdAt: { [Op.gte]: startOfToday },
+          paymentStatus: 'paid',
+        },
+      }),
+      Delivery.sum('earning', {
+        where: {
+          riderId,
+          createdAt: { [Op.gte]: startOfWeek },
+          paymentStatus: 'paid',
+        },
+      }),
+      Delivery.sum('earning', {
+        where: {
+          riderId,
+          createdAt: { [Op.gte]: startOfMonth },
+          paymentStatus: 'paid',
+        },
+      }),
+      Delivery.sum('earning', {
+        where: {
+          riderId,
+          paymentStatus: 'unpaid',
+        },
+      }),
+    ])
+
+    return res.status(200).json({
+      today: today || 0,
+      thisWeek: thisWeek || 0,
+      thisMonth: thisMonth || 0,
+      pending: pending || 0,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 exports.getActiveAndCompletedOrders = async (req, res, next) => {
   try {
     const riderId = req.rider?.id
@@ -687,7 +736,15 @@ exports.updateRiderAccount = async (req, res, next) => {
 exports.getRiderById = async (req, res, next) => {
   const { riderId } = req.params
   try {
-    const rider = await Rider.findByPk(riderId)
+    const rider = await Rider.findByPk(riderId, {
+      include: [
+        {
+          model: RiderKyc,
+          as: 'kyc',
+          attributes: ['driversLicense', 'vehicleRegistration', 'ownerIdCard', 'utilityBill'],
+        },
+      ],
+    })
     if (!rider) {
       return res.status(404).json({
         message: 'Rider not found',
