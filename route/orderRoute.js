@@ -816,24 +816,25 @@ router.get('/orders/getAllorders', getAllOrders)
 
 router.get('/orders/getOneOrder/:orderId', getOneOrder)
 
+
 /**
  * @swagger
  * /order/tracking/{orderId}/status:
  *   put:
- *     summary: Update the tracking status of an order
- *     description: Allows an authenticated rider to update the current status of an assigned order.
  *     tags:
- *       - Rider Dashboard
+ *       - Rider Orders
+ *     summary: Update the tracking status of an order
+ *     description: Allows an authenticated rider to update the orderStatus of an assigned order.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: orderId
- *         in: path
+ *       - in: path
+ *         name: orderId
  *         required: true
  *         description: ID of the order to update
  *         schema:
  *           type: string
- *           example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
+ *
  *     requestBody:
  *       required: true
  *       content:
@@ -841,9 +842,9 @@ router.get('/orders/getOneOrder/:orderId', getOneOrder)
  *           schema:
  *             type: object
  *             required:
- *               - status
+ *               - orderStatus
  *             properties:
- *               status:
+ *               orderStatus:
  *                 type: string
  *                 enum:
  *                   - navigatingToCustomer
@@ -852,10 +853,11 @@ router.get('/orders/getOneOrder/:orderId', getOneOrder)
  *                   - refillingCylinder
  *                   - returningToCustomer
  *                   - completed
- *                 example: "pickedUpCylinder"
+ *                 example: navigatingToCustomer
+ *
  *     responses:
  *       200:
- *         description: Order tracking status updated successfully
+ *         description: Order status updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -863,23 +865,33 @@ router.get('/orders/getOneOrder/:orderId', getOneOrder)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Order tracking updated to pickedUpCylinder
+ *                   example: Order tracking updated to navigatingToCustomer
  *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       example: "8bfe3a7d-5f42-4c8e-bd7e-2a0bba42b203"
- *                     status:
- *                       type: string
- *                       example: "pickedUpCylinder"
+ *                   $ref: '#/components/schemas/Order'
+ *
  *       400:
- *         description: Invalid status provided
+ *         description: Invalid order status provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid status
+ *
  *       404:
- *         description: Order not found
- *       500:
- *         description: Server error
+ *         description: Order not found for this rider
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
  */
+
 
 router.put('/order/tracking/:orderId/status', riderAuthentication, trackOrder)
 
