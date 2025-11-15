@@ -386,64 +386,59 @@ router.get('/orders/getActiveOrders/:userId', authentication, getActiveOrders)
 
 router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
 
+
+
 /**
  * @swagger
- * /orders/confirmOrder/{orderId}/{userId}:
+ * /orders/confirmOrder/{orderId}:
  *   post:
- *     summary: Confirm a user's order and assign a rider
- *     description: This endpoint allows a rider to confirm an order, generate a one-time OTP, assign themselves to the order, and send a confirmation email to the user.
  *     tags:
  *       - Rider Dashboard
+ *     summary: Confirm an order and assign it to the rider
+ *     description: |
+ *       Allows an authenticated rider to confirm a customer's order.  
+ *       The order is assigned to the rider and a 6-digit OTP is generated and emailed to the customer.
+ *
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
- *       - name: orderId
- *         in: path
+ *       - in: path
+ *         name: orderId
  *         required: true
- *         description: The unique ID of the order to be confirmed.
+ *         description: The unique ID of the order to confirm
  *         schema:
  *           type: string
- *           example: "8c5b68c1-0fa3-4b83-bd5a-47f32df54329"
- *       - name: userId
- *         in: path
- *         required: true
- *         description: The unique ID of the user who placed the order.
- *         schema:
- *           type: string
- *           example: "b1a29f48-df8e-42b4-8b97-153de77c8d29"
+ *
  *     responses:
  *       200:
- *         description: Order confirmed successfully and OTP sent to user via email.
+ *         description: Order confirmed successfully
  *         content:
  *           application/json:
- *             example:
- *               message: "Order confirmed successfully"
- *               data:
- *                 id: "8c5b68c1-0fa3-4b83-bd5a-47f32df54329"
- *                 orderNumber: "ORD-00123"
- *                 userId: "b1a29f48-df8e-42b4-8b97-153de77c8d29"
- *                 riderId: "f9d3f59a-2a4b-4c6e-8264-2f89b1c52c8f"
- *                 status: "active"
- *                 otp: "539284"
- *       400:
- *         description: Order is not pending or cannot be accepted.
- *         content:
- *           application/json:
- *             example:
- *               message: "No order for acceptance"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order confirmed successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Order'
+ *
  *       404:
- *         description: Order not found.
+ *         description: Order not found
  *         content:
  *           application/json:
- *             example:
- *               message: "Order not found"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order not found
+ *
  *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             example:
- *               message: "Internal server error"
+ *         description: Server error
  */
+
 
 router.post('/orders/confirmOrder/:orderId', riderAuthentication, confirmOrder)
 
