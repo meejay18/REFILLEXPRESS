@@ -401,6 +401,7 @@ exports.confirmOrder = async (req, res, next) => {
 
 exports.completeOrder = async (req, res, next) => {
   const { orderId } = req.params
+  const { otp } = req.body
   const riderId = req.rider.id
 
   try {
@@ -419,11 +420,18 @@ exports.completeOrder = async (req, res, next) => {
       return res.status(404).json({ message: 'Order not found or unauthorized' })
     }
 
-    if (order.status !== 'active') {
-      return res.status(400).json({ message: 'Only active orders can be completed' })
+    if (otp !== order.otp) {
+      return res.status(400).json({
+        message: 'Invalid OTP',
+      })
+    }
+
+    if (order.status !== 'active' && order.status !== 'paid') {
+      return res.status(400).json({ message: 'Only active and paid orders can be completed' })
     }
     order.status = 'completed'
     order.completedAt = new Date()
+    order.otp = null
     await order.save()
 
     const emailOptions = {
