@@ -84,6 +84,19 @@ module.exports = {
         ),
         defaultValue: 'pending',
       },
+      orderStatus: {
+        type: Sequelize.ENUM(
+          'pending',
+          'navigatingToCustomer',
+          'pickedUpCylinder',
+          'navigatingToVendor',
+          'refillingCylinder',
+          'returningToCustomer',
+          'completed',
+          'cancelled'
+        ),
+        defaultValue: 'pending',
+      },
       paymentStatus: {
         type: Sequelize.ENUM('unpaid', 'paid', 'failed'),
         defaultValue: 'unpaid',

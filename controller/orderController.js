@@ -512,7 +512,7 @@ exports.getAllOrders = async (req, res, next) => {
 
 exports.trackOrder = async (req, res, next) => {
   const { orderId } = req.params
-  const { status } = req.body
+  const { orderStatus } = req.body
   const riderId = req.rider.id
   try {
     const validStatus = [
@@ -524,7 +524,7 @@ exports.trackOrder = async (req, res, next) => {
       'completed',
     ]
 
-    if (!validStatus.includes(status)) {
+    if (!validStatus.includes(orderStatus)) {
       return res.status(400).json({
         message: 'Invalid status',
       })
@@ -543,11 +543,11 @@ exports.trackOrder = async (req, res, next) => {
       })
     }
 
-    // order.status = status
+    order.orderStatus = orderStatus
     await order.save()
 
     return res.status(200).json({
-      message: `Order tracking updated to ${status}`,
+      message: `Order tracking updated to ${orderStatus}`,
       data: order,
     })
   } catch (error) {

@@ -77,6 +77,18 @@ module.exports = (sequelize, DataTypes) => {
         ),
         defaultValue: 'pending',
       },
+      orderStatus: {
+        type: DataTypes.ENUM(
+          'pending',
+          'navigatingToCustomer',
+          'pickedUpCylinder',
+          'navigatingToVendor',
+          'refillingCylinder',
+          'returningToCustomer',
+          'completed',
+          'cancelled'
+        ),
+      },
       paymentStatus: {
         type: DataTypes.ENUM('unpaid', 'paid', 'failed'),
         defaultValue: 'unpaid',
