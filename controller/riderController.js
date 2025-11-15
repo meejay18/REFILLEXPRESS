@@ -600,7 +600,8 @@ exports.getActiveAndCompletedOrders = async (req, res, next) => {
 exports.updateRiderAccount = async (req, res, next) => {
   const files = req.files
   const { riderId } = req.params
-  const { residentialAddress, fullName, phoneNumber, accountName, accountNumber, bankName } = req.body
+  const { residentialAddress, fullName, phoneNumber, accountName, accountNumber, bankName, riderImage } =
+    req.body
 
   try {
     const rider = await Rider.findOne({
@@ -625,6 +626,11 @@ exports.updateRiderAccount = async (req, res, next) => {
       accountName: accountName ?? rider.accountName,
       accountNumber: accountNumber ?? rider.accountNumber,
       bankName: bankName ?? rider.bankName,
+      riderImage: rider.riderImage,
+    }
+    if (files?.riderImage) {
+      const uploadRiderImage = await cloudinary.uploader.upload(files['riderImage'][0].path)
+      updatedData.riderImage = uploadRiderImage.secure_url
     }
 
     const kycData = {}
@@ -672,6 +678,25 @@ exports.updateRiderAccount = async (req, res, next) => {
     return res.status(200).json({
       message: 'Rider account updated successfully',
       data: refreshedRider,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getRiderById = async (req, res, next) => {
+  const { riderId } = req.params
+  try {
+    const rider = await Rider.findByPk(riderId)
+    if (!rider) {
+      return res.status(404).json({
+        message: 'Rider not found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Rider fetched successfully',
+      data: rider,
     })
   } catch (error) {
     next(error)

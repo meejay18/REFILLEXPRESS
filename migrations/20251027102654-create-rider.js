@@ -29,6 +29,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      riderImage: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
