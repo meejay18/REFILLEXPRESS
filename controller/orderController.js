@@ -529,7 +529,6 @@ exports.trackOrder = async (req, res, next) => {
       'navigatingToVendor',
       'refillingCylinder',
       'returningToCustomer',
-      'completed',
     ]
 
     if (!validStatus.includes(orderStatus)) {
