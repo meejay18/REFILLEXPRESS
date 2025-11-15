@@ -17,10 +17,12 @@ const {
   getTodaysEarnings,
   getActiveAndCompletedOrders,
   updateRiderAccount,
+  getRiderById,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
 const upload = require('../middleware/multer')
 const riderUpdateUpload = upload.fields([
+  { name: 'riderImage', maxCount: 1 },
   { name: 'driversLicense', maxCount: 1 },
   { name: 'vehicleRegistration', maxCount: 1 },
   { name: 'ownerIdCard', maxCount: 1 },
@@ -985,7 +987,158 @@ router.get('/rider/get/getActiveAndCompletedOrders', riderAuthentication, getAct
  *         description: Server error
  */
 
+
+
+/**
+ * @swagger
+ * /rider/{riderId}/accountUpdate:
+ *   patch:
+ *     summary: Update rider account details and KYC documents
+ *     description: Allows an authenticated rider to update their profile details and upload KYC documents such as driver's license, vehicle registration, utility bill, and ID card.
+ *     tags:
+ *       - Rider Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: riderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the rider to update
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 example: John Doe
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+2348123456789"
+ *               residentialAddress:
+ *                 type: string
+ *                 example: 15 New Layout, Lekki Phase 2
+ *               riderImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Rider profile image
+ *               accountName:
+ *                 type: string
+ *                 example: John Doe
+ *               accountNumber:
+ *                 type: string
+ *                 example: "0123456789"
+ *               bankName:
+ *                 type: string
+ *                 example: Access Bank
+ *               driversLicense:
+ *                 type: string
+ *                 format: binary
+ *               vehicleRegistration:
+ *                 type: string
+ *                 format: binary
+ *               ownerIdCard:
+ *                 type: string
+ *                 format: binary
+ *               utilityBill:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Rider account updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Rider account updated successfully
+ *               data:
+ *                 id: 1
+ *                 fullName: John Doe
+ *                 phoneNumber: "+2348123456789"
+ *                 residentialAddress: 15 New Layout, Lekki Phase 2
+ *                 riderImage: https://cloudinary.com/.../image.jpg
+ *                 accountName: John Doe
+ *                 accountNumber: "0123456789"
+ *                 bankName: Access Bank
+ *                 kyc:
+ *                   driversLicense: https://cloudinary.com/.../license.jpg
+ *                   vehicleRegistration: https://cloudinary.com/.../vehicle.jpg
+ *                   ownerIdCard: https://cloudinary.com/.../id.jpg
+ *                   utilityBill: https://cloudinary.com/.../utility.jpg
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Validation error
+ *       404:
+ *         description: Rider not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Rider does not exist
+ *       500:
+ *         description: Server error
+ */
+
+
 router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUpload, updateRiderAccount)
+
+
+/**
+ * @swagger
+ * /getOneRider/{riderId}:
+ *   get:
+ *     summary: Get rider by ID
+ *     description: Fetch a single rider’s details using their rider ID.
+ *     tags:
+ *       - Rider Dashboard
+ *     parameters:
+ *       - in: path
+ *         name: riderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the rider to retrieve
+ *     responses:
+ *       200:
+ *         description: Rider fetched successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Rider fetched successfully
+ *               data:
+ *                 id: 1
+ *                 fullName: John Doe
+ *                 email: johndoe@example.com
+ *                 phoneNumber: "+2348123456789"
+ *                 residentialAddress: 14 Admiralty Road, Lekki
+ *                 riderImage: "https://cloudinary.com/abcd/image.jpg"
+ *                 accountName: John Doe
+ *                 accountNumber: "0123456789"
+ *                 bankName: "Access Bank"
+ *                 createdAt: "2025-01-12T10:15:30.000Z"
+ *                 updatedAt: "2025-02-01T12:40:31.000Z"
+ *       404:
+ *         description: Rider not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Rider not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Something went wrong
+ */
+
+
+router.get("/getOneRider/:riderId", getRiderById)
+
 module.exports = router
 
 // riderId
