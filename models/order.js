@@ -81,6 +81,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('unpaid', 'paid', 'failed'),
         defaultValue: 'unpaid',
       },
+      // amount: {
+      //   type: DataTypes.FLOAT,
+      //   allowNull: false,
+      // },
+      vendorEarning: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
+      riderEarning: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
+      appCommission: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
       scheduledTime: {
         type: DataTypes.STRING,
         allowNull: true,

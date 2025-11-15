@@ -389,7 +389,7 @@ router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
 /**
  * @swagger
  * /orders/confirmOrder/{orderId}/{userId}:
- *   get:
+ *   post:
  *     summary: Confirm a user's order and assign a rider
  *     description: This endpoint allows a rider to confirm an order, generate a one-time OTP, assign themselves to the order, and send a confirmation email to the user.
  *     tags:
@@ -445,7 +445,7 @@ router.get('/orders/getOrderByStatus', authentication, getOrderByStatus)
  *               message: "Internal server error"
  */
 
-router.get('/orders/confirmOrder/:orderId/:userId', riderAuthentication, confirmOrder)
+router.post('/orders/confirmOrder/:orderId', riderAuthentication, confirmOrder)
 
 /**
  * @swagger
