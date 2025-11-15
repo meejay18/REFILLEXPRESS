@@ -28,7 +28,7 @@ module.exports = {
       isNewUser: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: true,
       },
       businessEmail: {
         type: Sequelize.STRING,

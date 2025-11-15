@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       isNewUser: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: true,
       },
       businessEmail: {
         type: DataTypes.STRING,
