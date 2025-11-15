@@ -56,6 +56,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      isNewUser: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
       businessEmail: {
         type: DataTypes.STRING,
         allowNull: false,
