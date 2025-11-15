@@ -430,6 +430,7 @@ exports.completeOrder = async (req, res, next) => {
       return res.status(400).json({ message: 'Only active and paid orders can be completed' })
     }
     order.status = 'completed'
+    order.orderStatus = 'completed'
     order.completedAt = new Date()
     order.otp = null
     await order.save()
