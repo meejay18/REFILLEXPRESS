@@ -250,7 +250,7 @@ exports.Vendorlogin = async (req, res, next) => {
         businessEmail: vendor.businessEmail,
         kycStatus: kyc?.verificationStatus || 'Not submiited',
         showKycPage,
-        isNewUser,
+        isNewUser: vendor.isNewUser,
       },
       token: token,
     })
