@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'vendorId',
         as: 'reviews',
       })
+      Vendor.hasOne(models.Wallet, {
+        foreignKey: 'vendorId',
+        as: 'wallet',
+      })
     }
   }
 
@@ -165,6 +169,11 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true,
     }
   )
+
+  Vendor.afterCreate(async (vendor, options) => {
+    await Wallet.create({ vendorId: vendor.id })
+    console.log('vendor Wallet created')
+  })
 
   return Vendor
 }

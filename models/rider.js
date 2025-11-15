@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: 'vendorId',
         as: 'vendors',
       })
+
+      Rider.hasOne(models.Wallet, {
+        foreignKey: 'riderId',
+        as: 'wallet',
+      })
     }
   }
   Rider.init(
@@ -186,5 +191,12 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true,
     }
   )
+
+  Rider.afterCreate(async (rider, options) => {
+    await Wallet.create({ riderId: rider.id })
+    console.log("Rider wallet created");
+    
+  })
+
   return Rider
 }

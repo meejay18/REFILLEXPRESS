@@ -70,7 +70,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-         status: {
+      status: {
         type: Sequelize.ENUM(
           'pending',
           'active',
@@ -87,6 +87,18 @@ module.exports = {
       paymentStatus: {
         type: Sequelize.ENUM('unpaid', 'paid', 'failed'),
         defaultValue: 'unpaid',
+      },
+      vendorEarning: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      riderEarning: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      appCommission: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
       },
       scheduledTime: {
         type: Sequelize.STRING,

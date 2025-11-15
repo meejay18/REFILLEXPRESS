@@ -341,13 +341,12 @@ exports.getOrderByStatus = async (req, res, next) => {
 }
 
 exports.confirmOrder = async (req, res, next) => {
-  const { orderId, userId } = req.params
+  const { orderId } = req.params
   const riderId = req.rider.id
   try {
     const order = await Order.findOne({
       where: {
         id: orderId,
-        userId,
       },
       include: [
         {
