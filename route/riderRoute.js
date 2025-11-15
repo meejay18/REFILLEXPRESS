@@ -18,6 +18,7 @@ const {
   getActiveAndCompletedOrders,
   updateRiderAccount,
   getRiderById,
+  getEarningsOverview,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
 const upload = require('../middleware/multer')
@@ -987,8 +988,6 @@ router.get('/rider/get/getActiveAndCompletedOrders', riderAuthentication, getAct
  *         description: Server error
  */
 
-
-
 /**
  * @swagger
  * /rider/{riderId}/accountUpdate:
@@ -1084,7 +1083,6 @@ router.get('/rider/get/getActiveAndCompletedOrders', riderAuthentication, getAct
  *         description: Server error
  */
 
-
 router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUpload, updateRiderAccount)
 
 
@@ -1092,53 +1090,58 @@ router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUp
  * @swagger
  * /getOneRider/{riderId}:
  *   get:
- *     summary: Get rider by ID
- *     description: Fetch a single rider’s details using their rider ID.
+ *     summary: Get a single rider by ID
+ *     description: Fetch detailed information about a rider including KYC documents.
  *     tags:
- *       - Rider Dashboard
+ *       - Rider
  *     parameters:
  *       - in: path
  *         name: riderId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the rider to retrieve
+ *         description: Rider's unique ID
  *     responses:
  *       200:
  *         description: Rider fetched successfully
  *         content:
  *           application/json:
  *             example:
- *               message: Rider fetched successfully
+ *               message: "Rider fetched successfully"
  *               data:
  *                 id: 1
- *                 fullName: John Doe
- *                 email: johndoe@example.com
- *                 phoneNumber: "+2348123456789"
- *                 residentialAddress: 14 Admiralty Road, Lekki
- *                 riderImage: "https://cloudinary.com/abcd/image.jpg"
- *                 accountName: John Doe
+ *                 fullName: "John Doe"
+ *                 phoneNumber: "+2348012345678"
+ *                 residentialAddress: "12 Lekki Phase 1, Lagos"
+ *                 accountName: "John Doe"
  *                 accountNumber: "0123456789"
- *                 bankName: "Access Bank"
- *                 createdAt: "2025-01-12T10:15:30.000Z"
- *                 updatedAt: "2025-02-01T12:40:31.000Z"
+ *                 bankName: "GTBank"
+ *                 riderImage: "https://cloudinary.com/rider-image.jpg"
+ *                 createdAt: "2025-01-10T12:00:00.000Z"
+ *                 updatedAt: "2025-01-10T12:00:00.000Z"
+ *                 kyc:
+ *                   driversLicense: "https://cloudinary.com/drivers-license.jpg"
+ *                   vehicleRegistration: "https://cloudinary.com/vehicle-reg.jpg"
+ *                   ownerIdCard: "https://cloudinary.com/owner-id.jpg"
+ *                   utilityBill: "https://cloudinary.com/utility-bill.jpg"
  *       404:
  *         description: Rider not found
  *         content:
  *           application/json:
  *             example:
- *               message: Rider not found
+ *               message: "Rider not found"
  *       500:
- *         description: Internal server error
+ *         description: Internal Server Error
  *         content:
  *           application/json:
  *             example:
- *               message: Something went wrong
+ *               message: "Internal server error"
  */
 
 
-router.get("/getOneRider/:riderId", getRiderById)
+router.get('/getOneRider/:riderId', getRiderById)
 
+router.get('/getEarnings/overview', riderAuthentication, getEarningsOverview)
 module.exports = router
 
 // riderId
