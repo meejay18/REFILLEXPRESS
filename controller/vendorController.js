@@ -235,6 +235,14 @@ exports.Vendorlogin = async (req, res, next) => {
 
     const kyc = await VendorKyc.findOne({ where: { vendorId: vendor.id } })
 
+    if (!kyc || vendor.pricePerKg == null || vendor.openingTime === null) {
+      vendor.isNewUser = true
+    } else {
+      vendor.isNewUser = false
+    }
+
+    await vendor.save()
+
     const showKycPage = !kyc || ['not submitted', 'rejected'].includes(kyc.verificationStatus?.toLowerCase())
 
     const token = jwt.sign({ id: vendor.id, businessEmail: vendor.businessEmail }, process.env.JWT_SECRET, {
