@@ -170,10 +170,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   )
 
-  Vendor.afterCreate(async (vendor, options) => {
-    await Wallet.create({ vendorId: vendor.id })
-    console.log('vendor Wallet created')
-  })
+  // Vendor.afterCreate(async (vendor, options) => {
+  //   await Wallet.create({ vendorId: vendor.id })
+  //   console.log('vendor Wallet created')
+  // })
 
   return Vendor
 }

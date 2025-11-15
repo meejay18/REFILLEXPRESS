@@ -192,11 +192,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   )
 
-  Rider.afterCreate(async (rider, options) => {
-    await Wallet.create({ riderId: rider.id })
-    console.log("Rider wallet created");
+  // Rider.afterCreate(async (rider, options) => {
+  //   await Wallet.create({ riderId: rider.id })
+  //   console.log("Rider wallet created");
     
-  })
+  // })
 
   return Rider
 }
