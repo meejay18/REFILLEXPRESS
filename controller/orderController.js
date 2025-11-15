@@ -621,7 +621,7 @@ exports.getUserOrderTracking = async (req, res, next) => {
       completed: 5,
     }
 
-    const currentStageIndex = stageMap[order.status] ?? 0
+    const currentStageIndex = stageMap[order.orderStatus] ?? 0
 
     return res.status(200).json({
       message: 'Order status fetched successfully',
