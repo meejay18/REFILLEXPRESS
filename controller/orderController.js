@@ -645,6 +645,7 @@ exports.getUserOrderTracking = async (req, res, next) => {
           name: order.user.firstName,
           address: order.user.residentialAddress,
           phone: order.user.phoneNumber,
+          otp: order.otp
         },
         rider: {
           name: order.rider?.firstName,
