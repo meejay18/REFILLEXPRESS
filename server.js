@@ -4,7 +4,25 @@ const sequelize = require('./database/database')
 const PORT = 3500
 const app = express()
 const cors = require('cors')
-app.use(cors('*'))
+const allowedOrigins = ['http://localhost:5173', 'https://refillexpress.onrender.com']
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+  }
+
+  res.header('Access-Control-Allow-Credentials', true)
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200)
+  }
+
+  next()
+})
 app.use(express.json())
 const morgan = require('morgan')
 app.use(morgan('dev'))
