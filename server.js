@@ -4,17 +4,18 @@ const sequelize = require('./database/database')
 const PORT = 3500
 const app = express()
 const cors = require('cors')
-const allowedOrigins = ['http://localhost:5173', 'https://refillexpress.onrender.com']
+const allowedOrigins = ['http://localhost:5173', 'https://refill-xpress.vercel.app/']
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-)
-app.options('/', cors())
+// app.use(
+//   cors({
+//     origin: allowedOrigins,
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//   })
+// )
+// app.options('*', cors())
+app.use(cors('*'))
 app.use(express.json())
 const morgan = require('morgan')
 app.use(morgan('dev'))
