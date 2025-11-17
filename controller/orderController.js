@@ -207,12 +207,19 @@ exports.getAllVendorOrders = async (req, res, next) => {
       order: [['createdAt', 'DESC']],
     })
 
-    const statusOrder = ['pending', 'active', 'accepted', 'completed', 'cancelled']
+    const groupedOrders = {
+      pending: [],
+      active: [],
+      accepted: [],
+      completed: [],
+      cancelled: [],
+    }
 
-    const groupedOrders = statusOrder.map((status) => ({
-      status,
-      orders: orders.filter((o) => o.status === status),
-    }))
+    orders.forEach((order) => {
+      if (groupedOrders[order.status]) {
+        groupedOrders[order.status].push(order)
+      }
+    })
 
     return res.status(200).json({
       message: 'Orders retrieved by status',
@@ -638,7 +645,7 @@ exports.getUserOrderTracking = async (req, res, next) => {
           name: order.user.firstName,
           address: order.user.residentialAddress,
           phone: order.user.phoneNumber,
-          otp: order.otp,
+          otp: order.otp
         },
         rider: {
           name: order.rider?.firstName,
