@@ -1,7 +1,7 @@
 const emailSender = require('../middleware/nodemailer')
-const { Rider, Order, RiderKyc, Vendor } = require('../models')
+const { Rider, Order, RiderKyc, Vendor, Review } = require('../models')
 const bcrypt = require('bcryptjs')
-const { Op, where } = require('sequelize')
+const { Op } = require('sequelize')
 const cloudinary = require('../config/cloudinary')
 
 const {
@@ -10,7 +10,7 @@ const {
   riderForgotPasswordTemplate,
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
-const { status } = require('init')
+
 
 exports.RiderSignUp = async (req, res, next) => {
   try {
@@ -387,6 +387,79 @@ exports.getRiderDashboard = async (req, res, next) => {
   }
 }
 
+// const { Order, Review } = require('../models');
+// const { Op } = require('sequelize');
+
+exports.riderDashboardSummary = async (req, res, next) => {
+  const riderId = req.rider.id;
+
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Earnings (today's deliveryFee)
+    const todayEarnings = await Order.sum('deliveryFee', {
+      where: {
+        riderId,
+        status: 'completed',
+        updatedAt: { [Op.between]: [todayStart, todayEnd] },
+      },
+    });
+
+    // Refills (count of completed orders today)
+    const todayRefills = await Order.count({
+      where: {
+        riderId,
+        status: 'completed',
+        updatedAt: { [Op.between]: [todayStart, todayEnd] },
+      },
+    });
+
+    // Active Time (simulated as time since first order today)
+    const firstOrder = await Order.findOne({
+      where: {
+        riderId,
+        createdAt: { [Op.between]: [todayStart, todayEnd] },
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    let activeTime = '00:00';
+    if (firstOrder) {
+      const now = new Date();
+      const start = new Date(firstOrder.createdAt);
+      const diffMs = now - start;
+      const minutes = Math.floor(diffMs / 60000);
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      activeTime = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+    }
+
+    // Rating
+    const ratings = await Review.findAll({ where: { riderId }, attributes: ['rating'] });
+    const averageRating =
+      ratings.length > 0
+        ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+        : '0.0';
+
+    return res.status(200).json({
+      message: 'Rider dashboard summary retrieved successfully',
+      data: {
+        earnings: `₦${todayEarnings?.toFixed(2) || '0.00'}`,
+        refills: todayRefills,
+        activeTime,
+        rating: averageRating,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 exports.getAvailableRefills = async (req, res, next) => {
   try {
     const refills = await Order.findAll({
@@ -460,54 +533,54 @@ exports.getTodaysEarnings = async (req, res, next) => {
   }
 }
 
-exports.getEarningsOverview = async (req, res, next) => {
-  const riderId = req.rider.id
-  const now = new Date()
-  const startOfToday = new Date(now.setHours(0, 0, 0, 0))
-  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+// exports.getEarningsOverview = async (req, res, next) => {
+//   const riderId = req.rider.id
+//   const now = new Date()
+//   const startOfToday = new Date(now.setHours(0, 0, 0, 0))
+//   const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
+//   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-  try {
-    const [today, thisWeek, thisMonth, pending] = await Promise.all([
-      Delivery.sum('earning', {
-        where: {
-          riderId,
-          createdAt: { [Op.gte]: startOfToday },
-          paymentStatus: 'paid',
-        },
-      }),
-      Delivery.sum('earning', {
-        where: {
-          riderId,
-          createdAt: { [Op.gte]: startOfWeek },
-          paymentStatus: 'paid',
-        },
-      }),
-      Delivery.sum('earning', {
-        where: {
-          riderId,
-          createdAt: { [Op.gte]: startOfMonth },
-          paymentStatus: 'paid',
-        },
-      }),
-      Delivery.sum('earning', {
-        where: {
-          riderId,
-          paymentStatus: 'unpaid',
-        },
-      }),
-    ])
+//   try {
+//     const [today, thisWeek, thisMonth, pending] = await Promise.all([
+//       Delivery.sum('earning', {
+//         where: {
+//           riderId,
+//           createdAt: { [Op.gte]: startOfToday },
+//           paymentStatus: 'paid',
+//         },
+//       }),
+//       Delivery.sum('earning', {
+//         where: {
+//           riderId,
+//           createdAt: { [Op.gte]: startOfWeek },
+//           paymentStatus: 'paid',
+//         },
+//       }),
+//       Delivery.sum('earning', {
+//         where: {
+//           riderId,
+//           createdAt: { [Op.gte]: startOfMonth },
+//           paymentStatus: 'paid',
+//         },
+//       }),
+//       Delivery.sum('earning', {
+//         where: {
+//           riderId,
+//           paymentStatus: 'unpaid',
+//         },
+//       }),
+//     ])
 
-    return res.status(200).json({
-      today: today || 0,
-      thisWeek: thisWeek || 0,
-      thisMonth: thisMonth || 0,
-      pending: pending || 0,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
+//     return res.status(200).json({
+//       today: today || 0,
+//       thisWeek: thisWeek || 0,
+//       thisMonth: thisMonth || 0,
+//       pending: pending || 0,
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
 exports.getActiveAndCompletedOrders = async (req, res, next) => {
   try {

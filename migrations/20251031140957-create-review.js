@@ -29,6 +29,16 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
+      riderId: { 
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'riders',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       rating: {
         type: Sequelize.INTEGER,
         allowNull: false
