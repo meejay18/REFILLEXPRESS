@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user',
       })
       Review.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' })
+      Review.belongsTo(models.Rider, { foreignKey: 'riderId', as: 'rider' })
     }
   }
   Review.init(
@@ -28,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
       },
       vendorId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      riderId: {
         type: DataTypes.UUID,
         allowNull: false,
       },

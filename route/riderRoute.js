@@ -19,6 +19,7 @@ const {
   updateRiderAccount,
   getRiderById,
   getEarningsOverview,
+  riderDashboardSummary,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
 const upload = require('../middleware/multer')
@@ -1141,7 +1142,50 @@ router.patch('/rider/:riderId/accountUpdate', riderAuthentication, riderUpdateUp
 
 router.get('/getOneRider/:riderId', getRiderById)
 
-router.get('/getEarnings/overview', riderAuthentication, getEarningsOverview)
+
+/**
+ * @swagger
+ * /rider/dashboard/overview:
+ *   get:
+ *     summary: Get rider dashboard summary
+ *     tags:
+ *       - Rider Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     description: Returns earnings, refills count, active time, and rating for a rider for the current day.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved dashboard summary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Rider dashboard summary retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     earnings:
+ *                       type: string
+ *                       example: "₦1500.00"
+ *                     refills:
+ *                       type: integer
+ *                       example: 3
+ *                     activeTime:
+ *                       type: string
+ *                       example: "02:15"
+ *                     rating:
+ *                       type: string
+ *                       example: "4.5"
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       500:
+ *         description: Server error
+ */
+
+router.get('/rider/dashboard/overview', riderAuthentication, riderDashboardSummary)
 module.exports = router
 
 // riderId
