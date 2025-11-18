@@ -405,7 +405,6 @@ exports.riderDashboardSummary = async (req, res, next) => {
       where: {
         riderId,
         status: 'completed',
-        updatedAt: { [Op.between]: [todayStart, todayEnd] },
       },
     });
 
