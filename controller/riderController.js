@@ -11,7 +11,6 @@ const {
 } = require('../utils/emailTemplate')
 const jwt = require('jsonwebtoken')
 
-
 exports.RiderSignUp = async (req, res, next) => {
   try {
     const { firstName, lastName, email, phoneNumber, password, operatingArea } = req.body
@@ -391,14 +390,14 @@ exports.getRiderDashboard = async (req, res, next) => {
 // const { Op } = require('sequelize');
 
 exports.riderDashboardSummary = async (req, res, next) => {
-  const riderId = req.rider.id;
+  const riderId = req.rider.id
 
   try {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
 
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const todayEnd = new Date()
+    todayEnd.setHours(23, 59, 59, 999)
 
     // Earnings (today's deliveryFee)
     const todayEarnings = await Order.sum('deliveryFee', {
@@ -406,7 +405,7 @@ exports.riderDashboardSummary = async (req, res, next) => {
         riderId,
         status: 'completed',
       },
-    });
+    })
 
     // Refills (count of completed orders today)
     const todayRefills = await Order.count({
@@ -415,7 +414,7 @@ exports.riderDashboardSummary = async (req, res, next) => {
         status: 'completed',
         updatedAt: { [Op.between]: [todayStart, todayEnd] },
       },
-    });
+    })
 
     // Active Time (simulated as time since first order today)
     const firstOrder = await Order.findOne({
@@ -424,25 +423,23 @@ exports.riderDashboardSummary = async (req, res, next) => {
         createdAt: { [Op.between]: [todayStart, todayEnd] },
       },
       order: [['createdAt', 'ASC']],
-    });
+    })
 
-    let activeTime = '00:00';
+    let activeTime = '00:00'
     if (firstOrder) {
-      const now = new Date();
-      const start = new Date(firstOrder.createdAt);
-      const diffMs = now - start;
-      const minutes = Math.floor(diffMs / 60000);
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      activeTime = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+      const now = new Date()
+      const start = new Date(firstOrder.createdAt)
+      const diffMs = now - start
+      const minutes = Math.floor(diffMs / 60000)
+      const hours = Math.floor(minutes / 60)
+      const mins = minutes % 60
+      activeTime = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
     }
 
     // Rating
-    const ratings = await Review.findAll({ where: { riderId }, attributes: ['rating'] });
+    const ratings = await Review.findAll({ where: { riderId }, attributes: ['rating'] })
     const averageRating =
-      ratings.length > 0
-        ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
-        : '0.0';
+      ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1) : '0.0'
 
     return res.status(200).json({
       message: 'Rider dashboard summary retrieved successfully',
@@ -452,12 +449,11 @@ exports.riderDashboardSummary = async (req, res, next) => {
         activeTime,
         rating: averageRating,
       },
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
+}
 
 exports.getAvailableRefills = async (req, res, next) => {
   try {
@@ -485,20 +481,56 @@ exports.getRecentRefills = async (req, res, next) => {
   }
 }
 
-exports.getTotalEarnings = async (req, res, next) => {
+exports.getTotalRiderEarnings = async (req, res, next) => {
   try {
     const riderId = req.rider?.id
 
+    // GET ALL COMPLETED ORDERS FOR RIDER
     const orders = await Order.findAll({
       where: { riderId, status: 'completed' },
-      attributes: ['totalPrice'],
+      attributes: ['totalPrice', 'createdAt'],
     })
+    const now = new Date()
 
-    const totalEarnings = orders.reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(now)
+    todayEnd.setHours(23, 59, 59, 999)
 
-    res.status(200).json({
-      message: 'Total earnings calculated successfully',
-      totalEarnings,
+    const weekStart = new Date(now)
+    const dayOfWeek = weekStart.getDay() === 0 ? 7 : weekStart.getDay()
+    weekStart.setDate(weekStart.getDate() - (dayOfWeek - 1))
+    weekStart.setHours(0, 0, 0, 0)
+
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+    weekEnd.setHours(23, 59, 59, 999)
+
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthStart.setHours(0, 0, 0, 0)
+
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    monthEnd.setHours(23, 59, 59, 999)
+
+    const calc = (filterFn) =>
+      orders.filter(filterFn).reduce((sum, order) => sum + order.totalPrice * 0.05, 0)
+
+    const today = calc((o) => o.createdAt >= todayStart && o.createdAt <= todayEnd)
+    const week = calc((o) => o.createdAt >= weekStart && o.createdAt <= weekEnd)
+    const month = calc((o) => o.createdAt >= monthStart && o.createdAt <= monthEnd)
+    const total = calc(() => true)
+
+    const pending = 0
+
+    return res.status(200).json({
+      message: 'Earnings calculated successfully',
+      earnings: {
+        today,
+        week,
+        month,
+        pending,
+        total,
+      },
     })
   } catch (error) {
     next(error)
