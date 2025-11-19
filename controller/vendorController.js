@@ -455,7 +455,9 @@ exports.changeVendorPassword = async (req, res, next) => {
 
 exports.getAllvendors = async (req, res, next) => {
   try {
-    const vendors = await Vendor.findAll()
+    const vendors = await Vendor.findAll({
+      order: [['createdAt', 'DESC']]
+    })
 
     if (vendors.length === 0) {
       return res.status(400).json({
