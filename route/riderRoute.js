@@ -20,6 +20,7 @@ const {
   getRiderById,
   getEarningsOverview,
   riderDashboardSummary,
+  getTotalRiderEarnings,
 } = require('../controller/riderController')
 const { riderAuthentication } = require('../middleware/authentication')
 const upload = require('../middleware/multer')
@@ -797,19 +798,20 @@ router.get('/rider/get/available-refills', riderAuthentication, getAvailableRefi
 
 router.get('/recent-refills', riderAuthentication, getRecentRefills)
 
+
 /**
  * @swagger
- * /total-earnings:
+ * /rider/total/earnings:
  *   get:
- *     summary: Get total earnings for the authenticated rider
- *     description: Calculates the total earnings of a rider based on all completed orders. Each completed order contributes 5% of its total price to the rider's earnings.
+ *     summary: Get rider's total earnings breakdown
+ *     description: Returns today's earnings, weekly earnings, monthly earnings, pending earnings, and total earnings for the authenticated rider.
  *     tags:
  *       - Rider Dashboard
  *     security:
- *       - bearerAuth: []    # Requires rider authentication
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Total earnings calculated successfully
+ *         description: Earnings calculated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -817,33 +819,51 @@ router.get('/recent-refills', riderAuthentication, getRecentRefills)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Total earnings calculated successfully
- *                 totalEarnings:
- *                   type: number
- *                   example: 7500.50
- *       400:
- *         description: Rider ID missing or invalid
+ *                   example: Earnings calculated successfully
+ *                 earnings:
+ *                   type: object
+ *                   properties:
+ *                     today:
+ *                       type: number
+ *                       example: 1200
+ *                     week:
+ *                       type: number
+ *                       example: 5400
+ *                     month:
+ *                       type: number
+ *                       example: 21000
+ *                     pending:
+ *                       type: number
+ *                       example: 0
+ *                     total:
+ *                       type: number
+ *                       example: 35000
+ *
+ *       401:
+ *         description: Unauthorized - rider not authenticated
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 error:
  *                   type: string
- *                   example: Rider ID missing
+ *                   example: Unauthorized
+ *
  *       500:
- *         description: Server error while fetching earnings
+ *         description: Server error while calculating earnings
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 error:
  *                   type: string
- *                   example: Internal server error
+ *                   example: Failed to calculate earnings
  */
 
-router.get('/total-earnings', riderAuthentication, getTotalEarnings)
+
+router.get('/rider/total/earnings', riderAuthentication, getTotalRiderEarnings)
 
 /**
  * @swagger
