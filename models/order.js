@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Order.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
       Order.belongsTo(models.Vendor, { foreignKey: 'vendorId', as: 'vendor' })
       Order.belongsTo(models.Rider, { foreignKey: 'riderId', as: 'rider' })
+      
     }
   }
 

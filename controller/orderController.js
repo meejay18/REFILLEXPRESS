@@ -9,7 +9,7 @@ const {
 } = require('../utils/emailTemplate')
 
 exports.placeOrder = async (req, res, next) => {
-  const { cylinderSize, quantity, deliveryAddress, scheduledTime } = req.body
+  const { cylinderSize, quantity, deliveryAddress, scheduledTime, deliveryFee } = req.body
   const { vendorId } = req.params
   try {
     const userId = req.user.id
@@ -31,7 +31,7 @@ exports.placeOrder = async (req, res, next) => {
       })
     }
 
-    const deliveryFee = 2500
+    // const deliveryFee = 2500
     const unitPrice = parseFloat(vendor.pricePerKg)
     const totalPrice = unitPrice * quantity + deliveryFee
 
