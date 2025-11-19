@@ -1,5 +1,5 @@
 const emailSender = require('../middleware/nodemailer')
-const { User } = require('../models')
+const { User, Order } = require('../models')
 const { Vendor } = require('../models')
 const bcrypt = require('bcryptjs')
 const { signUpTemplate, resendOtpTemplate, forgotPasswordTemplate } = require('../utils/emailTemplate')
@@ -479,8 +479,6 @@ exports.getNearbyVendors = async (req, res, next) => {
       where: { verificationStatus: 'approved' },
       order: [['createdAt', 'DESC']],
     })
-
-    // console.log(vendors);
 
     return res.status(200).json({
       message: 'Nearby vendors retrieved successfully',

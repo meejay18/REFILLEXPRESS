@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         as: 'customers',
       })
 
+      // Vendor.hasMany(models.Order, { foreignKey: 'vendorId', as: 'orders' })
+
       Vendor.hasOne(models.VendorKyc, {
         foreignKey: 'vendorId',
         as: 'kyc',
