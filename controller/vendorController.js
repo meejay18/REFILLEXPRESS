@@ -465,6 +465,7 @@ exports.getAllvendors = async (req, res, next) => {
         data: [],
       })
     }
+    // const filteredVendors
 
     return res.status(200).json({
       message: 'Vendors retrieved successfully',
