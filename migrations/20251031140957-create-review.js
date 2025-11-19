@@ -9,53 +9,61 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
+
       userId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id'
-        }, 
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      vendorId: { 
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'Vendors',
+          model: 'Users',    
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      riderId: { 
+
+      vendorId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'riders',
+          model: 'Vendors',  
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+
+      riderId: {
+        type: Sequelize.UUID,
+        allowNull: true,     // FIX REQUIRED for SET NULL
+        references: {
+          model: 'Riders',   // FIX CASE SENSITIVITY
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
+
       rating: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+
       message: {
         type: Sequelize.TEXT,
         allowNull: false
       },
+
       timestamp: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
       },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
       },
+
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -64,7 +72,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('Reviews');
   }
 };
