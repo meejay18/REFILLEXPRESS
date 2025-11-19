@@ -476,12 +476,12 @@ exports.getUserProfile = async (req, res, next) => {
 exports.getNearbyVendors = async (req, res, next) => {
   try {
     const vendors = await Vendor.findAll({
-      where: { isAvailable: true },
-      order: [['rating', 'DESC']],
+      where: { verificationStatus: 'approved' },
+      order: [['createdAt', 'DESC']],
     })
 
-    console.log(vendors);
-    
+    // console.log(vendors);
+
     return res.status(200).json({
       message: 'Nearby vendors retrieved successfully',
       data: vendors,
