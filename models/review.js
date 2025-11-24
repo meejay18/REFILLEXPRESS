@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       riderId: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
       },
       rating: {
         type: DataTypes.INTEGER,
